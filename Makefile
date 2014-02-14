@@ -23,3 +23,7 @@ ekes:
 
 rekes:
 	$(CC) $(CFLAGS) $(INCS) libkes2.h kes_rec_enumerate.c $(LIBS) -o kes_rec_enumerate
+
+
+test:
+	$(CC) $(CFLAGS) $(INCS) libkes2.h test.c $(LIBS) -o test

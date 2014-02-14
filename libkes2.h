@@ -24,7 +24,7 @@
 /*#include "arith.h"*/
 
 
-#define NCHECKDIGITS 5
+#define NCHECKDIGITS 20
 
 
 int find_extension(fmpq_poly_t En, const fmpq_poly_t Pn, const int nu, const int loglevel);
@@ -632,15 +632,20 @@ long validate_positive_weights(const fmpcb_ptr weights,
 
 
 void integrate(fmpq_t M, const int n) {
-    integrate_hermite_phy(M, n);
+    integrate_hermite_pro(M, n);
 }
 
 
-void integrate_hermite_phy(fmpq_t I, const int n) {
+void integrate_hermite_pro(fmpq_t I, const int n) {
     /* Integrate
      *
-     * I = \int_{-\infty}^\infty \exp(-x^2) x^n dx
+     * I = \int_{-\infty}^\infty \exp(-x^2/2) x^n dx
      *
+     * n even:  I = \Gamma{\frac{n+1}{2}}
+     * n odd:   I = 0
+     *
+     * 1  0  1  0  3  0  15  0  105  0  945  0  10395  0  135135
+     * We omit a factor of \sqrt{2\pi}
      */
     int i;
     fmpz_t tmp;
@@ -661,11 +666,16 @@ void integrate_hermite_phy(fmpq_t I, const int n) {
 }
 
 
-void integrate_hermite_pro(fmpq_t I, const int n) {
+void integrate_hermite_phy(fmpq_t I, const int n) {
     /* Integrate
      *
-     * I = \int_{-\infty}^\infty \exp(-x^2) x^n dx
+     * I = \int_{-\infty}^\infty \exp(-x^2/2) x^n dx
      *
+     * n even:  I = 2^{\frac{n+1}{2}} \Gamma{\frac{n+1}{2}}
+     * n odd:   I = 0
+     *
+     * 1  0  1/2  0  3/4  0  15/8  0  105/16  0  945/32  0  10395/64  0  135135/128
+     * We omit a factor of \sqrt{\pi}
      */
     int i;
     fmpz_t tmp;
@@ -680,7 +690,7 @@ void integrate_hermite_pro(fmpq_t I, const int n) {
             fmpz_set_ui(tmp, 2*i - 1);
             fmpq_mul_fmpz(I, I, tmp);
         }
-        fmpq_mul_2exp(I, I, (n+1)/2);
+        fmpq_div_2exp(I, I, n/2);
     }
 
     fmpz_clear(tmp);
