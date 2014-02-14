@@ -17,3 +17,9 @@ LIBS=-L$(CURDIR) -L$(FLINT_LIB_DIR) -L$(GMP_LIB_DIR) -L$(MPFR_LIB_DIR) -larb -lf
 
 bkes:
 	$(CC) $(CFLAGS) $(INCS) libkes2.h kes.c $(LIBS) -o kes
+
+ekes:
+	$(CC) $(CFLAGS) $(INCS) libkes2.h kes_enumerate.c $(LIBS) -o kes_enumerate
+
+rekes:
+	$(CC) $(CFLAGS) $(INCS) libkes2.h kes_rec_enumerate.c $(LIBS) -o kes_rec_enumerate

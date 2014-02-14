@@ -93,21 +93,21 @@ int main(int argc, char* argv[]) {
     fmpq_poly_init(Ep);
     solvable = find_multi_extension(Ep, Pn, k, levels, validate_extension, loglevel);
 
-    fmpq_poly_mul(Pn, Pn, Ep);
-    fmpq_poly_canonicalise(Pn);
-    if(! fmpq_poly_is_squarefree(Pn)) {
-	printf(" =====>  NOT SQF  <=====");
-    }
-
-    if(loglevel >= 2) {
-	printf("-------------------------------------------------\n");
-        printf("Ending with final polynomial:\n");
-        strf = fmpq_poly_get_str_pretty(Pn, "t");
-        flint_printf("P : %s\n", strf);
-    }
-
-
     if(solvable) {
+
+	fmpq_poly_mul(Pn, Pn, Ep);
+	fmpq_poly_canonicalise(Pn);
+	if(! fmpq_poly_is_squarefree(Pn)) {
+	    printf(" =====>  FINAL POLYNOMIAL NOT SQF  <=====");
+	}
+
+	if(loglevel >= 2) {
+	    printf("-------------------------------------------------\n");
+	    printf("Ending with final polynomial:\n");
+	    strf = fmpq_poly_get_str_pretty(Pn, "t");
+	    flint_printf("P : %s\n", strf);
+	}
+
 	deg = fmpq_poly_degree(Pn);
 	nodes = _fmpcb_vec_init(deg);
 	weights = _fmpcb_vec_init(deg);

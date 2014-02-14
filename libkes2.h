@@ -30,6 +30,8 @@
 int find_extension(fmpq_poly_t En, const fmpq_poly_t Pn, const int nu, const int loglevel);
 int find_multi_extension(fmpq_poly_t, const fmpq_poly_t, const int, const int[], const int, const int);
 
+void recursive_enumerate(const fmpq_poly_t, const int, const int, const int, const int, fmpz_mat_t, const int);
+
 inline void compute_nodes(fmpcb_ptr, const fmpq_poly_t, const long, const int);
 void compute_nodes_and_weights(fmpcb_ptr, fmpcb_ptr, const fmpq_poly_t, const long, const int);
 
@@ -39,8 +41,6 @@ int validate_extension_by_roots(const fmpcb_ptr, const long, const long, const i
 int validate_extension_by_weights(const fmpcb_ptr, const long, const long, const int);
 long validate_real_roots(const fmpcb_ptr, const long, const long, const int);
 long validate_positive_weights(const fmpcb_ptr, const long, const long, const int);
-
-/*void recursive_enumerate(const fmpq_poly_t, const int, const int, const int, const int, fmpz_mat_t, const int);*/
 
 void integrate(fmpq_t M, const int n);
 void integrate_hermite_pro(fmpq_t I, const int n);
@@ -261,6 +261,76 @@ int find_multi_extension(fmpq_poly_t En,
 }
 
 
+void recursive_enumerate(const fmpq_poly_t Pn,
+                         const int n,
+                         const int maxp,
+                         const int rec,
+                         const int maxrec,
+                         fmpz_mat_t table,
+                         const int loglevel) {
+    /* Recursively enumerate quadrature rules
+     */
+    int p;
+    int solvable, valid;
+    long nrroots;
+    fmpq_poly_t Pnp1, Enp1, En;
+
+    ps(1, loglevel, rec);
+    logit(1, loglevel, "Trying to find extension of (on layer %i):\n", rec);
+
+    fmpq_poly_init(Pnp1);
+    fmpq_poly_init(En);
+    fmpq_poly_init(Enp1);
+
+    /* Loop over possible (non-recursive) extensions  */
+    for(p = 1/*(n-1)/2+1*/; p <= maxp; p++) {
+
+        solvable = find_extension(En, Pn, p, loglevel);
+        valid = validate_extension_by_poly(&nrroots, En, NCHECKDIGITS, loglevel);
+
+        if(solvable && valid) {
+            ps(1, loglevel, rec);
+            logit(1, loglevel, "Found valid extension for n: %i and p: %i (on layer %i)\n", n, p, rec);
+
+            printf("RULE: %i  ", rec+2);
+            fmpz_set_ui(fmpz_mat_entry(table, rec+1, 0), p);
+            fmpz_mat_print(table);
+            printf("\n");
+            /*stre = fmpq_poly_get_str_pretty(En, "t");
+            ps(rec);
+            flint_printf("E%i : %s\n", n, stre);*/
+
+            /* Follow the recursion down */
+            if(rec <= maxrec) {
+                ps(1, loglevel, rec);
+                logit(1, loglevel, "==> Going down, new layer: %i\n", rec+1);
+                fmpq_poly_mul(Pnp1, Pn, En);
+                recursive_enumerate(Pnp1, n+p, maxp, rec+1, maxrec, table, loglevel);
+            } else {
+                ps(1, loglevel, rec);
+                logit(1, loglevel, "##> Maximum recursion depth reached, not descending\n");
+            }
+
+        } else {
+            ps(1, loglevel, rec);
+            logit(1, loglevel, "No valid extension for n: %i and p: %i found (on layer %i)\n", n, p, rec);
+        }
+    }
+    ps(1, loglevel, rec);
+    logit(1, loglevel, "Maximal extension order p: %i reached\n", maxp);
+
+    ps(1, loglevel, rec);
+    logit(1, loglevel, "==> Going up, leaving layer: %i\n", rec);
+
+    fmpz_set_ui(fmpz_mat_entry(table, rec+1, 0), 0);
+
+    fmpq_poly_clear(Pnp1);
+    fmpq_poly_clear(En);
+    fmpq_poly_clear(Enp1);
+    return;
+}
+
+
 inline void compute_nodes(fmpcb_ptr nodes,
                    const fmpq_poly_t poly,
                    const long prec,
@@ -352,12 +422,55 @@ void compute_nodes_and_weights(fmpcb_ptr nodes,
 }
 
 
+int validate_rule(long* nrroots,
+		  long* nnnweights,
+		  const fmpq_poly_t En,
+		  const long prec,
+		  const int loglevel) {
+    /*
+     * nrroots: Number of real roots found
+     * nnnweights: Number of non-negative weights found
+     * En: Polynomial defining the extension
+     * prec: Number of bits in target precision
+     * loglevel: The log verbosity
+     */
+    slong deg;
+    fmpcb_ptr roots, weights;
+    long rroots, nnweights;
+
+    /* This extension is invalid */
+    deg = fmpq_poly_degree(En);
+    if(deg < 0) {
+        return 0;
+    }
+
+    /* Compute the roots */
+    roots = _fmpcb_vec_init(deg);
+    weights = _fmpcb_vec_init(deg);
+
+    compute_nodes_and_weights(roots, weights, En, prec, loglevel);
+
+    /* Validate roots */
+    rroots = validate_real_roots(roots, deg, prec, loglevel);
+    (*nrroots) = rroots;
+
+    /* Validate weights */
+    nnweights = validate_positive_weights(weights, deg, prec, loglevel);
+    (*nnnweights) = nnweights;
+
+    _fmpcb_vec_clear(roots, deg);
+    _fmpcb_vec_clear(weights, deg);
+
+    return (rroots == deg && nnweights == deg) ? 1 : 0;
+}
+
+
 int validate_extension_by_poly(long* nrroots,
                                const fmpq_poly_t En,
                                const long prec,
                                const int loglevel) {
     /*
-     * nroots: Number of real roots found
+     * nrroots: Number of real roots found
      * En: Polynomial defining the extension
      * prec: Number of bits in target precision
      * loglevel: The log verbosity
