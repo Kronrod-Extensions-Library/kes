@@ -20,8 +20,6 @@ int main(int argc, char* argv[]) {
     if(argc <= 1) {
         printf("Recursively search for generalized Kronrod extensions of Gauss-Hermite rules\n");
         printf("Syntax: kes_rec_enumerate [-l L] n max_p max_rec_depth\n");
-        printf("        -ve   Validate the polynomial extension\n");
-        printf("        -vw   Validate the weights\n");
         printf("        -l   Set the log level\n");
         return EXIT_FAILURE;
     }
