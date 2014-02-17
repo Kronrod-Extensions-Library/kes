@@ -6,8 +6,9 @@
  *  Kronrod extensions of Gauss quadrature rules.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
+#ifndef __HH__libkes2
+#define __HH__libkes2
+
 #include <stdarg.h>
 
 #include "flint/flint.h"
@@ -18,10 +19,9 @@
 #include "flint/fmpz_mat.h"
 #include "flint/fmpq_mat.h"
 
-#include "fmprb.h"
-#include "fmpcb_poly.h"
-#include "fmpcb_mat.h"
-/*#include "arith.h"*/
+#include "helpers.h"
+#include "numerics.h"
+#include "switch.h"
 
 
 #define NCHECKDIGITS 20
@@ -30,7 +30,7 @@
 int find_extension(fmpq_poly_t En, const fmpq_poly_t Pn, const int nu, const int loglevel);
 int find_multi_extension(fmpq_poly_t, const fmpq_poly_t, const int, const int[], const int, const int);
 
-void recursive_enumerate(const fmpq_poly_t, const int, const int, const int, const int, fmpz_mat_t, const int);
+void recursiv_enumerate(const fmpq_poly_t, const int, const int, const int, const int, fmpz_mat_t, const int);
 
 inline void compute_nodes(fmpcb_ptr, const fmpq_poly_t, const long, const int);
 void compute_nodes_and_weights(fmpcb_ptr, fmpcb_ptr, const fmpq_poly_t, const long, const int);
@@ -39,51 +39,8 @@ int validate_rule(long*, long*, const fmpq_poly_t, const long, const int);
 int validate_extension_by_poly(long*, const fmpq_poly_t, const long, const int);
 int validate_extension_by_roots(const fmpcb_ptr, const long, const long, const int);
 int validate_extension_by_weights(const fmpcb_ptr, const long, const long, const int);
-long validate_real_roots(const fmpcb_ptr, const long, const long, const int);
-long validate_positive_weights(const fmpcb_ptr, const long, const long, const int);
-
-void integrate(fmpq_t M, const int n);
-void integrate_hermite_pro(fmpq_t I, const int n);
-void integrate_hermite_phy(fmpq_t I, const int n);
-void hermite_polynomial_pro(fmpq_poly_t Hn, const int n);
-void hermite_polynomial_phy(fmpq_poly_t Hn, const int n);
-/*
-void laguerre_polynomial(fmpq_poly_t Ln, const int n);
-void legendre_polynomial(fmpq_poly_t Ln, const int n);
-*/
-
-void poly_roots(fmpcb_ptr, const fmpq_poly_t, const long, const long, const int);
-int check_accuracy(const fmpcb_ptr, const long, const long);
-
-void ps(const int, const int, const int);
-int logit(const int, const int, const char *, ...);
-
 
 /**********************************************************************/
-
-
-void ps(const int loglevel, const int verbosity, const int n) {
-    int i;
-    if(verbosity >= loglevel) {
-        for(i = 0; i < n; i++) {
-            printf("  ");
-        }
-    }
-}
-
-
-int logit(const int loglevel, const int verbosity, const char *format, ...) {
-    va_list argp;
-    int ret;
-    ret = 0;
-    if(verbosity >= loglevel) {
-        va_start(argp, format);
-        ret = vprintf(format, argp);
-        va_end(argp);
-    }
-    return ret;
-}
-
 
 int find_extension(fmpq_poly_t En,
                    const fmpq_poly_t Pn,
@@ -451,11 +408,11 @@ int validate_rule(long* nrroots,
     compute_nodes_and_weights(roots, weights, En, prec, loglevel);
 
     /* Validate roots */
-    rroots = validate_real_roots(roots, deg, prec, loglevel);
+    rroots = validate_roots(roots, deg, prec, loglevel);
     (*nrroots) = rroots;
 
     /* Validate weights */
-    nnweights = validate_positive_weights(weights, deg, prec, loglevel);
+    nnweights = validate_weights(weights, deg, prec, loglevel);
     (*nnnweights) = nnweights;
 
     _fmpcb_vec_clear(roots, deg);
@@ -490,7 +447,7 @@ int validate_extension_by_poly(long* nrroots,
     compute_nodes(roots, En, prec, loglevel);
 
     /* Validate roots */
-    valid_roots = validate_real_roots(roots, deg, prec, loglevel);
+    valid_roots = validate_roots(roots, deg, prec, loglevel);
     (*nrroots) = valid_roots;
 
     logit(1, loglevel, "Extension rule has valid nodes: %i\n", valid_roots == deg ? 1 : 0);
@@ -519,7 +476,7 @@ int validate_extension_by_roots(const fmpcb_ptr roots,
     }
 
     /* Validate roots */
-    valid_roots = validate_real_roots(roots, deg, prec, loglevel);
+    valid_roots = validate_roots(roots, deg, prec, loglevel);
 
     logit(1, loglevel, "Extension rule has valid nodes: %i\n", valid_roots == deg ? 1 : 0);
 
@@ -545,322 +502,11 @@ int validate_extension_by_weights(const fmpcb_ptr weights,
     }
 
     /* Validate weights */
-    valid_weights = validate_positive_weights(weights, deg, prec, loglevel);
+    valid_weights = validate_weights(weights, deg, prec, loglevel);
 
     logit(1, loglevel, "Extension rule has valid weights: %i\n", valid_weights == deg ? 1 : 0);
 
     return valid_weights == deg ? 1 : 0;
 }
 
-
-long validate_real_roots(const fmpcb_ptr roots,
-                         const long n,
-                         const long prec,
-                         const int loglevel) {
-    /* Validate the roots found
-     * This part is heuristic: we check if the imaginary part is small enough,
-     *                         but this does not guarantee the root is real.
-     *
-     * roots: Array containing the roots to validate
-     * n: Number of roots in the input array
-     * prec: The number of bits used for validation.
-     * loglevel: The log verbosity
-     */
-    long valid_roots;
-    long i;
-
-    valid_roots = 0;
-    for(i = 0; i < n; i++) {
-        if(fmpr_cmpabs_2exp_si(fmprb_midref(fmpcb_imagref(roots + i)), -prec) <= 0) {
-            valid_roots++;
-        }
-    }
-
-    logit(1, loglevel, "Valid roots found: %lu out of %lu\n", valid_roots, n);
-
-    return valid_roots;
-}
-
-
-long validate_positive_weights(const fmpcb_ptr weights,
-                               const long n,
-                               const long prec,
-                               const int loglevel) {
-    /* Validate the weights found
-     * This part is heuristic: we check if the imaginary part is small enough,
-     *                         but this does not guarantee the weight is real.
-     *                         Additionally we check that the ball is not negative,
-     *                         but this does not guarantee the weight is positive.
-     *
-     * weights: Array containing the weights to validate
-     * n: Number of weights in the input array
-     * prec: The number of bits used for validation.
-     * loglevel: The log verbosity
-     */
-    long positive_weights;
-    long negative_weights;
-    long indefinite_weights;
-    long i;
-
-    positive_weights = 0;
-    negative_weights = 0;
-    indefinite_weights = 0;
-    for(i = 0; i < n; i++) {
-        if(fmpr_cmpabs_2exp_si(fmprb_midref(fmpcb_imagref(weights + i)), -prec) <= 0) {
-            if(fmprb_is_positive(fmpcb_realref(weights + i))) {
-                positive_weights++;
-            } else if(fmprb_is_negative(fmpcb_realref(weights + i))) {
-                negative_weights++;
-            } else {
-                indefinite_weights++;
-            }
-        }
-    }
-
-    logit(1, loglevel, "Positive weights:   %ld out of %ld\n", positive_weights, n);
-    logit(1, loglevel, "Indefinite weights: %ld out of %ld\n", indefinite_weights, n);
-    logit(1, loglevel, "Negative weights:   %ld out of %ld\n", negative_weights, n);
-
-    return positive_weights + indefinite_weights;
-}
-
-
-
-
-
-
-
-
-void integrate(fmpq_t M, const int n) {
-    integrate_hermite_pro(M, n);
-}
-
-
-void integrate_hermite_pro(fmpq_t I, const int n) {
-    /* Integrate
-     *
-     * I = \int_{-\infty}^\infty \exp(-x^2/2) x^n dx
-     *
-     * n even:  I = \Gamma{\frac{n+1}{2}}
-     * n odd:   I = 0
-     *
-     * 1  0  1  0  3  0  15  0  105  0  945  0  10395  0  135135
-     * We omit a factor of \sqrt{2\pi}
-     */
-    int i;
-    fmpz_t tmp;
-
-    fmpz_init(tmp);
-
-    if(n % 2 == 1) {
-        fmpq_zero(I);
-    } else {
-        fmpq_one(I);
-        for(i = 1; i <= n/2; i++) {
-            fmpz_set_ui(tmp, 2*i - 1);
-            fmpq_mul_fmpz(I, I, tmp);
-        }
-    }
-
-    fmpz_clear(tmp);
-}
-
-
-void integrate_hermite_phy(fmpq_t I, const int n) {
-    /* Integrate
-     *
-     * I = \int_{-\infty}^\infty \exp(-x^2/2) x^n dx
-     *
-     * n even:  I = 2^{\frac{n+1}{2}} \Gamma{\frac{n+1}{2}}
-     * n odd:   I = 0
-     *
-     * 1  0  1/2  0  3/4  0  15/8  0  105/16  0  945/32  0  10395/64  0  135135/128
-     * We omit a factor of \sqrt{\pi}
-     */
-    int i;
-    fmpz_t tmp;
-
-    fmpz_init(tmp);
-
-    if(n % 2 == 1) {
-        fmpq_zero(I);
-    } else {
-        fmpq_one(I);
-        for(i = 1; i <= n/2; i++) {
-            fmpz_set_ui(tmp, 2*i - 1);
-            fmpq_mul_fmpz(I, I, tmp);
-        }
-        fmpq_div_2exp(I, I, n/2);
-    }
-
-    fmpz_clear(tmp);
-}
-
-
-void hermite_polynomial_pro(fmpq_poly_t Hn, const int n) {
-    /* Compute the n-th Hermite polynomial by a
-     * three term recursion:
-     *
-     * H_0(x) = 1
-     * H_1(x) = x
-     *
-     * H_{n+1}(x) = x H_n(x) - n H_{n-1}(x)
-     *
-     * This sequence yields the probabilists' Hermite polynomials.
-     */
-    fmpq_poly_t H0, H1;
-    fmpq_poly_t x;
-    fmpq_poly_t T0, T1;
-    int i;
-
-    fmpq_poly_init(H0);
-    fmpq_poly_init(H1);
-    fmpq_poly_init(x);
-
-    fmpq_poly_set_str(x, "2  0 1");
-    fmpq_poly_canonicalise(x);
-
-    fmpq_poly_set_str(H0, "1  1");
-    fmpq_poly_canonicalise(H0);
-
-    fmpq_poly_set(H1, x);
-    fmpq_poly_canonicalise(H1);
-
-    if(n == 0) {
-        fmpq_poly_set(Hn, H0);
-    } else if(n == 1) {
-        fmpq_poly_set(Hn, H1);
-    } else {
-        fmpq_poly_init(T0);
-        fmpq_poly_init(T1);
-        for(i = 1; i < n; i++) {
-            fmpq_poly_mul(T1, x, H1);
-            fmpq_poly_scalar_mul_si(T0, H0, i);
-            fmpq_poly_sub(Hn, T1, T0);
-            fmpq_poly_set(H0, H1);
-            fmpq_poly_set(H1, Hn);
-        }
-        fmpq_poly_clear(T0);
-        fmpq_poly_clear(T1);
-    }
-
-    fmpq_poly_clear(H0);
-    fmpq_poly_clear(H1);
-
-    fmpq_poly_canonicalise(Hn);
-    return;
-}
-
-
-void hermite_polynomial_phy(fmpq_poly_t Hn, const int n) {
-    /* Compute the n-th Hermite polynomial by a
-     * three term recursion:
-     *
-     * H_0(x) = 1
-     * H_1(x) = x
-     *
-     * H_{n+1}(x) = 2 x H_n(x) - 2 n H_{n-1}(x)
-     *
-     * This sequence yields the physicists' Hermite polynomials.
-     */
-    fmpq_poly_t H0, H1;
-    fmpq_poly_t x;
-    fmpq_poly_t T0, T1;
-    int i;
-
-    fmpq_poly_init(H0);
-    fmpq_poly_init(H1);
-    fmpq_poly_init(x);
-
-    /* This is 2x */
-    fmpq_poly_set_str(x, "2  0 2");
-    fmpq_poly_canonicalise(x);
-
-    fmpq_poly_set_str(H0, "1  1");
-    fmpq_poly_canonicalise(H0);
-
-    fmpq_poly_set(H1, x);
-
-    if(n == 0) {
-        fmpq_poly_set(Hn, H0);
-    } else if(n == 1) {
-        fmpq_poly_set(Hn, H1);
-    } else {
-        fmpq_poly_init(T0);
-        fmpq_poly_init(T1);
-        for(i = 1; i < n; i++) {
-            fmpq_poly_mul(T1, x, H1);
-            fmpq_poly_scalar_mul_si(T0, H0, 2*i);
-            fmpq_poly_sub(Hn, T1, T0);
-            fmpq_poly_set(H0, H1);
-            fmpq_poly_set(H1, Hn);
-        }
-        fmpq_poly_clear(T0);
-        fmpq_poly_clear(T1);
-    }
-
-    fmpq_poly_clear(H0);
-    fmpq_poly_clear(H1);
-
-    return;
-}
-
-
-/* The following function are borrowed from the "poly_roots"
-   example in the arb library documentation. The header of
-   the "poly_roots.c" files states:
-
-       This file is public domain. Author: Fredrik Johansson.
-*/
-
-
-void poly_roots(fmpcb_ptr roots,
-                const fmpq_poly_t poly,
-                const long initial_prec,
-                const long target_prec,
-                const int loglevel) {
-    /*
-     * roots: An array containing the roots
-     * poly: The polynomial whose roots to compute
-     * initial_prec: Number of bits in initial precision
-     * target_prec: Number of bits in target precision
-     * loglevel: The log verbosity
-     */
-    long prec, deg, isolated, maxiter;
-    fmpcb_poly_t cpoly;
-
-    deg = fmpq_poly_degree(poly);
-    fmpcb_poly_init(cpoly);
-
-    for(prec = initial_prec; ; prec *= 2) {
-        fmpcb_poly_set_fmpq_poly(cpoly, poly, prec);
-        maxiter = FLINT_MIN(deg, prec);
-
-        logit(4, loglevel, "  current precision for roots: %ld\n", prec);
-        isolated = fmpcb_poly_find_roots(roots, cpoly, prec == initial_prec ? NULL : roots, maxiter, prec);
-
-        if(isolated == deg && check_accuracy(roots, deg, target_prec)) {
-            break;
-        }
-    }
-    fmpcb_poly_clear(cpoly);
-}
-
-
-int check_accuracy(const fmpcb_ptr vec, const long len, const long prec) {
-    /* Check if all balls in a vector have a radius small enough
-     * to fit the target precision.
-     *
-     * vec: Vector of balls to test
-     * len: Number of balls to test
-     * prec: Target precision in number bits
-     */
-    long i;
-
-    for(i = 0; i < len; i++) {
-        if(   fmpr_cmp_2exp_si(fmprb_radref(fmpcb_realref(vec + i)), -prec) >= 0
-           || fmpr_cmp_2exp_si(fmprb_radref(fmpcb_imagref(vec + i)), -prec) >= 0)
-            return 0;
-    }
-    return 1;
-}
+#endif
