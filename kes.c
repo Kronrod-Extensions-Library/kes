@@ -91,7 +91,12 @@ int main(int argc, char* argv[]) {
     printf("\n");
 
     fmpq_poly_init(Ep);
-    solvable = find_multi_extension(Ep, Pn, k, levels, validate_extension, loglevel);
+    if(k > 1) {
+	solvable = find_multi_extension(Ep, Pn, k, levels, validate_extension, loglevel);
+    } else {
+	fmpq_poly_one(Ep);
+	solvable = 1;
+    }
 
     if(solvable) {
 
