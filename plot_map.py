@@ -35,7 +35,8 @@ maxn, maxnu = M.shape
 print("Maximal values are: n="+str(maxn)+" and nu="+str(maxnu))
 
 fig = figure()
-imshow(M, interpolation="none", origin="upper", extent=[1,maxnu+1,maxn+1,1])
+imshow(M, interpolation="none", origin="upper", extent=[1,maxnu+1,maxn+1,1], cmap=cm.binary)
 xlabel(r"$\nu$")
 ylabel(r"$n$")
+tight_layout()
 savefig("kronrod_extensions_flint_"+str(maxn)+"_"+str(maxnu)+".png")
