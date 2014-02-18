@@ -24,7 +24,7 @@
 #include "switch.h"
 
 
-#define NCHECKDIGITS 20
+#define NCHECKDIGITS 53
 
 
 int find_extension(fmpq_poly_t En, const fmpq_poly_t Pn, const int nu, const int loglevel);

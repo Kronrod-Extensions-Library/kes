@@ -30,7 +30,7 @@
 
 long validate_real_roots(const fmpcb_ptr, const long, const long, const int);
 long validate_real_nonnegative_roots(const fmpcb_ptr, const long, const long, const int);
-long validate_real_inteval_roots(const fmpcb_ptr, const long, const long, const int);
+long validate_real_interval_roots(const fmpcb_ptr, const long, const long, const int);
 
 long validate_positive_weights(const fmpcb_ptr, const long, const long, const int);
 

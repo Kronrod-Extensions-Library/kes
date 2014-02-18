@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
 
     /* Compute extension */
     fmpq_poly_init(Pn);
-    hermite_polynomial_pro(Pn, levels[0]);
+    polynomial(Pn, levels[0]);
 
     printf("Starting with polynomial:\n");
     strf = fmpq_poly_get_str_pretty(Pn, "t");
