@@ -30,13 +30,13 @@ if not matrix:
     raise ValueError("No matrix data found!")
 
 M = array([ map(int, line.split(" ")) for line in matrix if len(line) > 0 ])
-maxn, maxnu = M.shape
+maxn, maxp = M.shape
 
-print("Maximal values are: n="+str(maxn)+" and nu="+str(maxnu))
+print("Maximal values are: n="+str(maxn)+" and p="+str(maxp))
 
 fig = figure()
-imshow(M, interpolation="none", origin="upper", extent=[1,maxnu+1,maxn+1,1], cmap=cm.binary)
-xlabel(r"$\nu$")
+imshow(M, interpolation="none", origin="upper", extent=[1,maxp+1,maxn+1,1], cmap=cm.binary)
+xlabel(r"$p$")
 ylabel(r"$n$")
 tight_layout()
-savefig("kronrod_extensions_flint_"+str(maxn)+"_"+str(maxnu)+".png")
+savefig(f[:-4]+".png")
