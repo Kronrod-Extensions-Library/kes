@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     for(n = 0; n < 10; n++) {
 	legendre_polynomial(P, n);
 	strf = fmpq_poly_get_str_pretty(P, "t");
-	flint_printf("L%d : %s\n", n, strf);
+	flint_printf("P%d : %s\n", n, strf);
     }
     printf("\n");
 
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
     	fmpq_print(M);
     	printf("  ");
     }
-    printf("\n");
+    printf("\n\n");
 
 
     printf("Laguerre Polynomials:\n");
@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
     	fmpq_print(M);
     	printf("  ");
     }
-    printf("\n");
+    printf("\n\n");
 
 
     printf("Hermite PHY:\n");
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
     	fmpq_print(M);
     	printf("  ");
     }
-    printf("\n");
+    printf("\n\n");
 
 
     printf("Hermite PRO:\n");
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
     	fmpq_print(M);
     	printf("  ");
     }
-    printf("\n");
+    printf("\n\n");
 
 
     return EXIT_SUCCESS;
