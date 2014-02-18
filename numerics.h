@@ -124,10 +124,9 @@ long validate_real_interval_roots(const fmpcb_ptr roots,
     valid_roots = 0;
     for(i = 0; i < n; i++) {
         if(! (fmprb_is_positive(fmpcb_imagref(roots + i)) || fmprb_is_negative(fmpcb_imagref(roots + i)))) {
-            /*root = fmpcb_realref(roots + i);*/
-            if(   fmpr_cmpabs(fmprb_midref(fmpcb_realref(roots + i)), fmprb_midref(one))
-               || fmprb_contains(fmpcb_realref(roots + i), one)
-               || fmprb_contains(fmpcb_realref(roots + i), mone)) {
+            if(    fmpr_cmpabs(fmprb_midref(fmpcb_realref(roots + i)), fmprb_midref(one)) <= 0
+                || fmprb_contains(fmpcb_realref(roots + i), one)
+                || fmprb_contains(fmpcb_realref(roots + i), mone)) {
                 valid_roots++;
             }
         }
