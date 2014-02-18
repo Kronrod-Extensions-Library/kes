@@ -36,6 +36,7 @@ print("Maximal values are: n="+str(maxn)+" and p="+str(maxp))
 
 fig = figure()
 imshow(M, interpolation="none", origin="upper", extent=[1,maxp+1,maxn+1,1], cmap=cm.binary)
+grid(True)
 xlabel(r"$p$")
 ylabel(r"$n$")
 tight_layout()

@@ -61,7 +61,7 @@ for roots in allroots:
 grid(True)
 xlabel(r"$\Re \gamma_i$")
 ylabel(r"$\Im \gamma_i$")
-savefig("rule_nodes_weights_cp_" + L + ".png")
+savefig(f[:-4]+"_nodes_weights_cp_" + L + ".png")
 
 
 fig = figure()
@@ -71,7 +71,7 @@ for roots, weights in zip(allroots, allweights):
 grid(True)
 xlabel(r"$\gamma_i$")
 ylabel(r"$\omega_i$")
-savefig("rule_nodes_weights_" + L + ".png")
+savefig(f[:-4]+"_nodes_weights_" + L + ".png")
 
 
 fig = figure()
@@ -81,4 +81,4 @@ for roots, weights in zip(allroots, allweights):
 grid(True)
 xlabel(r"$\gamma_i$")
 ylabel(r"$\omega_i$")
-savefig("rule_nodes_weights_log_" + L + ".png")
+savefig(f[:-4]+"_nodes_weights_log_" + L + ".png")
