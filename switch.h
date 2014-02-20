@@ -32,18 +32,18 @@ inline void integrate(fmpq_t M, const int n) {
 }
 
 inline long validate_roots(const fmpcb_ptr roots,
-			   const long n,
-			   const long prec,
-			   const int loglevel) {
+                           const long n,
+                           const long prec,
+                           const int loglevel) {
     /*return validate_real_roots(roots, n, prec, loglevel);*/
     /*return validate_real_nonnegative_roots(roots, n, prec, loglevel);*/
     return validate_real_interval_roots(roots, n, prec, loglevel);
 }
 
 inline long validate_weights(const fmpcb_ptr weights,
-			     const long n,
-			     const long prec,
-			     const int loglevel) {
+                             const long n,
+                             const long prec,
+                             const int loglevel) {
     return validate_positive_weights(weights, n, prec, loglevel);
 }
 

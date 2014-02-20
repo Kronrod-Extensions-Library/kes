@@ -10,7 +10,7 @@
 #define __HH__helpers
 
 void ps(const int, const int, const int);
-int logit(const int, const int, const char *, ...);
+void logit(const int, const int, const char *, ...);
 
 
 void ps(const int loglevel, const int verbosity, const int n) {
@@ -23,16 +23,15 @@ void ps(const int loglevel, const int verbosity, const int n) {
 }
 
 
-int logit(const int loglevel, const int verbosity, const char *format, ...) {
+void logit(const int loglevel, const int verbosity, const char *format, ...) {
+    #if PRINTLOG
     va_list argp;
-    int ret;
-    ret = 0;
     if(verbosity >= loglevel) {
         va_start(argp, format);
-        ret = vprintf(format, argp);
+        vprintf(format, argp);
         va_end(argp);
     }
-    return ret;
+    #endif
 }
 
 #endif

@@ -60,30 +60,37 @@ int main(int argc, char* argv[]) {
     /* Table for results */
     fmpz_mat_init(table, maxn, maxp);
 
-    fmpq_poly_init(Pn);
-    fmpq_poly_init(En);
-
+    #pragma omp parallel for                                    \
+    private(Pn,En,n,p,solvable,record,nrroots,nrpweights),      \
+    shared(table),                                              \
+    firstprivate(loglevel),                                     \
+    schedule(dynamic)
     for(n = 1; n <= maxn; n++) {
-	polynomial(Pn, n);
+        fmpq_poly_init(Pn);
+        polynomial(Pn, n);
 
         for(p = n; p <= maxp; p++) {
-            printf("Trying to find an order %i Kronrod extension for H%i\n", p, n);
-	    record = 0;
+            fmpq_poly_init(En);
+
+            logit(0, loglevel, "Trying to find an order %i Kronrod extension for H%i\n", p, n);
+            record = 0;
 
             solvable = find_extension(En, Pn, p, loglevel);
-            printf("  Solvable extension rule found: %i\n", solvable);
+            logit(0, loglevel, "  Solvable extension rule found: %i\n", solvable);
 
-	    if(solvable && validate_weights) {
-		fmpq_poly_mul(En, Pn, En);
-		record = validate_rule(&nrroots, &nrpweights, En, NCHECKDIGITS, loglevel);
-	    } else if(solvable && validate_ext) {
-		record = validate_extension_by_poly(&nrroots, En, NCHECKDIGITS, loglevel);
-	    } else {
-		record = solvable;
-	    }
+            if(solvable && validate_weights) {
+                fmpq_poly_mul(En, Pn, En);
+                record = validate_rule(&nrroots, &nrpweights, En, NCHECKDIGITS, loglevel);
+            } else if(solvable && validate_ext) {
+                record = validate_extension_by_poly(&nrroots, En, NCHECKDIGITS, loglevel);
+            } else {
+                record = solvable;
+            }
+            fmpq_poly_clear(En);
 
             fmpz_set_ui(fmpz_mat_entry(table , n-1 , p-1), record);
         }
+        fmpq_poly_clear(Pn);
     }
 
     printf("==============================================\n");
@@ -91,8 +98,6 @@ int main(int argc, char* argv[]) {
     printf("\n");
     printf("==============================================\n");
 
-    fmpq_poly_clear(Pn);
-    fmpq_poly_clear(En);
     fmpz_mat_clear(table);
 
     return EXIT_SUCCESS;

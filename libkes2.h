@@ -380,10 +380,10 @@ void compute_nodes_and_weights(fmpcb_ptr nodes,
 
 
 int validate_rule(long* nrroots,
-		  long* nnnweights,
-		  const fmpq_poly_t En,
-		  const long prec,
-		  const int loglevel) {
+                  long* nnnweights,
+                  const fmpq_poly_t En,
+                  const long prec,
+                  const int loglevel) {
     /*
      * nrroots: Number of real roots found
      * nnnweights: Number of non-negative weights found
@@ -485,9 +485,9 @@ int validate_extension_by_roots(const fmpcb_ptr roots,
 
 
 int validate_extension_by_weights(const fmpcb_ptr weights,
-				  const long deg,
-				  const long prec,
-				  const int loglevel) {
+                                  const long deg,
+                                  const long prec,
+                                  const int loglevel) {
     /*
      * weights: Array of all weights of the extension
      * deg: Number of weights in the input array

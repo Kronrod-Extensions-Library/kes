@@ -237,21 +237,21 @@ void laguerre_polynomial(fmpq_poly_t Ln, const int n) {
     } else if(n == 1) {
         fmpq_poly_set(Ln, L1);
     } else {
-	fmpq_poly_init(T0);
-	fmpq_poly_init(T1);
-	for(i = 1; i < n; i++) {
-	    fmpq_poly_mul(T0, x, L1);
-	    fmpq_poly_scalar_mul_si(T1, L1, 2*i);
-	    fmpq_poly_add(T1, T1, T0);
-	    fmpq_poly_scalar_div_si(T1, T1, i + 1);
-	    fmpq_poly_scalar_mul_si(T0, L0, i);
-	    fmpq_poly_scalar_div_si(T0, T0, i + 1);
-	    fmpq_poly_sub(Ln, T1, T0);
-	    fmpq_poly_set(L0, L1);
-	    fmpq_poly_set(L1, Ln);
-	}
-	fmpq_poly_clear(T0);
-	fmpq_poly_clear(T1);
+        fmpq_poly_init(T0);
+        fmpq_poly_init(T1);
+        for(i = 1; i < n; i++) {
+            fmpq_poly_mul(T0, x, L1);
+            fmpq_poly_scalar_mul_si(T1, L1, 2*i);
+            fmpq_poly_add(T1, T1, T0);
+            fmpq_poly_scalar_div_si(T1, T1, i + 1);
+            fmpq_poly_scalar_mul_si(T0, L0, i);
+            fmpq_poly_scalar_div_si(T0, T0, i + 1);
+            fmpq_poly_sub(Ln, T1, T0);
+            fmpq_poly_set(L0, L1);
+            fmpq_poly_set(L1, Ln);
+        }
+        fmpq_poly_clear(T0);
+        fmpq_poly_clear(T1);
     }
 
     fmpq_poly_clear(L0);
@@ -277,8 +277,8 @@ void integrate_laguerre(fmpq_t I, const int n) {
     fmpq_init(t);
     fmpq_one(I);
     for(i = 1; i <= n; i++) {
-	fmpq_set_si(t, i, 1);
-	fmpq_mul(I, I, t);
+        fmpq_set_si(t, i, 1);
+        fmpq_mul(I, I, t);
     }
     fmpq_clear(t);
 }
@@ -318,20 +318,20 @@ void legendre_polynomial(fmpq_poly_t Pn, const int n) {
     } else if(n == 1) {
         fmpq_poly_set(Pn, P1);
     } else {
-	fmpq_poly_init(T0);
-	fmpq_poly_init(T1);
-	for(i = 1; i < n; i++) {
-	    fmpq_poly_mul(T1, x, P1);
-	    fmpq_poly_scalar_mul_si(T1, T1, 2*i+1);
-	    fmpq_poly_scalar_div_si(T1, T1,   i+1);
-	    fmpq_poly_scalar_mul_si(T0, P0,   i);
-	    fmpq_poly_scalar_div_si(T0, T0, i+1);
-	    fmpq_poly_sub(Pn, T1, T0);
-	    fmpq_poly_set(P0, P1);
-	    fmpq_poly_set(P1, Pn);
-	}
-	fmpq_poly_clear(T0);
-	fmpq_poly_clear(T1);
+        fmpq_poly_init(T0);
+        fmpq_poly_init(T1);
+        for(i = 1; i < n; i++) {
+            fmpq_poly_mul(T1, x, P1);
+            fmpq_poly_scalar_mul_si(T1, T1, 2*i+1);
+            fmpq_poly_scalar_div_si(T1, T1,   i+1);
+            fmpq_poly_scalar_mul_si(T0, P0,   i);
+            fmpq_poly_scalar_div_si(T0, T0, i+1);
+            fmpq_poly_sub(Pn, T1, T0);
+            fmpq_poly_set(P0, P1);
+            fmpq_poly_set(P1, Pn);
+        }
+        fmpq_poly_clear(T0);
+        fmpq_poly_clear(T1);
     }
 
     fmpq_poly_clear(P0);
@@ -360,8 +360,8 @@ void integrate_legendre(fmpq_t I, const int n) {
     if(n % 2 == 1) {
         fmpq_zero(I);
     } else {
-	fmpq_set_si(t, 2, n + 1);
-	fmpq_mul(I, I, t);
+        fmpq_set_si(t, 2, n + 1);
+        fmpq_mul(I, I, t);
     }
     fmpq_clear(t);
 }
