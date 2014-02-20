@@ -7,9 +7,9 @@ FLINT_INCLUDE_DIR=/userdata/raoulb/lib/include/flint
 
 CC=gcc
 
+POLY ?= HERMITE
 PRINTLOG ?= 1
-
-CFG=-DPRINTLOG=${PRINTLOG}
+CFG=-DPRINTLOG=${PRINTLOG} -D${POLY}
 
 #CFLAGS=-std=c11 -pedantic -Wall -funroll-loops -g -mpopcnt -DFLINT_CPIMPORT=\"/userdata/raoulb/lib/share/flint/CPimport.txt\"
 CFLAGS=-std=c11 -fopenmp -pedantic -Wall -O2 -funroll-loops -mpopcnt -DFLINT_CPIMPORT=\"/userdata/raoulb/lib/share/flint/CPimport.txt\"

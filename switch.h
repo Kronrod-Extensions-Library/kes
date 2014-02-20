@@ -22,22 +22,42 @@ inline long validate_weights(const fmpcb_ptr, const long, const long, const int)
 
 
 inline void polynomial(fmpq_poly_t Pn, const int n) {
-    /*hermite_polynomial_pro(Pn, n);*/
+#ifdef LEGENDRE
     legendre_polynomial(Pn, n);
+#endif
+#ifdef LAGUERRE
+    laguerre_polynomial(Pn, n);
+#endif
+#ifdef HERMITE
+    hermite_polynomial_pro(Pn, n);
+#endif
 }
 
 inline void integrate(fmpq_t M, const int n) {
-    /*integrate_hermite_pro(M, n);*/
+#ifdef LEGENDRE
     integrate_legendre(M, n);
+#endif
+#ifdef LAGUERRE
+    integrate_laguerre(M, n);
+#endif
+#ifdef HERMITE
+    integrate_hermite_pro(M, n);
+#endif
 }
 
 inline long validate_roots(const fmpcb_ptr roots,
                            const long n,
                            const long prec,
                            const int loglevel) {
-    /*return validate_real_roots(roots, n, prec, loglevel);*/
-    /*return validate_real_nonnegative_roots(roots, n, prec, loglevel);*/
+#ifdef LEGENDRE
     return validate_real_interval_roots(roots, n, prec, loglevel);
+#endif
+#ifdef LAGUERRE
+    return validate_real_nonnegative_roots(roots, n, prec, loglevel);
+#endif
+#ifdef HERMITE
+    return validate_real_roots(roots, n, prec, loglevel);
+#endif
 }
 
 inline long validate_weights(const fmpcb_ptr weights,
