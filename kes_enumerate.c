@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     int maxn, maxp;
     int n, p;
     int validate_ext, validate_weights;
-    fmpq_poly_t Hn, En;
+    fmpq_poly_t Pn, En;
     int solvable;
     long nrroots, nrpweights;
     int record;
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     int loglevel;
 
     if(argc <= 1) {
-        printf("Search for generalized Kronrod extensions of Gauss-Hermite rules\n");
+        printf("Search for generalized Kronrod extensions of Gauss rules\n");
         printf("Syntax: kes_enumerate [-vne] [-vw] [-l L] max_n max_p\n");
         printf("        -vne  Validate the polynomial extension (default on)\n");
         printf("        -vw   Validate the weights (default off)\n");
@@ -60,21 +60,21 @@ int main(int argc, char* argv[]) {
     /* Table for results */
     fmpz_mat_init(table, maxn, maxp);
 
-    fmpq_poly_init(Hn);
+    fmpq_poly_init(Pn);
     fmpq_poly_init(En);
 
     for(n = 1; n <= maxn; n++) {
-	polynomial(Hn, n);
+	polynomial(Pn, n);
 
-        for(p = 1/*(n-1)/2+1*/; p <= maxp; p++) {
+        for(p = n; p <= maxp; p++) {
             printf("Trying to find an order %i Kronrod extension for H%i\n", p, n);
 	    record = 0;
 
-            solvable = find_extension(En, Hn, p, loglevel);
+            solvable = find_extension(En, Pn, p, loglevel);
             printf("  Solvable extension rule found: %i\n", solvable);
 
 	    if(solvable && validate_weights) {
-		fmpq_poly_mul(En, Hn, En);
+		fmpq_poly_mul(En, Pn, En);
 		record = validate_rule(&nrroots, &nrpweights, En, NCHECKDIGITS, loglevel);
 	    } else if(solvable && validate_ext) {
 		record = validate_extension_by_poly(&nrroots, En, NCHECKDIGITS, loglevel);
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
     printf("\n");
     printf("==============================================\n");
 
-    fmpq_poly_clear(Hn);
+    fmpq_poly_clear(Pn);
     fmpq_poly_clear(En);
     fmpz_mat_clear(table);
 

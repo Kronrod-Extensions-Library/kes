@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 
     /* Initialise the basis polynomial P1 */
     fmpq_poly_init(Hn);
-    hermite_polynomial_pro(Hn, n);
+    polynomial(Hn, n);
 
     /* Start the recursive search for E_i */
     fmpz_mat_init(table, maxrec+3, 1);

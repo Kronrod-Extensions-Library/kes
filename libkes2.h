@@ -240,7 +240,7 @@ void recursive_enumerate(const fmpq_poly_t Pn,
     fmpq_poly_init(Enp1);
 
     /* Loop over possible (non-recursive) extensions  */
-    for(p = 1/*(n-1)/2+1*/; p <= maxp; p++) {
+    for(p = n; p <= maxp; p++) {
 
         solvable = find_extension(En, Pn, p, loglevel);
         valid = validate_extension_by_poly(&nrroots, En, NCHECKDIGITS, loglevel);

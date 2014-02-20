@@ -10,9 +10,6 @@
 #include "libkes2.h"
 
 
-#define NROOTDIGITS 20
-
-
 int main(int argc, char* argv[]) {
     int i, j, k;
     int levels[argc-1];
@@ -30,7 +27,7 @@ int main(int argc, char* argv[]) {
     int loglevel;
 
     if(argc <= 1) {
-        printf("Compute a nested generalized Kronrod extension of a Gauss-Hermite rule\n");
+        printf("Compute a nested generalized Kronrod extension of a Gauss rule\n");
         printf("Syntax: kes  n p1 p2 ... pk\n");
 	printf("Options:\n");
         printf("        -ve  Validate the polynomial extension by nodes\n");
@@ -134,7 +131,7 @@ int main(int argc, char* argv[]) {
 	    printf("**************************************\n");
 	}
 
-	/* Print roots */
+	/* Print roots and weights */
 	if((validate_weights && valid) || ! validate_weights) {
 	    if(comp_nodes) {
 		printf("-------------------------------------------------\n");
