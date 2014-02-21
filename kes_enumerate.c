@@ -60,18 +60,16 @@ int main(int argc, char* argv[]) {
     /* Table for results */
     fmpz_mat_init(table, maxn, maxp);
 
-    #pragma omp parallel for                                    \
+#pragma omp parallel for                                        \
     private(Pn,En,n,p,solvable,record,nrroots,nrpweights),      \
     shared(table),                                              \
-    firstprivate(loglevel),                                     \
     schedule(dynamic)
     for(n = 1; n <= maxn; n++) {
         fmpq_poly_init(Pn);
+        fmpq_poly_init(En);
         polynomial(Pn, n);
 
         for(p = n; p <= maxp; p++) {
-            fmpq_poly_init(En);
-
             logit(0, loglevel, "Trying to find an order %i Kronrod extension for H%i\n", p, n);
             record = 0;
 
@@ -86,11 +84,10 @@ int main(int argc, char* argv[]) {
             } else {
                 record = solvable;
             }
-            fmpq_poly_clear(En);
-
             fmpz_set_ui(fmpz_mat_entry(table , n-1 , p-1), record);
         }
         fmpq_poly_clear(Pn);
+        fmpq_poly_clear(En);
     }
 
     printf("==============================================\n");
