@@ -13,13 +13,15 @@
 int main(int argc, char* argv[]) {
     int i;
     int maxrec, n, maxp;
-    fmpq_poly_t Hn;
+    fmpq_poly_t Pn;
     fmpz_mat_t table;
+    int validate_weights;
     int loglevel;
 
     if(argc <= 1) {
-        printf("Recursively search for generalized Kronrod extensions of Gauss-Hermite rules\n");
+        printf("Recursively search for generalized Kronrod extensions of Gauss rules\n");
         printf("Syntax: kes_rec_enumerate [-l L] n max_p max_rec_depth\n");
+        printf("        -vw  Validate the polynomial extension by weights\n");
         printf("        -l   Set the log level\n");
         return EXIT_FAILURE;
     }
@@ -27,12 +29,15 @@ int main(int argc, char* argv[]) {
     n = 1;
     maxp = 1;
     maxrec = 1;
+    validate_weights = 0;
     loglevel = 0;
 
     for (i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-l")) {
             loglevel = atoi(argv[i+1]);
             i++;
+        } else if (!strcmp(argv[i], "-vw")) {
+            validate_weights = 1;
         } else {
             if(i + 2 < argc) {
                 n = atoi(argv[i]);
@@ -47,14 +52,14 @@ int main(int argc, char* argv[]) {
     }
 
     printf("-----------------------------------------\n");
-    printf("Search for recursive extensions of: H%i\n", n);
+    printf("Search for recursive extensions of: P%i\n", n);
     printf("Maximal allowed extension order p: %i\n", maxp);
     printf("Maximal allowed recursion depth: %i\n", maxrec);
     printf("-----------------------------------------\n");
 
     /* Initialise the basis polynomial P1 */
-    fmpq_poly_init(Hn);
-    polynomial(Hn, n);
+    fmpq_poly_init(Pn);
+    polynomial(Pn, n);
 
     /* Start the recursive search for E_i */
     fmpz_mat_init(table, maxrec+3, 1);
@@ -65,9 +70,9 @@ int main(int argc, char* argv[]) {
     fmpz_mat_print(table);
     printf("\n");
 
-    recursive_enumerate(Hn, n, maxp, 0, maxrec, table, loglevel);
+    recursive_enumerate(Pn, n, maxp, 0, maxrec, table, validate_weights, loglevel);
 
-    fmpq_poly_clear(Hn);
+    fmpq_poly_clear(Pn);
 
     return EXIT_SUCCESS;
 }

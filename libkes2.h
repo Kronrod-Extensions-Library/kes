@@ -30,7 +30,7 @@
 int find_extension(fmpq_poly_t En, const fmpq_poly_t Pn, const int nu, const int loglevel);
 int find_multi_extension(fmpq_poly_t, const fmpq_poly_t, const int, const int[], const int, const int);
 
-void recursiv_enumerate(const fmpq_poly_t, const int, const int, const int, const int, fmpz_mat_t, const int);
+void recursiv_enumerate(const fmpq_poly_t, const int, const int, const int, const int, fmpz_mat_t, const int, const int);
 
 inline void compute_nodes(fmpcb_ptr, const fmpq_poly_t, const long, const int);
 void compute_nodes_and_weights(fmpcb_ptr, fmpcb_ptr, const fmpq_poly_t, const long, const int);
@@ -224,26 +224,35 @@ void recursive_enumerate(const fmpq_poly_t Pn,
                          const int rec,
                          const int maxrec,
                          fmpz_mat_t table,
+                         const int validate_weights,
                          const int loglevel) {
     /* Recursively enumerate quadrature rules
      */
     int p;
     int solvable, valid;
-    long nrroots;
-    fmpq_poly_t Pnp1, Enp1, En;
+    long nrroots, nrweights;
+    fmpq_poly_t Pnp1, En;
 
     ps(1, loglevel, rec);
     logit(1, loglevel, "Trying to find extension of (on layer %i):\n", rec);
 
     fmpq_poly_init(Pnp1);
     fmpq_poly_init(En);
-    fmpq_poly_init(Enp1);
 
-    /* Loop over possible (non-recursive) extensions  */
+    /* Loop over possible (non-recursive) extensions */
+    /* TODO: Take p=n or ...? */
     for(p = n; p <= maxp; p++) {
 
         solvable = find_extension(En, Pn, p, loglevel);
-        valid = validate_extension_by_poly(&nrroots, En, NCHECKDIGITS, loglevel);
+
+        if(validate_weights) {
+            /* Validate nodes and weights */
+            fmpq_poly_mul(Pnp1, Pn, En);
+            valid = validate_rule(&nrroots, &nrweights, Pnp1, NCHECKDIGITS, loglevel);
+        } else {
+            /* Validate only nodes */
+            valid = validate_extension_by_poly(&nrroots, En, NCHECKDIGITS, loglevel);
+        }
 
         if(solvable && valid) {
             ps(1, loglevel, rec);
@@ -262,7 +271,7 @@ void recursive_enumerate(const fmpq_poly_t Pn,
                 ps(1, loglevel, rec);
                 logit(1, loglevel, "==> Going down, new layer: %i\n", rec+1);
                 fmpq_poly_mul(Pnp1, Pn, En);
-                recursive_enumerate(Pnp1, n+p, maxp, rec+1, maxrec, table, loglevel);
+                recursive_enumerate(Pnp1, n+p, maxp, rec+1, maxrec, table, validate_weights, loglevel);
             } else {
                 ps(1, loglevel, rec);
                 logit(1, loglevel, "##> Maximum recursion depth reached, not descending\n");
@@ -283,7 +292,6 @@ void recursive_enumerate(const fmpq_poly_t Pn,
 
     fmpq_poly_clear(Pnp1);
     fmpq_poly_clear(En);
-    fmpq_poly_clear(Enp1);
     return;
 }
 
