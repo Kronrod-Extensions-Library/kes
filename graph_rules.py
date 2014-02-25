@@ -10,7 +10,7 @@ F = open(f, "r")
 ruletree = {}
 
 for line in F.readlines():
-    if line.startswith("Search for recursive extensions of: H"):
+    if line.startswith("Search for recursive extensions of: P"):
         n = line[37:-1]
         print("n: "+str(n))
     if line.startswith("Maximal allowed extension order p: "):
