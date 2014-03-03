@@ -38,10 +38,10 @@ with open(f, "r") as F:
             wblock = False
             continue
         elif rblock:
-            N = map(float, re.findall("[-+]?\d+\.\d+[Ee]?[+-]?\d+", line))
+            N = map(float, re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line))
             roots.append(N[0] + 1.0j*N[1])
         elif wblock:
-            N = map(float, re.findall("[-+]?\d+\.\d+[Ee]?[+-]?\d+", line))
+            N = map(float, re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line))
             weights.append(N[0] + 1.0j*N[1])
 
 if not allroots or not allweights:
