@@ -1,0 +1,13 @@
+
+0. Call 'kes_rec_enumerate' like:
+   ./kes_rec_enumerate n pmax recmax > recs_n_pmax_recmax.dat
+   for all interesting values of n, pmax and recmax.
+
+1. Call 'get_all_rules.sh' in a directory with 'recs_*.dat' files
+   This will give a file called 'all_rules.dat' containing line
+   by line the extension tower.
+
+2. Call 'build_rulecomputer.py' like:
+   python build_rulecomputer.py all_rules.dat
+   This will give a file called 'compute_all_rules.sh' containing
+   shell commands to compute nodes and weights of all rules.
