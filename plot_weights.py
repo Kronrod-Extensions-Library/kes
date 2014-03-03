@@ -81,3 +81,13 @@ grid(True)
 xlabel(r"$\gamma_i$")
 ylabel(r"$\omega_i$")
 savefig(f[:-4]+"_nodes_weights_log_" + L + ".png")
+
+
+# fig = figure()
+# for roots, weights in zip(allroots, allweights):
+#     loglog(real(roots), real(weights), "o")
+#     xlim(min(real(roots).min()-1, -1), max(real(roots).max()+1, 1))
+# grid(True)
+# xlabel(r"$\gamma_i$")
+# ylabel(r"$\omega_i$")
+# savefig(f[:-4]+"_nodes_weights_loglog_" + L + ".png")
