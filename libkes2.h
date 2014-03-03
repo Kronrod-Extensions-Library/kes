@@ -27,7 +27,7 @@
 #define NCHECKDIGITS 53
 
 
-int find_extension(fmpq_poly_t En, const fmpq_poly_t Pn, const int nu, const int loglevel);
+int find_extension(fmpq_poly_t, const fmpq_poly_t, const int, const int);
 int find_multi_extension(fmpq_poly_t, const fmpq_poly_t, const int, const int[], const int, const int);
 
 void recursiv_enumerate(const fmpq_poly_t, const int, const int, const int, const int, fmpz_mat_t, const int, const int);
@@ -262,9 +262,6 @@ void recursive_enumerate(const fmpq_poly_t Pn,
             fmpz_set_ui(fmpz_mat_entry(table, rec+1, 0), p);
             fmpz_mat_print(table);
             printf("\n");
-            /*stre = fmpq_poly_get_str_pretty(En, "t");
-            ps(rec);
-            flint_printf("E%i : %s\n", n, stre);*/
 
             /* Follow the recursion down */
             if(rec <= maxrec) {

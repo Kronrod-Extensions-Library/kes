@@ -56,7 +56,7 @@ long validate_real_roots(const fmpcb_ptr roots,
 
     valid_roots = 0;
     for(i = 0; i < n; i++) {
-        if(! (fmprb_is_positive(fmpcb_imagref(roots + i)) || fmprb_is_negative(fmpcb_imagref(roots + i)))) {
+        if(! (fmprb_is_positive(fmpcb_imagref(roots+i)) || fmprb_is_negative(fmpcb_imagref(roots+i)))) {
             valid_roots++;
         }
     }
@@ -86,8 +86,8 @@ long validate_real_nonnegative_roots(const fmpcb_ptr roots,
 
     valid_roots = 0;
     for(i = 0; i < n; i++) {
-        if(! (fmprb_is_positive(fmpcb_imagref(roots + i)) || fmprb_is_negative(fmpcb_imagref(roots + i)))
-           && fmprb_is_nonnegative(fmpcb_realref(roots + i))) {
+        if(! (fmprb_is_positive(fmpcb_imagref(roots+i)) || fmprb_is_negative(fmpcb_imagref(roots+i)))
+           && fmprb_is_nonnegative(fmpcb_realref(roots+i))) {
             valid_roots++;
         }
     }
@@ -123,10 +123,10 @@ long validate_real_interval_roots(const fmpcb_ptr roots,
 
     valid_roots = 0;
     for(i = 0; i < n; i++) {
-        if(! (fmprb_is_positive(fmpcb_imagref(roots + i)) || fmprb_is_negative(fmpcb_imagref(roots + i)))) {
-            if(    fmpr_cmpabs(fmprb_midref(fmpcb_realref(roots + i)), fmprb_midref(one)) <= 0
-                || fmprb_contains(fmpcb_realref(roots + i), one)
-                || fmprb_contains(fmpcb_realref(roots + i), mone)) {
+        if(! (fmprb_is_positive(fmpcb_imagref(roots+i)) || fmprb_is_negative(fmpcb_imagref(roots+i)))) {
+            if(    fmpr_cmpabs(fmprb_midref(fmpcb_realref(roots+i)), fmprb_midref(one)) <= 0
+                || fmprb_contains(fmpcb_realref(roots+i), one)
+                || fmprb_contains(fmpcb_realref(roots+i), mone)) {
                 valid_roots++;
             }
         }
@@ -164,10 +164,10 @@ long validate_positive_weights(const fmpcb_ptr weights,
     negative_weights = 0;
     indefinite_weights = 0;
     for(i = 0; i < n; i++) {
-        if(fmpr_cmpabs_2exp_si(fmprb_midref(fmpcb_imagref(weights + i)), -prec) <= 0) {
-            if(fmprb_is_positive(fmpcb_realref(weights + i))) {
+        if(fmpr_cmpabs_2exp_si(fmprb_midref(fmpcb_imagref(weights+i)), -prec) <= 0) {
+            if(fmprb_is_positive(fmpcb_realref(weights+i))) {
                 positive_weights++;
-            } else if(fmprb_is_negative(fmpcb_realref(weights + i))) {
+            } else if(fmprb_is_negative(fmpcb_realref(weights+i))) {
                 negative_weights++;
             } else {
                 indefinite_weights++;
@@ -236,8 +236,8 @@ int check_accuracy(const fmpcb_ptr vec, const long len, const long prec) {
     long i;
 
     for(i = 0; i < len; i++) {
-        if(   fmpr_cmp_2exp_si(fmprb_radref(fmpcb_realref(vec + i)), -prec) >= 0
-           || fmpr_cmp_2exp_si(fmprb_radref(fmpcb_imagref(vec + i)), -prec) >= 0)
+        if(   fmpr_cmp_2exp_si(fmprb_radref(fmpcb_realref(vec+i)), -prec) >= 0
+           || fmpr_cmp_2exp_si(fmprb_radref(fmpcb_imagref(vec+i)), -prec) >= 0)
             return 0;
     }
     return 1;
