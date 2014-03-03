@@ -6,36 +6,35 @@ from matplotlib.pyplot import *
 if len(sys.argv) == 2:
     f = sys.argv[1]
     print("Reading values from file: "+f)
-
-F = open(f, "r")
+else:
+    raise ValueError("No file given!")
 
 found = False
 matrix = []
 
-for line in F.readlines():
-    if not found and line.startswith(5*"="):
-        found = True
-        continue
+with open(f, "r") as F:
+    for line in F.readlines():
+        if not found and line.startswith(5*"="):
+            found = True
+            continue
 
-    if found and line.startswith(5*"="):
-        found = False
-        continue
+        if found and line.startswith(5*"="):
+            found = False
+            continue
 
-    if found:
-        matrix.append(line.translate(None, "[]\n"))
-
-F.close()
+        if found:
+            matrix.append(line.translate(None, "[]\n"))
 
 if not matrix:
     raise ValueError("No matrix data found!")
 
-M = array([ map(int, line.split(" ")) for line in matrix if len(line) > 0 ])
+M = array([map(int, line.split(" ")) for line in matrix if len(line) > 0])
 maxn, maxp = M.shape
 
-print("Maximal values are: n="+str(maxn)+" and p="+str(maxp))
+print("Maximal values are: n=%d and p=%d" % (maxn, maxp))
 
-fig = figure()
-imshow(M, interpolation="none", origin="upper", extent=[1,maxp+1,maxn+1,1], cmap=cm.binary)
+figure()
+imshow(M, interpolation="none", origin="upper", extent=[1, maxp+1, maxn+1, 1], cmap=cm.binary)
 grid(True)
 xlabel(r"$p$")
 ylabel(r"$n$")

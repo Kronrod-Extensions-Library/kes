@@ -11,8 +11,7 @@ POLY ?= HERMITE
 PRINTLOG ?= 1
 CFG=-DPRINTLOG=${PRINTLOG} -D${POLY}
 
-#CFLAGS=-std=c11 -pedantic -Wall -funroll-loops -g -mpopcnt -DFLINT_CPIMPORT=\"/userdata/raoulb/lib/share/flint/CPimport.txt\"
-CFLAGS=-std=c11 -fopenmp -pedantic -Wall -O2 -funroll-loops -mpopcnt -DFLINT_CPIMPORT=\"/userdata/raoulb/lib/share/flint/CPimport.txt\"
+CFLAGS=-std=c11 -fopenmp -pedantic -Wall -Werror -O2 -funroll-loops -mpopcnt -DFLINT_CPIMPORT=\"/userdata/raoulb/lib/share/flint/CPimport.txt\"
 
 
 INCS=-I$(CURDIR) -I$(GMP_INCLUDE_DIR) -I$(MPFR_INCLUDE_DIR) -I$(FLINT_INCLUDE_DIR)
@@ -27,7 +26,6 @@ ekes:
 
 rekes:
 	$(CC) $(CFLAGS) $(CFG) $(INCS) libkes2.h kes_rec_enumerate.c $(LIBS) -o kes_rec_enumerate
-
 
 test:
 	$(CC) $(CFLAGS) $(INCS) libkes2.h test.c $(LIBS) -o test
