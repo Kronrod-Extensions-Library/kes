@@ -58,6 +58,7 @@ inline long validate_roots(const fmpcb_ptr roots,
 #ifdef HERMITE
     return validate_real_roots(roots, n, prec, loglevel);
 #endif
+    return 0;
 }
 
 inline long validate_weights(const fmpcb_ptr weights,

@@ -24,68 +24,68 @@ int main(int argc, char* argv[]) {
 
     printf("Legendre Polynomials:\n");
     for(n = 0; n < 10; n++) {
-	legendre_polynomial(P, n);
-	strf = fmpq_poly_get_str_pretty(P, "t");
-	flint_printf("P%d : %s\n", n, strf);
+        legendre_polynomial(P, n);
+        strf = fmpq_poly_get_str_pretty(P, "t");
+        flint_printf("P%d : %s\n", n, strf);
     }
     printf("\n");
 
     printf("Legendre Moments:\n");
     for(n = 0; n < 15; n++) {
-    	integrate_legendre(M, n);
-    	fmpq_print(M);
-    	printf("  ");
+        integrate_legendre(M, n);
+        fmpq_print(M);
+        printf("  ");
     }
     printf("\n\n");
 
 
     printf("Laguerre Polynomials:\n");
     for(n = 0; n < 10; n++) {
-    	laguerre_polynomial(L, n);
-    	strf = fmpq_poly_get_str_pretty(L, "t");
-    	flint_printf("L%d : %s\n", n, strf);
+        laguerre_polynomial(L, n);
+        strf = fmpq_poly_get_str_pretty(L, "t");
+        flint_printf("L%d : %s\n", n, strf);
     }
     printf("\n");
 
     printf("Laguerre Moments:\n");
     for(n = 0; n < 15; n++) {
-    	integrate_laguerre(M, n);
-    	fmpq_print(M);
-    	printf("  ");
+        integrate_laguerre(M, n);
+        fmpq_print(M);
+        printf("  ");
     }
     printf("\n\n");
 
 
     printf("Hermite PHY:\n");
     for(n = 0; n < 10; n++) {
-    	hermite_polynomial_phy(H, n);
-    	strf = fmpq_poly_get_str_pretty(H, "t");
-    	flint_printf("H%d : %s\n", n, strf);
+        hermite_polynomial_phy(H, n);
+        strf = fmpq_poly_get_str_pretty(H, "t");
+        flint_printf("H%d : %s\n", n, strf);
     }
     printf("\n");
 
     printf("Hermite PHY Moments:\n");
     for(n = 0; n < 15; n++) {
-    	integrate_hermite_phy(M, n);
-    	fmpq_print(M);
-    	printf("  ");
+        integrate_hermite_phy(M, n);
+        fmpq_print(M);
+        printf("  ");
     }
     printf("\n\n");
 
 
     printf("Hermite PRO:\n");
     for(n = 0; n < 10; n++) {
-    	hermite_polynomial_pro(H, n);
-    	strf = fmpq_poly_get_str_pretty(H, "t");
-    	flint_printf("H%d : %s\n", n, strf);
+        hermite_polynomial_pro(H, n);
+        strf = fmpq_poly_get_str_pretty(H, "t");
+        flint_printf("H%d : %s\n", n, strf);
     }
     printf("\n");
 
     printf("Hermite PRO Moments:\n");
     for(n = 0; n < 15; n++) {
-    	integrate_hermite_pro(M, n);
-    	fmpq_print(M);
-    	printf("  ");
+        integrate_hermite_pro(M, n);
+        fmpq_print(M);
+        printf("  ");
     }
     printf("\n\n");
 

@@ -75,7 +75,7 @@ savefig(f[:-4]+"_nodes_weights_" + L + ".png")
 
 fig = figure()
 for roots, weights in zip(allroots, allweights):
-    semilogy(real(roots), real(weights), "o")
+    semilogy(real(roots), abs(real(weights)), "o")
     xlim(min(real(roots).min()-1, -1), max(real(roots).max()+1, 1))
 grid(True)
 xlabel(r"$\gamma_i$")

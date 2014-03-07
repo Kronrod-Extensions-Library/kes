@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
 
     if(argc <= 1) {
         printf("Recursively search for generalized Kronrod extensions of Gauss rules\n");
-        printf("Syntax: kes_rec_enumerate [-l L] n max_p max_rec_depth\n");
+        printf("Syntax: kes_rec_enumerate [-vw] [-l L] n max_p max_rec_depth\n");
         printf("        -vw  Validate the polynomial extension by weights\n");
         printf("        -l   Set the log level\n");
         return EXIT_FAILURE;

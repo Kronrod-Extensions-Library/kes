@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 
     if(argc <= 1) {
         printf("Compute a nested generalized Kronrod extension of a Gauss rule\n");
-        printf("Syntax: kes  n p1 p2 ... pk\n");
+        printf("Syntax: kes [-ve] [-vw] [-cn] [-cw] [-dc D] [-dp D] [-l L] n p1 p2 ... pk\n");
         printf("Options:\n");
         printf("        -ve  Validate the polynomial extension by nodes\n");
         printf("        -vw  Validate the polynomial extension by weights\n");
