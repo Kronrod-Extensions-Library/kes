@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 
     printf("Starting with polynomial:\n");
     strf = fmpq_poly_get_str_pretty(Pn, "t");
-    flint_printf("P1 : %s\n", strf);
+    flint_printf("P : %s\n", strf);
     printf("Extension levels are:");
     for(i = 0; i < k; i++) {
         printf(" %i", levels[i]);
@@ -88,19 +88,15 @@ int main(int argc, char* argv[]) {
     printf("\n");
 
     fmpq_poly_init(Ep);
-    if(k > 1) {
-        solvable = find_multi_extension(Ep, Pn, k, levels, validate_extension, loglevel);
-    } else {
-        fmpq_poly_one(Ep);
-        solvable = 1;
-    }
+
+    solvable = find_multi_extension(Ep, Pn, k, levels, validate_extension, loglevel);
+
+    fmpq_poly_mul(Pn, Pn, Ep);
+    fmpq_poly_canonicalise(Pn);
 
     if(solvable) {
-
-        fmpq_poly_mul(Pn, Pn, Ep);
-        fmpq_poly_canonicalise(Pn);
         if(! fmpq_poly_is_squarefree(Pn)) {
-            printf(" =====>  FINAL POLYNOMIAL NOT SQF  <=====");
+            printf("=====>  FINAL POLYNOMIAL NOT SQF  <=====");
         }
 
         if(loglevel >= 2) {

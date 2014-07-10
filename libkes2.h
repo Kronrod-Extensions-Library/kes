@@ -42,57 +42,55 @@ int validate_extension_by_weights(const fmpcb_ptr, const long, const long, const
 
 /**********************************************************************/
 
-int find_extension(fmpq_poly_t En,
+int find_extension(fmpq_poly_t Ep,
                    const fmpq_poly_t Pn,
                    const int p,
                    const int loglevel) {
-    /* Extend the degree n polynomial Pk by one Kronrod extension Ek of degree p.
+    /* Extend the degree n polynomial Pn by one Kronrod extension Ep of degree p.
      *
-     * We search for a monic polynomial G(x) such that
-     * \int_\Omega F(t) G(t) t^i \rho(t) dt = 0   for all   i = 0, ..., p-1.
-     * To obtain the coefficients  a_0, ..., a_{p-1} of G(t)  we try to solve
-     * a  p x p  linear system. If successful the extension E_k exists.
+     * We search for a monic polynomial E_p(x) such that
+     * \int_\Omega P_n(t) E_p(t) t^i \rho(t) dt = 0   for all   i = 0, ..., p-1.
+     * To obtain the coefficients  a_0, ..., a_{p-1}  of E_p(t) we try to solve
+     * a  p \times p  linear system. If successful then the extension E_p exists.
      *
-     * Note that the extension E_n is unly valid if E_k has p real roots
+     * If the extension exists, the we return only the defining polynomial E_p
+     * and otherwise the zero polynomial.
+     *
+     * Note that the extension E_p is only valid if E_p has p real roots
      * inside the domain \Omega and if further all weights are positive.
+     * These conditions are however not checked within this function.
      *
-     * En: The polynomial defining the extension
+     * Ep: The polynomial defining the extension
      * Pn: The polynomial defining the basis
      * p: The degree of the extension
      * loglevel: The log verbosity
      */
-    slong deg_P;
+    slong n;
     slong rows;
     slong cols;
-
     fmpq_mat_t M, rhs, X;
     int i, k, j;
-
     slong deg;
-    fmpq_t coeff;
-    fmpq_t integral;
-    fmpq_t element;
-
+    fmpq_t coeff, integral, element;
     int solvable;
-
-    deg_P = fmpq_poly_degree(Pn);
 
     fmpq_init(coeff);
     fmpq_init(integral);
     fmpq_init(element);
-
     rows = p;
     cols = p;
     fmpq_mat_init(M, rows, cols);
-    fmpq_mat_zero(M);
     fmpq_mat_init(rhs, rows, 1);
+    fmpq_mat_zero(M);
     fmpq_mat_zero(rhs);
 
-    /* Build the system matrix  */
+    n = fmpq_poly_degree(Pn);
+
+    /* Build the system matrix */
     for(i = 0; i < rows; i++) {
         for(k = 0; k < cols; k++) {
             fmpq_zero(element);
-            for(j = 0; j <= deg_P; j++) {
+            for(j = 0; j <= n; j++) {
                 fmpq_poly_get_coeff_fmpq(coeff, Pn, j);
                 deg = i + k + j;
                 integrate(integral, deg);
@@ -106,7 +104,7 @@ int find_extension(fmpq_poly_t En,
     /* Build the right hand side */
     for(i = 0; i < rows; i++) {
         fmpq_zero(element);
-        for(j = 0; j <= deg_P; j++) {
+        for(j = 0; j <= n; j++) {
             fmpq_poly_get_coeff_fmpq(coeff, Pn, j);
             deg = i + p + j;
             integrate(integral, deg);
@@ -117,27 +115,22 @@ int find_extension(fmpq_poly_t En,
     }
     fmpq_mat_neg(rhs, rhs);
 
-    /*fmpq_mat_print(M);
-      fmpq_mat_print(rhs);*/
-
-    /* Try to solve the system */
+    /* Try to solve the linear system */
     fmpq_mat_init(X, rows, 1);
     fmpq_mat_zero(X);
     solvable = fmpq_mat_solve_fraction_free(X, M, rhs);
 
-    /*fmpq_mat_print(X);*/
     logit(1, loglevel, "Solvable: %i\n", solvable);
 
     /* Assemble the polynomial */
-    fmpq_poly_zero(En);
+    fmpq_poly_zero(Ep);
     if(solvable) {
-        for(k = 0; k < rows; k++) {
-            fmpq_poly_set_coeff_fmpq(En, k, fmpq_mat_entry(X, k, 0));
+        for(i = 0; i < rows; i++) {
+            fmpq_poly_set_coeff_fmpq(Ep, i, fmpq_mat_entry(X, i, 0));
         }
-        fmpq_poly_set_coeff_si(En, p, 1);
+        fmpq_poly_set_coeff_si(Ep, p, 1);
     }
-
-    fmpq_poly_canonicalise(En);
+    fmpq_poly_canonicalise(Ep);
 
     /* Clean up */
     fmpq_clear(coeff);
@@ -150,30 +143,38 @@ int find_extension(fmpq_poly_t En,
 }
 
 
-int find_multi_extension(fmpq_poly_t En,
-                         const fmpq_poly_t P,
+int find_multi_extension(fmpq_poly_t E,
+                         const fmpq_poly_t Pn,
                          const int k,
                          const int levels[],
                          const int validate_extension,
                          const int loglevel) {
-    /* Extends the polynomial P repeatedly by nested Kronrod extensions.
-     * En: The polynomial defining the extension
-     * P: The polynomial defining the basic rule
-     * k: The number of nested extensions
-     * levels: An array with the extension levels p_1, ..., p_k
+    /* Extend the degree n polynomial P_n repeatedly by k nested
+     * Kronrod extensions building a tower on top of P_n.
+     *
+     * Return the polynomial  E := \prod_{i = 0}^{k - 1} E_i  if
+     * the extension exists and the zero polynomial otherwise.
+     *
+     * E: The polynomial defining the extension tower
+     * Pn: The polynomial defining the basis
+     * k: The number of nested extensions in the tower
+     * levels: An array with the extension levels p_0, ..., p_{k-1}
      * validate_extension: Check if the roots are all real
      * loglevel: The log verbosity
      */
     int i;
     int solvable, valid;
-    fmpq_poly_t Pn;
+    fmpq_poly_t Pt, Et;
     long nrroots;
     char *strf;
     int success;
 
-    fmpq_poly_init(Pn);
-    fmpq_poly_set(Pn, P);
-    strf = fmpq_poly_get_str_pretty(P, "t");
+    fmpq_poly_init(Pt);
+    fmpq_poly_set(Pt, Pn);
+    fmpq_poly_init(Et);
+    fmpq_poly_one(Et);
+    fmpq_poly_one(E);
+    strf = fmpq_poly_get_str_pretty(Pn, "t");
 
     success = 1;
 
@@ -181,14 +182,15 @@ int find_multi_extension(fmpq_poly_t En,
         logit(1, loglevel, "-------------------------------------------------\n");
         logit(1, loglevel, "Trying to find an order %i Kronrod extension for:\n", levels[i]);
         if(loglevel >= 2) {
-            strf = fmpq_poly_get_str_pretty(Pn, "t");
+            strf = fmpq_poly_get_str_pretty(Pt, "t");
             flint_printf("P%i : %s\n", i, strf);
         }
 
-        solvable = find_extension(En, Pn, levels[i], loglevel);
+        solvable = find_extension(Et, Pt, levels[i], loglevel);
 
         if(!solvable) {
             success = 0;
+            fmpq_poly_zero(Et);
             printf("******************************\n");
             printf("*** EXTENSION NOT SOVLABLE ***\n");
             printf("******************************\n");
@@ -196,10 +198,11 @@ int find_multi_extension(fmpq_poly_t En,
         }
 
         if(validate_extension) {
-            valid = validate_extension_by_poly(&nrroots, En, NCHECKDIGITS, loglevel);
+            valid = validate_extension_by_poly(&nrroots, Et, NCHECKDIGITS, loglevel);
 
             if(!valid) {
                 success = 0;
+                fmpq_poly_zero(Et);
                 printf("************************************\n");
                 printf("*** EXTENSION WITH INVALID NODES ***\n");
                 printf("************************************\n");
@@ -208,12 +211,16 @@ int find_multi_extension(fmpq_poly_t En,
         }
 
         /* Iterate */
-        fmpq_poly_mul(Pn, Pn, En);
-        fmpq_poly_canonicalise(Pn);
+        fmpq_poly_mul(Pt, Pt, Et);
+        fmpq_poly_canonicalise(Pt);
+        fmpq_poly_mul(E, E, Et);
     }
 
+    fmpq_poly_canonicalise(E);
+
     flint_free(strf);
-    fmpq_poly_clear(Pn);
+    fmpq_poly_clear(Pt);
+    fmpq_poly_clear(Et);
     return success;
 }
 
@@ -294,9 +301,9 @@ void recursive_enumerate(const fmpq_poly_t Pn,
 
 
 inline void compute_nodes(fmpcb_ptr nodes,
-                   const fmpq_poly_t poly,
-                   const long prec,
-                   const int loglevel) {
+                          const fmpq_poly_t poly,
+                          const long prec,
+                          const int loglevel) {
     /*
      * nodes: An array containing the nodes
      * poly: The polynomial whose roots define the nodes
