@@ -9,6 +9,7 @@
 #ifndef __HH__helpers
 #define __HH__helpers
 
+
 void ps(const int, const int, const int);
 void logit(const int, const int, const char *, ...);
 
@@ -33,5 +34,6 @@ void logit(const int loglevel, const int verbosity, const char *format, ...) {
     }
     #endif
 }
+
 
 #endif

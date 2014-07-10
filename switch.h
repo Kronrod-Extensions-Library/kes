@@ -15,10 +15,11 @@
 #include "polynomials.h"
 #include "numerics.h"
 
+
 inline void polynomial(fmpq_poly_t Pn, const int n);
 inline void integrate(fmpq_t M, const int n);
-inline long validate_roots(const fmpcb_ptr, const long, const long, const int);
-inline long validate_weights(const fmpcb_ptr, const long, const long, const int);
+inline long validate_roots(const acb_ptr, const long, const long, const int);
+inline long validate_weights(const acb_ptr, const long, const long, const int);
 
 
 inline void polynomial(fmpq_poly_t Pn, const int n) {
@@ -45,7 +46,7 @@ inline void integrate(fmpq_t M, const int n) {
 #endif
 }
 
-inline long validate_roots(const fmpcb_ptr roots,
+inline long validate_roots(const acb_ptr roots,
                            const long n,
                            const long prec,
                            const int loglevel) {
@@ -61,11 +62,12 @@ inline long validate_roots(const fmpcb_ptr roots,
     return 0;
 }
 
-inline long validate_weights(const fmpcb_ptr weights,
+inline long validate_weights(const acb_ptr weights,
                              const long n,
                              const long prec,
                              const int loglevel) {
     return validate_positive_weights(weights, n, prec, loglevel);
 }
+
 
 #endif

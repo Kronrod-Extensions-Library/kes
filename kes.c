@@ -16,8 +16,8 @@ int main(int argc, char* argv[]) {
     fmpq_poly_t Pn, Ep;
     long deg;
     char *strf;
-    fmpcb_ptr nodes;
-    fmpcb_ptr weights;
+    acb_ptr nodes;
+    acb_ptr weights;
     int solvable;
     int validate_extension, validate_weights;
     int valid;
@@ -107,8 +107,8 @@ int main(int argc, char* argv[]) {
         }
 
         deg = fmpq_poly_degree(Pn);
-        nodes = _fmpcb_vec_init(deg);
-        weights = _fmpcb_vec_init(deg);
+        nodes = _acb_vec_init(deg);
+        weights = _acb_vec_init(deg);
 
         if(comp_weights || validate_weights) {
             compute_nodes_and_weights(nodes, weights, Pn, target_prec, loglevel);
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
                 printf("The nodes are:\n");
                 for(j = 0; j < deg; j++) {
                     printf("| ");
-                    fmpcb_printd(nodes + j, nrprintdigits);
+                    acb_printd(nodes + j, nrprintdigits);
                     printf("\n");
                 }
             }
@@ -144,14 +144,14 @@ int main(int argc, char* argv[]) {
                 printf("The weights are:\n");
                 for(j = 0; j < deg; j++) {
                     printf("| ");
-                    fmpcb_printd(weights + j, nrprintdigits);
+                    acb_printd(weights + j, nrprintdigits);
                     printf("\n");
                 }
             }
         }
 
-        _fmpcb_vec_clear(nodes, deg);
-        _fmpcb_vec_clear(weights, deg);
+        _acb_vec_clear(nodes, deg);
+        _acb_vec_clear(weights, deg);
     }
 
     flint_free(strf);

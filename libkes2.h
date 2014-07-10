@@ -32,15 +32,14 @@ int find_multi_extension(fmpq_poly_t, const fmpq_poly_t, const int, const int[],
 
 void recursiv_enumerate(const fmpq_poly_t, const int, const int, const int, const int, fmpz_mat_t, const int, const int);
 
-inline void compute_nodes(fmpcb_ptr, const fmpq_poly_t, const long, const int);
-void compute_nodes_and_weights(fmpcb_ptr, fmpcb_ptr, const fmpq_poly_t, const long, const int);
+inline void compute_nodes(acb_ptr, const fmpq_poly_t, const long, const int);
+void compute_nodes_and_weights(acb_ptr, acb_ptr, const fmpq_poly_t, const long, const int);
 
 int validate_rule(long*, long*, const fmpq_poly_t, const long, const int);
 int validate_extension_by_poly(long*, const fmpq_poly_t, const long, const int);
-int validate_extension_by_roots(const fmpcb_ptr, const long, const long, const int);
-int validate_extension_by_weights(const fmpcb_ptr, const long, const long, const int);
+int validate_extension_by_roots(const acb_ptr, const long, const long, const int);
+int validate_extension_by_weights(const acb_ptr, const long, const long, const int);
 
-/**********************************************************************/
 
 int find_extension(fmpq_poly_t Ep,
                    const fmpq_poly_t Pn,
@@ -300,7 +299,7 @@ void recursive_enumerate(const fmpq_poly_t Pn,
 }
 
 
-inline void compute_nodes(fmpcb_ptr nodes,
+inline void compute_nodes(acb_ptr nodes,
                           const fmpq_poly_t poly,
                           const long prec,
                           const int loglevel) {
@@ -316,8 +315,8 @@ inline void compute_nodes(fmpcb_ptr nodes,
 }
 
 
-void compute_nodes_and_weights(fmpcb_ptr nodes,
-                               fmpcb_ptr weights,
+void compute_nodes_and_weights(acb_ptr nodes,
+                               acb_ptr weights,
                                const fmpq_poly_t poly,
                                const long target_prec,
                                const int loglevel) {
@@ -331,20 +330,20 @@ void compute_nodes_and_weights(fmpcb_ptr nodes,
     int k, j;
     slong K;
     fmpq_t integral;
-    fmpcb_t element;
-    fmpcb_mat_t A;
-    fmpcb_mat_t B;
-    fmpcb_mat_t X;
+    acb_t element;
+    acb_mat_t A;
+    acb_mat_t B;
+    acb_mat_t X;
     int solvable;
     long initial_prec, prec;
 
     K = fmpq_poly_degree(poly);
-    fmpcb_mat_init(A, K, K);
-    fmpcb_mat_init(B, K, 1);
-    fmpcb_mat_init(X, K, 1);
-    fmpcb_mat_zero(A);
-    fmpcb_mat_zero(B);
-    fmpcb_mat_zero(X);
+    acb_mat_init(A, K, K);
+    acb_mat_init(B, K, 1);
+    acb_mat_init(X, K, 1);
+    acb_mat_zero(A);
+    acb_mat_zero(B);
+    acb_mat_zero(X);
 
     logit(1, loglevel, "-------------------------------------------------\n");
     logit(1, loglevel, "Computing nodes and weights\n");
@@ -359,25 +358,25 @@ void compute_nodes_and_weights(fmpcb_ptr nodes,
         /* Build the system matrix */
         for(k = 0; k < K; k++) {
             for(j = 0; j < K; j++) {
-                fmpcb_pow_ui(element, nodes+j, k, prec);
-                fmpcb_set(fmpcb_mat_entry(A, k, j), element);
+                acb_pow_ui(element, nodes+j, k, prec);
+                acb_set(acb_mat_entry(A, k, j), element);
             }
         }
 
         /* Build the right hand side */
         for(k = 0; k < K; k++) {
             integrate(integral, k);
-            fmpcb_set_fmpq(element, integral, prec);
-            fmpcb_set(fmpcb_mat_entry(B, k, 0), element);
+            acb_set_fmpq(element, integral, prec);
+            acb_set(acb_mat_entry(B, k, 0), element);
         }
 
         /* Solve the system and obtain weights */
         logit(4, loglevel, " current precision for weights: %ld\n", prec);
 
-        solvable = fmpcb_mat_solve(X, A, B, prec);
+        solvable = acb_mat_solve(X, A, B, prec);
 
         for(k = 0; k < K; k++) {
-            *(k + weights) = *fmpcb_mat_entry(X, k, 0);
+            *(k + weights) = *acb_mat_entry(X, k, 0);
         }
 
         logit(4, loglevel, "Linear system for weights solvable: %i\n", solvable);
@@ -404,7 +403,7 @@ int validate_rule(long* nrroots,
      * loglevel: The log verbosity
      */
     slong deg;
-    fmpcb_ptr roots, weights;
+    acb_ptr roots, weights;
     long rroots, nnweights;
 
     /* This extension is invalid */
@@ -414,8 +413,8 @@ int validate_rule(long* nrroots,
     }
 
     /* Compute the roots */
-    roots = _fmpcb_vec_init(deg);
-    weights = _fmpcb_vec_init(deg);
+    roots = _acb_vec_init(deg);
+    weights = _acb_vec_init(deg);
 
     compute_nodes_and_weights(roots, weights, En, prec, loglevel);
 
@@ -427,8 +426,8 @@ int validate_rule(long* nrroots,
     nnweights = validate_weights(weights, deg, prec, loglevel);
     (*nnnweights) = nnweights;
 
-    _fmpcb_vec_clear(roots, deg);
-    _fmpcb_vec_clear(weights, deg);
+    _acb_vec_clear(roots, deg);
+    _acb_vec_clear(weights, deg);
 
     return (rroots == deg && nnweights == deg) ? 1 : 0;
 }
@@ -445,7 +444,7 @@ int validate_extension_by_poly(long* nrroots,
      * loglevel: The log verbosity
      */
     slong deg;
-    fmpcb_ptr roots;
+    acb_ptr roots;
     long valid_roots;
 
     /* This extension is invalid */
@@ -455,7 +454,7 @@ int validate_extension_by_poly(long* nrroots,
     }
 
     /* Compute the roots */
-    roots = _fmpcb_vec_init(deg);
+    roots = _acb_vec_init(deg);
     compute_nodes(roots, En, prec, loglevel);
 
     /* Validate roots */
@@ -464,13 +463,13 @@ int validate_extension_by_poly(long* nrroots,
 
     logit(1, loglevel, "Extension rule has valid nodes: %i\n", valid_roots == deg ? 1 : 0);
 
-    _fmpcb_vec_clear(roots, deg);
+    _acb_vec_clear(roots, deg);
 
     return valid_roots == deg ? 1 : 0;
 }
 
 
-int validate_extension_by_roots(const fmpcb_ptr roots,
+int validate_extension_by_roots(const acb_ptr roots,
                                 const long deg,
                                 const long prec,
                                 const int loglevel) {
@@ -496,7 +495,7 @@ int validate_extension_by_roots(const fmpcb_ptr roots,
 }
 
 
-int validate_extension_by_weights(const fmpcb_ptr weights,
+int validate_extension_by_weights(const acb_ptr weights,
                                   const long deg,
                                   const long prec,
                                   const int loglevel) {
@@ -520,5 +519,6 @@ int validate_extension_by_weights(const fmpcb_ptr weights,
 
     return valid_weights == deg ? 1 : 0;
 }
+
 
 #endif
