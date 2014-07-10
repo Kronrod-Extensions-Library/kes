@@ -338,6 +338,7 @@ void compute_nodes_and_weights(acb_ptr nodes,
     long initial_prec, prec;
 
     K = fmpq_poly_degree(poly);
+    acb_init(element);
     acb_mat_init(A, K, K);
     acb_mat_init(B, K, 1);
     acb_mat_init(X, K, 1);
@@ -387,6 +388,7 @@ void compute_nodes_and_weights(acb_ptr nodes,
             break;
         }
     }
+    acb_clear(element);
 }
 
 
