@@ -27,6 +27,9 @@ ekes:
 rekes:
 	$(CC) $(CFLAGS) $(CFG) $(INCS) libkes2.h kes_rec_enumerate.c $(LIBS) -o kes_rec_enumerate
 
+quad:
+	$(CC) $(CFLAGS) $(CFG) $(INCS) libkes2.h quadrature.c $(LIBS) -o quadrature
+
 test:
 	$(CC) $(CFLAGS) $(INCS) libkes2.h test.c $(LIBS) -o test
 

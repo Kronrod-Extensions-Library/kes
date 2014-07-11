@@ -14,6 +14,7 @@
 
 #include "polynomials.h"
 #include "numerics.h"
+#include "quadrature.h"
 
 
 inline void polynomial(fmpq_poly_t Pn, const int n);
@@ -85,6 +86,21 @@ inline long validate_weights(const acb_ptr weights,
                              const long prec,
                              const int loglevel) {
     return validate_positive_weights(weights, n, prec, loglevel);
+}
+
+inline void evaluate_weights_formula(acb_ptr weights,
+				     const acb_ptr nodes,
+				     const int n,
+				     long prec) {
+#ifdef LEGENDRE
+
+#endif
+#ifdef LAGUERRE
+
+#endif
+#ifdef HERMITE
+    evaluate_weights_formula_hermite(weights, nodes, n, prec);
+#endif
 }
 
 
