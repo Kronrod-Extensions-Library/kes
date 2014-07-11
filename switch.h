@@ -94,10 +94,10 @@ inline void evaluate_weights_formula(acb_ptr weights,
                                      const int n,
                                      long prec) {
 #ifdef LEGENDRE
-
+    evaluate_weights_formula_legendre(weights, nodes, n, prec);
 #endif
 #ifdef LAGUERRE
-
+    evaluate_weights_formula_laguerre(weights, nodes, n, prec);
 #endif
 #ifdef HERMITE
     evaluate_weights_formula_hermite_pro(weights, nodes, n, prec);
