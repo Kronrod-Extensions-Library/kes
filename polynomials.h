@@ -20,16 +20,16 @@
 #include "flint/fmpq_mat.h"
 
 
-void hermite_polynomial_pro(fmpq_poly_t Hn, const int n);
-void hermite_polynomial_phy(fmpq_poly_t Hn, const int n);
-void integrate_hermite_pro(fmpq_t I, const int n);
-void integrate_hermite_phy(fmpq_t I, const int n);
+void hermite_polynomial_pro(fmpq_poly_t, const int);
+void hermite_polynomial_phy(fmpq_poly_t, const int);
+void integrate_hermite_pro(fmpq_t, const int);
+void integrate_hermite_phy(fmpq_t, const int);
 
-void laguerre_polynomial(fmpq_poly_t Ln, const int n);
-void integrate_laguerre(fmpq_t I, const int n);
+void laguerre_polynomial(fmpq_poly_t, const int);
+void integrate_laguerre(fmpq_t, const int);
 
-void legendre_polynomial(fmpq_poly_t Pn, const int n);
-void integrate_legendre(fmpq_t I, const int n);
+void legendre_polynomial(fmpq_poly_t, const int);
+void integrate_legendre(fmpq_t, const int);
 
 void chebyshevt_polynomial(fmpq_poly_t Tn, const int n);
 void integrate_chebyshevt(fmpq_t I, const int n);

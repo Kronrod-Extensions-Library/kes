@@ -25,14 +25,14 @@ void ps(const int loglevel, const int verbosity, const int n) {
 
 
 void logit(const int loglevel, const int verbosity, const char *format, ...) {
-    #if PRINTLOG
+#if PRINTLOG
     va_list argp;
     if(verbosity >= loglevel) {
         va_start(argp, format);
         vprintf(format, argp);
         va_end(argp);
     }
-    #endif
+#endif
 }
 
 

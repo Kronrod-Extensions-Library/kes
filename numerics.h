@@ -35,6 +35,9 @@ long validate_real_interval_roots(const acb_ptr, const long, const long, const i
 
 long validate_positive_weights(const acb_ptr, const long, const long, const int);
 
+inline void evaluate_polynomial(acb_t, const fmpq_poly_t, const acb_t, const long);
+inline void evaluate_polynomial_vector(acb_ptr, const fmpq_poly_t, const acb_ptr, const int, long);
+
 void poly_roots(acb_ptr, const fmpq_poly_t, const long, const long, const int);
 int check_accuracy(const acb_ptr, const long, const long);
 
@@ -184,12 +187,51 @@ long validate_positive_weights(const acb_ptr weights,
 }
 
 
+inline void evaluate_polynomial(acb_t value,
+                                const fmpq_poly_t P,
+                                const acb_t point,
+                                const long prec) {
+    /* Evaluate a given polynomial P at the given point.
+     *
+     * value: The computed value P(x).
+     * P: The polynomial P.
+     * point: The evaluation point x.
+     * prec: The number of bits used for evaluation.
+     */
+    acb_poly_t p;
+    acb_poly_init(p);
+    acb_poly_set_fmpq_poly(p, P, prec);
+    acb_poly_evaluate(value, p, point, prec);
+    acb_poly_clear(p);
+}
+
+
+inline void evaluate_polynomial_vector(acb_ptr values,
+                                       const fmpq_poly_t P,
+                                       const acb_ptr points,
+                                       const int k,
+                                       long prec) {
+    /* Evaluate a given polynomial P at the given vector of points.
+     *
+     * values: The computed values {P(x_i)}_i.
+     * P: The polynomial P.
+     * point: The evaluation points {x_i}_i.
+     * k: The number of evaluation points.
+     * prec: The number of bits used for evaluation.
+     */
+    acb_poly_t p;
+    acb_poly_init(p);
+    acb_poly_set_fmpq_poly(p, P, prec);
+    acb_poly_evaluate_vec_fast(values, p, points, k, prec);
+    acb_poly_clear(p);
+}
+
 
 /* The following function are borrowed from the "poly_roots"
    example in the arb library documentation. The header of
    the "poly_roots.c" files states:
 
-       This file is public domain. Author: Fredrik Johansson.
+   This file is public domain. Author: Fredrik Johansson.
 */
 
 

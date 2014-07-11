@@ -17,10 +17,11 @@
 #include "quadrature.h"
 
 
-inline void polynomial(fmpq_poly_t Pn, const int n);
-inline void integrate(fmpq_t M, const int n);
+inline void polynomial(fmpq_poly_t, const int);
+inline void integrate(fmpq_t, const int);
 inline long validate_roots(const acb_ptr, const long, const long, const int);
 inline long validate_weights(const acb_ptr, const long, const long, const int);
+inline void evaluate_weights_formula(acb_ptr, const acb_ptr, const int, long);
 
 
 inline void polynomial(fmpq_poly_t Pn, const int n) {
@@ -89,9 +90,9 @@ inline long validate_weights(const acb_ptr weights,
 }
 
 inline void evaluate_weights_formula(acb_ptr weights,
-				     const acb_ptr nodes,
-				     const int n,
-				     long prec) {
+                                     const acb_ptr nodes,
+                                     const int n,
+                                     long prec) {
 #ifdef LEGENDRE
 
 #endif
@@ -99,7 +100,7 @@ inline void evaluate_weights_formula(acb_ptr weights,
 
 #endif
 #ifdef HERMITE
-    evaluate_weights_formula_hermite(weights, nodes, n, prec);
+    evaluate_weights_formula_hermite_pro(weights, nodes, n, prec);
 #endif
 }
 

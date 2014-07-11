@@ -66,29 +66,29 @@ int main(int argc, char* argv[]) {
 
     /* Precision in number of bits */
     for(working_prec = target_prec; ; working_prec *= 2) {
-	/* Find nodes and weights */
-	compute_nodes(nodes, Pn, working_prec, loglevel);
-	evaluate_weights_formula(weights, nodes, deg, working_prec);
-	/* Accuracy goal reached? */
-	if(check_accuracy(nodes, deg, target_prec) && check_accuracy(weights, deg, target_prec)) {
-	    break;
-	}
+        /* Find nodes and weights */
+        compute_nodes(nodes, Pn, working_prec, loglevel);
+        evaluate_weights_formula(weights, nodes, deg, working_prec);
+        /* Accuracy goal reached? */
+        if(check_accuracy(nodes, deg, target_prec) && check_accuracy(weights, deg, target_prec)) {
+            break;
+        }
     }
 
     /* Print roots and weights */
     printf("-------------------------------------------------\n");
     printf("The nodes are:\n");
     for(j = 0; j < deg; j++) {
-	printf("| ");
-	acb_printd(nodes + j, nrprintdigits);
-	printf("\n");
+        printf("| ");
+        acb_printd(nodes + j, nrprintdigits);
+        printf("\n");
     }
     printf("-------------------------------------------------\n");
     printf("The weights are:\n");
     for(j = 0; j < deg; j++) {
-	printf("| ");
-	acb_printd(weights + j, nrprintdigits);
-	printf("\n");
+        printf("| ");
+        acb_printd(weights + j, nrprintdigits);
+        printf("\n");
     }
 
     _acb_vec_clear(nodes, deg);
