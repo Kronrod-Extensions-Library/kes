@@ -1,8 +1,9 @@
 Kronrod Extension Search
 ########################
 
-The Makefile can generate 3 useful programs:
+The Makefile can generate 4 useful programs:
 
+* 'quadrature' by calling 'make quad'
 * 'kes' by calling 'make bkes'
 * 'kes_enumerate' by calling 'make ekes'
 * 'kes_rec_enumerate' by calling 'make rekes'
@@ -20,6 +21,25 @@ via 'POLY=P' where 'P' is one of:
 All code can be compiled to produce minimal output by
 setting 'PRINTLOG=0'. For detailed help, run the programs
 without any arguments.
+
+
+High-order quadrature rules
+---------------------------
+
+The program 'quadrature' computes quadrature nodes and
+weights for Gauss-Legendre, Gauss-Laguerre or Gauss-Hermite
+quadrature rules. Computation works by root-finding and
+an explicit formula for the weights given the nodes.
+
+
+Nested Kronrod Extensions
+-------------------------
+
+The program 'kes' computes nested Kronrod extensions
+from an initial rule and a list of polynomial extension
+degrees. Output contains the defining polynomials and
+optionally the nodes and weights for for each quadrature
+extension.
 
 
 Exhaustive search for Kronrod Extensions
