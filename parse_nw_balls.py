@@ -18,9 +18,7 @@ weights = []
 
 with open(f, "r") as F:
     for line in F.readlines():
-        if line.startswith("Extension levels are"):
-            L = line.split(": ")[1][:-1]
-        elif line.startswith("The nodes are"):
+        if line.startswith("The nodes are"):
             rblock = True
             wblock = False
             roots = []
@@ -46,7 +44,6 @@ with open(f, "r") as F:
 if not allroots or not allweights:
     raise ValueError("No suitable data found!")
 
-L = L.replace(" ", "_")
 allroots = map(array, allroots)
 allweights = map(array, allweights)
 
