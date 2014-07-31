@@ -14,6 +14,8 @@ via 'POLY=P' where 'P' is one of:
 * 'LEGENDRE'
 * 'LAGUERRE'
 * 'HERMITE'
+* 'CHEBYSHEVT'
+* 'CHEBYSHEVU'
 
 All code can be compiled to produce minimal output by
 setting 'PRINTLOG=0'. For detailed help, run the programs

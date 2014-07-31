@@ -32,6 +32,12 @@ inline void polynomial(fmpq_poly_t Pn, const int n) {
 #ifdef HERMITE
     hermite_polynomial_pro(Pn, n);
 #endif
+#ifdef CHEBYSHEVT
+    chebyshevt_polynomial(Pn, n);
+#endif
+#ifdef CHEBYSHEVU
+    chebyshevu_polynomial(Pn, n);
+#endif
 }
 
 inline void integrate(fmpq_t M, const int n) {
@@ -43,6 +49,12 @@ inline void integrate(fmpq_t M, const int n) {
 #endif
 #ifdef HERMITE
     integrate_hermite_pro(M, n);
+#endif
+#ifdef CHEBYSHEVT
+    integrate_chebyshevt(M, n);
+#endif
+#ifdef CHEBYSHEVU
+    integrate_chebyshevu(M, n);
 #endif
 }
 
@@ -58,6 +70,12 @@ inline long validate_roots(const acb_ptr roots,
 #endif
 #ifdef HERMITE
     return validate_real_roots(roots, n, prec, loglevel);
+#endif
+#ifdef CHEBYSHEVT
+    return validate_real_interval_roots(roots, n, prec, loglevel);
+#endif
+#ifdef CHEBYSHEVU
+    return validate_real_interval_roots(roots, n, prec, loglevel);
 #endif
     return 0;
 }

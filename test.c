@@ -16,11 +16,15 @@ int main(int argc, char* argv[]) {
     fmpq_poly_t P;
     fmpq_poly_t L;
     fmpq_poly_t H;
+    fmpq_poly_t T;
+    fmpq_poly_t U;
     char *strf;
 
     fmpq_poly_init(P);
     fmpq_poly_init(L);
     fmpq_poly_init(H);
+    fmpq_poly_init(T);
+    fmpq_poly_init(U);
 
     printf("Legendre Polynomials:\n");
     for(n = 0; n < 10; n++) {
@@ -89,6 +93,46 @@ int main(int argc, char* argv[]) {
     }
     printf("\n\n");
 
+
+    printf("Chebyshev T:\n");
+    for(n = 0; n < 10; n++) {
+        chebyshevt_polynomial(T, n);
+        strf = fmpq_poly_get_str_pretty(T, "t");
+        flint_printf("T%d : %s\n", n, strf);
+    }
+    printf("\n");
+
+    printf("Chebyshev T Moments:\n");
+    for(n = 0; n < 15; n++) {
+        integrate_chebyshevt(M, n);
+        fmpq_print(M);
+        printf("  ");
+    }
+    printf("\n\n");
+
+
+    printf("Chebyshev U:\n");
+    for(n = 0; n < 10; n++) {
+        chebyshevu_polynomial(U, n);
+        strf = fmpq_poly_get_str_pretty(U, "t");
+        flint_printf("U%d : %s\n", n, strf);
+    }
+    printf("\n");
+
+    printf("Chebyshev U Moments:\n");
+    for(n = 0; n < 15; n++) {
+        integrate_chebyshevu(M, n);
+        fmpq_print(M);
+        printf("  ");
+    }
+    printf("\n\n");
+
+
+    fmpq_poly_clear(P);
+    fmpq_poly_clear(L);
+    fmpq_poly_clear(H);
+    fmpq_poly_clear(T);
+    fmpq_poly_clear(U);
 
     return EXIT_SUCCESS;
 }
