@@ -34,4 +34,4 @@ test:
 	$(CC) $(CFLAGS) $(INCS) libkes2.h test.c $(LIBS) -o test
 
 clean:
-	rm kes kes_enumerate kes_rec_enumerate
+	rm kes kes_enumerate kes_rec_enumerate quadrature test

@@ -153,7 +153,7 @@ void integrate_hermite_pro(fmpq_t I, const int n) {
      *
      * I = \int_{-\infty}^\infty \exp(-x^2/2) x^n dx
      *
-     * n even:  I = \Gamma{\frac{n+1}{2}}
+     * n even:  I = \sqrt{2} 2^n \Gamma{\frac{n+1}{2}}
      * n odd:   I = 0
      *
      * 1  0  1  0  3  0  15  0  105  0  945  0  10395  0  135135
@@ -182,7 +182,7 @@ void integrate_hermite_pro(fmpq_t I, const int n) {
 void integrate_hermite_phy(fmpq_t I, const int n) {
     /* Integrate
      *
-     * I = \int_{-\infty}^{\infty} \exp(-x^2/2) x^n dx
+     * I = \int_{-\infty}^{\infty} \exp(-x^2) x^n dx
      *
      * n even:  I = 2^{\frac{n+1}{2}} \Gamma{\frac{n+1}{2}}
      * n odd:   I = 0
