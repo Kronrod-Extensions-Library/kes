@@ -20,9 +20,9 @@ void evaluate_weights_formula_hermite_pro(acb_ptr, const acb_ptr, const int, lon
 
 
 void evaluate_weights_formula_legendre(acb_ptr weights,
-				       const acb_ptr nodes,
-				       const int n,
-				       long prec) {
+                                       const acb_ptr nodes,
+                                       const int n,
+                                       long prec) {
     /* Compute the Gauss-Legendre quadrature weights by the analytic formula.
      *
      */
@@ -52,12 +52,12 @@ void evaluate_weights_formula_legendre(acb_ptr weights,
 
     for(k = 0; k < n; k++) {
         acb_mul((t+k), (t+k), (nodes+k), prec);
-	acb_sub((weights+k), (t+k), (weights+k), prec);
-	acb_pow_ui((weights+k), (weights+k), 2, prec);
-	acb_one((t+k));
-	acb_submul((t+k), (nodes+k), (nodes+k), prec);
+        acb_sub((weights+k), (t+k), (weights+k), prec);
+        acb_pow_ui((weights+k), (weights+k), 2, prec);
+        acb_one((t+k));
+        acb_submul((t+k), (nodes+k), (nodes+k), prec);
         acb_div((weights+k), (t+k), (weights+k), prec);
-	acb_mul_arb((weights+k), (weights+k), pf, prec);
+        acb_mul_arb((weights+k), (weights+k), pf, prec);
     }
 
     arb_clear(pf);
@@ -67,9 +67,9 @@ void evaluate_weights_formula_legendre(acb_ptr weights,
 
 
 void evaluate_weights_formula_laguerre(acb_ptr weights,
-				       const acb_ptr nodes,
-				       const int n,
-				       long prec) {
+                                       const acb_ptr nodes,
+                                       const int n,
+                                       long prec) {
     /* Compute the Gauss-Laguerre quadrature weights by the analytic formula.
      *
      */
