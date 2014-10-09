@@ -14,6 +14,10 @@ CFG=-DPRINTLOG=${PRINTLOG} -D${POLY}
 CFLAGS=-std=c11 -fopenmp -pedantic -Wall -Werror -O2 -funroll-loops -mpopcnt -DFLINT_CPIMPORT=\"/userdata/raoulb/lib/share/flint/CPimport.txt\"
 
 
+CPP=g++
+CPPFLAGS=-std=c++11 -pedantic -Wall -Werror -O2 -funroll-loops -mpopcnt
+
+
 INCS=-I$(CURDIR) -I$(GMP_INCLUDE_DIR) -I$(MPFR_INCLUDE_DIR) -I$(FLINT_INCLUDE_DIR)
 
 LIBS=-L$(CURDIR) -L$(FLINT_LIB_DIR) -L$(GMP_LIB_DIR) -L$(MPFR_LIB_DIR) -larb -lflint -lmpfr -lgmp -lpthread -lm
@@ -29,6 +33,9 @@ rekes:
 
 quad:
 	$(CC) $(CFLAGS) $(CFG) $(INCS) libkes2.h quadrature.c $(LIBS) -o quadrature
+
+gk:
+	$(CPP) $(CPPFLAGS) genzkeister.cpp -o gkq
 
 test:
 	$(CC) $(CFLAGS) $(INCS) libkes2.h test.c $(LIBS) -o test
