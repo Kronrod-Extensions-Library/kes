@@ -11,6 +11,8 @@
 #include <vector>
 #include <iostream>
 
+//#include "boost/multi_array.hpp"
+
 #include "arf.h"
 #include "arb.h"
 #include "acb.h"
@@ -54,11 +56,11 @@ void maxminsort(std::vector<arb_struct>& G, acb_ptr g, long n) {
 int main(int argc, char* argv[]) {
     fmpq_poly_t Pn;
     fmpq_poly_t Ep;
-    char *strf;
     long deg;
     acb_ptr generators;
 
-    int target_prec = 53;
+    int target_prec = 530;
+    //int zero_eps = 53;
     int nrprintdigits = 20;
     int loglevel = 8;
     int validate_extension = 0;
@@ -119,7 +121,108 @@ int main(int argc, char* argv[]) {
         std::cout << std::endl;
     }
 
-    flint_free(strf);
+    int NUMGEN = G.size();
+
+
+    /* Compute moments of exp(-x^2/2) */
+    fmpz_mat_t M;
+    fmpz_mat_init(M, 1, 2*NUMGEN+1);
+    fmpz_t I, tmp;
+    fmpz_init(I);
+    fmpz_one(I);
+    for(long i=0; i < 2*NUMGEN+1; i++) {
+	if(i % 2 == 0) {
+	    fmpz_set(fmpz_mat_entry(M, 0, i), I);
+            fmpz_set_ui(tmp, i + 1);
+            fmpz_mul(I, I, tmp);
+	} else {
+	    fmpz_set_ui(fmpz_mat_entry(M, 0, i), 0);
+	}
+    }
+
+    std::cout << "=========================================\n";
+    fmpz_mat_print_pretty(M);
+
+
+    /* Compute the values of all a_i */
+    arb_mat_t A;
+    arb_mat_init(A, 1, NUMGEN+1);
+
+    arb_poly_t term, poly;
+    arb_poly_init(term);
+    arb_poly_init(poly);
+    arb_poly_one(poly);
+
+    arb_t t, u, c, ai;
+    arb_init(t);
+    arb_init(u);
+    arb_init(c);
+    arb_init(ai);
+
+    // a_0 = 1
+    arb_set_ui(arb_mat_entry(A, 0, 0), 1);
+
+    // a_i
+    int i = 1;
+    for(auto it=G.begin(); it != G.end(); it++) {
+	// Construct the polynomial term by term
+	arb_poly_set_coeff_si(term, 2, 1);
+	arb_pow_ui(t, &(*it), 2, target_prec);
+	arb_neg(t, t);
+	arb_poly_set_coeff_arb(term, 0, t);
+	arb_poly_mul(poly, poly, term, target_prec);
+	// Compute the contributions to a_i for each monomial
+	arb_zero(ai);
+	long deg = arb_poly_degree(poly);
+	for(long d=0; d <= deg; d++) {
+	    arb_set_fmpz(t, fmpz_mat_entry(M, 0, d));
+	    arb_poly_get_coeff_arb(c, poly, d);
+	    arb_mul(t, c, t, target_prec);
+	    arb_add(ai, ai, t, target_prec);
+	}
+	// TODO: More zero tests
+	if(arf_is_zero(arb_midref(ai))) {
+	    arb_zero(ai);
+	}
+	// Assign a_i
+	arb_set(arb_mat_entry(A, 0, i), ai);
+	i++;
+    }
+
+    std::cout << "=========================================\n";
+    arb_mat_printd(A, 5);
+
+
+    /* Precompute all weight factors */
+    arb_mat_t WF;
+    arb_mat_init(WF, NUMGEN+1, NUMGEN+1);
+    arb_mat_zero(WF);
+
+    for(int xi=0; xi <= NUMGEN; xi++) {
+	arb_one(c);
+	for(int theta=0; theta <= NUMGEN; theta++) {
+	    if(theta != xi) {
+		arb_pow_ui(t, &G[theta], 2, target_prec);
+		arb_pow_ui(u, &G[xi], 2, target_prec);
+		arb_sub(t, u, t, target_prec);
+		arb_mul(c, c, t, target_prec);
+	    }
+	    if(theta >= xi) {
+		arb_div(t, arb_mat_entry(A, 0, theta), c, target_prec);
+		arb_set(arb_mat_entry(WF, xi, theta), t);
+	    }
+	}
+    }
+
+    std::cout << "=========================================\n";
+    arb_mat_printd(WF, 5);
+
+
+
+
+
+
+
     fmpq_poly_clear(Pn);
     fmpq_poly_clear(Ep);
 
