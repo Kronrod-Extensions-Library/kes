@@ -7,181 +7,62 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <array>
 #include <list>
+#include <vector>
 #include <iostream>
 
-//#include "libkes2.h"
+#include "arf.h"
+#include "arb.h"
+#include "acb.h"
 
-template <int D>
-int sum(std::array<int, D> Z) {
-    int s = 0;
-    for(int i=0; i<D; i++) {
-	s += Z[i];
+#include "libkes2.h"
+
+
+void maxminsort(std::vector<arb_struct>& G, acb_ptr g, long n) {
+    // Put all elements in t
+    std::list<arb_struct> t(0);
+    for(int i = 0; i < n; i++) {
+	if(arb_is_nonnegative(acb_realref(g+i))) {
+	    t.push_back(acb_realref(g+i)[0]);
+	}
     }
-    return s;
-}
-
-
-template <int D>
-std::list<std::array<int, D> >
-Partitions(int K) {
-    /*
-     * Enumerate integer partitions in anti-lexocographic
-     * order for integers up to some limit K. All partitions
-     * have exactly D parts, some may be zero.
-     *
-     * :param D: Dimension
-     * :param K: Level
-     */
-    std::list<std::array<int, D> > partitions;
-    std::array<int, D> P;
-
-    P.fill(0);
-    partitions.push_back(P);
-
-    while(sum<D>(P) <= K) {
-	int p0 = P[0];
-	bool broke = false;
-	for(int i=1; i < D; i++) {
-	    p0 += P[i];
-	    if(P[0] <= P[i] + 1) {
-		P[i] = 0;
+    // Sort them by radius, drop negative ones
+    bool largest = true;
+    while(t.size() > 0) {
+      	auto I = t.begin();
+	// Look for largest or smallest element
+	for(auto it=t.begin(); it != t.end(); it++) {
+	    if(largest) {
+		if(arf_cmp(arb_midref(&(*I)), arb_midref(&(*it))) <= 0) {
+		    I = it;
+		}
 	    } else {
-		P[0] = p0 - i * (P[i] + 1);
-		for(int j=1; j <= i; j++) {
-		    P[j] = P[i] + 1;
+		if(arf_cmp(arb_midref(&(*I)), arb_midref(&(*it))) >= 0) {
+		    I = it;
 		}
-		partitions.push_back(P);
-		broke = true;
-		break;
 	    }
 	}
-	if(!broke) {
-	    P[0] = p0 + 1;
-	    if(sum<D>(P) <= K) {
-		partitions.push_back(P);
-	    }
-	}
+	// Copy over into G
+	G.push_back(*I);
+	t.erase(I);
+	largest = !largest;
     }
-
-    return partitions;
 }
-
-
-template <int D>
-std::list<std::array<int, D> >
-LatticePoints(int N) {
-    /* This method enumerates all lattice points of a lattice
-     * :math:`\Lambda \subset \mathbb{N}^D` in :math:`D` dimensions
-     * having fixed :math:`l_1` norm :math:`N`.
-     *
-     * :param D: The dimension :math:`D` of the lattice.
-     * :param N: The :math:`l_1` norm of the lattice points.
-     */
-    std::list<std::array<int, D> > L;
-    std::array<int, D> k;
-
-    for(int n=0; n <= N; n++) {
-	k.fill(0);
-	k[0] = n;
-	L.push_back(k);
-
-	int c = 1;
-	while(k[D-1] < n) {
-	    if(c == D) {
-		for(int i = c-1; i >= 1; i--) {
-		    c = i;
-		    if(k[i-1] != 0) {
-			break;
-		    }
-		}
-	    }
-	    k[c-1] -= 1;
-	    c += 1;
-
-	    int xi = 0;
-	    for(int t=0; t < c-1; t++) {
-		xi += k[t];
-	    }
-	    k[c-1] = n - xi;
-
-	    if(c < D) {
-		for(int t=c; t < D; t++) {
-		    k[t] = 0;
-		}
-	    }
-	    L.push_back(k);
-	}
-    }
-
-    return L;
-}
-
-
-
-template <int D>
-std::list<std::array<int, D> >
-Permutations(std::array<int, D> P) {
-    /* Enumerate all permutations in anti-lexicographical
-     * order follwing the given permutation `P`.
-     *
-     * :param P: A permutation
-     */
-    std::list<std::array<int, D> > permutations;
-
-    permutations.push_back(P);
-
-    bool broke = true;
-    while(broke) {
-	broke = false;
-	for(int i=1; i < D; i++) {
-	    int pi = P[i];
-	    if(P[i-1] > pi) {
-		int I = i;
-		if(i > 1) {
-		    int J = I;
-		    for(int j=0; j < I/2; j++) {
-			int pj = P[j];
-			if(pj <= pi) {
-			    I = I - 1;
-			}
-			P[j] = P[i-j-1];
-			P[i-j-1] = pj;
-			if(P[j] > pi) {
-			    J = j + 1;
-			}
-		    }
-		    if(P[I-1] <= pi) {
-			I = J;
-		    }
-		}
-		P[i] = P[I-1];
-		P[I-1] = pi;
-		permutations.push_back(P);
-		broke = true;
-		break;
-	    }
-	}
-    }
-
-    return permutations;
-}
-
 
 
 
 int main(int argc, char* argv[]) {
-    /* int i, j; */
-    /* int deg; */
-    /* //fmpq_poly_t Pn; */
-    /* char *strf; */
-    /* //  acb_ptr nodes; */
-    /* //acb_ptr weights; */
-    /* int working_prec; */
-    /* int target_prec; */
-    /* int nrprintdigits; */
-    /* int loglevel; */
+    fmpq_poly_t Pn;
+    fmpq_poly_t Ep;
+    char *strf;
+    long deg;
+    acb_ptr generators;
+
+    int target_prec = 53;
+    int nrprintdigits = 20;
+    int loglevel = 8;
+    int validate_extension = 0;
+
 
     if(argc <= 1) {
         printf("Compute Genz-Keister quadrature rule\n");
@@ -193,38 +74,54 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
 
+    /* Rule definition */
+    const int k = 5;
+    int levels[k] = {1, 2, 6, 10, 16};
 
-    // Test lattice point code
-    const int D = 4;
-    std::list<std::array<int, D> > LL;
-    LL = Partitions<D>(5);
+    /* Compute generators */
+    std::vector<arb_struct> G(0);
 
-    for(auto Xit = LL.begin(); Xit != LL.end(); Xit++) {
-	auto X = *Xit;
+    /* Compute extension recursively */
+    fmpq_poly_init(Pn);
+    fmpq_poly_init(Ep);
 
+    polynomial(Pn, levels[0]);
 
-	std::cout << "[";
-	for(int i=0; i < D-1; i++) {
-	    std::cout << X[i] << ", ";
+    deg = fmpq_poly_degree(Pn);
+    generators = _acb_vec_init(deg);
+    compute_nodes(generators, Pn, target_prec, loglevel);
+    maxminsort(G, generators, deg);
+    //_acb_vec_clear(generators, deg);
+
+    for(int i = 1; i < k; i++) {
+	bool solvable = find_extension(Ep, Pn, levels[i], loglevel);
+	if(!solvable) {
+	    break;
 	}
-	std::cout << X[D-1] << "]\n";
 
-	std::list<std::array<int, D> > PP;
-	PP = Permutations<D>(X);
+	/* Compute generators (zeros of Pn) */
+	deg = fmpq_poly_degree(Ep);
+	generators = _acb_vec_init(deg);
+	compute_nodes(generators, Ep, target_prec, loglevel);
+	maxminsort(G, generators, deg);
+	//_acb_vec_clear(generators, deg);
 
-	for (auto it = PP.begin(); it != PP.end(); it++) {
-	    auto k = *it;
-	    std::cout << "(";
-	    for(int i=0; i < D-1; i++) {
-		std::cout << k[i] << ", ";
-	    }
-	    std::cout << k[D-1] << ")\n";
-	}
-	std::cout << "\n";
-
+        /* Iterate */
+        fmpq_poly_mul(Pn, Pn, Ep);
+        fmpq_poly_canonicalise(Pn);
     }
 
+    // Print
+    std::cout << "=========================================\n";
+    for(auto it=G.begin(); it != G.end(); it++) {
+	std::cout << "||  ";
+        arb_printd(&(*it), nrprintdigits);
+        std::cout << std::endl;
+    }
 
+    flint_free(strf);
+    fmpq_poly_clear(Pn);
+    fmpq_poly_clear(Ep);
 
     return EXIT_SUCCESS;
 }
