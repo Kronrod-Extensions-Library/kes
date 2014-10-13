@@ -10,7 +10,8 @@ ARB_INCLUDE_DIR=/userdata/raoulb/lib/include
 
 POLY ?= HERMITE
 PRINTLOG ?= 1
-CFG=-DPRINTLOG=${PRINTLOG} -D${POLY}
+DIMENSION ?= 1
+CFG=-DPRINTLOG=${PRINTLOG} -D${POLY} -DDIMENSION=${DIMENSION}
 
 
 CC=gcc
@@ -39,10 +40,10 @@ quad:
 	$(CC) $(CFLAGS) $(CFG) $(INCS) libkes2.h quadrature.c $(LIBS) -o quadrature
 
 gk:
-	$(CPP) $(CPPFLAGS) $(CFG) $(INCS) genzkeister.cpp $(LIBS) -o gkq
+	$(CPP) $(CPPFLAGS) $(CFG) $(INCS) genzkeister.h genzkeister.cpp $(LIBS) -o genzkeister
 
 test:
 	$(CC) $(CFLAGS) $(INCS) libkes2.h test.c $(LIBS) -o test
 
 clean:
-	rm kes kes_enumerate kes_rec_enumerate quadrature test
+	rm kes kes_enumerate kes_rec_enumerate quadrature genzkeister test
