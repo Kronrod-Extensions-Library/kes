@@ -207,16 +207,16 @@ arb_mat_struct compute_weightfactors(const generators_t& generators,
 
 template<int D>
 nodes_t<D>
-compute_points(const partition_t<D> P,
-               const generators_t& generators,
-               const int working_prec) {
+compute_nodes(const partition_t<D> P,
+              const generators_t& generators,
+              const int working_prec) {
     /* Compute fully symmetric quadrature nodes for given partition `P`.
      *
      * P: Partition `P`
      * generators: Table with precomputed generators
      * working_prec: Working precision
      */
-    nodes_t<D> points;
+    nodes_t<D> nodes;
     partition_t<D> Q;
 
     // Number of 0 entries in P
@@ -227,7 +227,7 @@ compute_points(const partition_t<D> P,
     for(auto it=permutations.begin(); it != permutations.end(); it++) {
         Q = *it;
         for(int v=0; v < nsf; v++) {
-            node_t<D> point;
+            node_t<D> node;
             int u = 0;
             for(int d=0; d < D; d++) {
                 arb_t t;
@@ -243,12 +243,12 @@ compute_points(const partition_t<D> P,
                     u++;
                 }
                 // Assign
-                point[d] = *t;
+                node[d] = *t;
             }
-            points.push_back(point);
+            nodes.push_back(node);
         }
     }
-    return points;
+    return nodes;
 }
 
 
@@ -302,7 +302,6 @@ rule_t<D>
 genz_keister_construction(int K,
                           const generators_t& generators,
                           arb_mat_struct& weight_factors,
-                          const int Z[],
                           int working_prec) {
     /* Compute the Genz-Keister construction.
      *
@@ -312,8 +311,17 @@ genz_keister_construction(int K,
      * Z:
      * working_prec: Working precision
      */
-    nodes_t<D> points;
+    nodes_t<D> nodes;
     weights_t weights;
+
+    /* Precompute the Z-sequence */
+    // TODO Based on formula
+    int Z[27] = {0,0,
+                 1,0,0,
+                 3,2,1,0,0,
+                 5,4,3,2,1,0,0,0,
+                 8,7,6,5,4,3,2,1,0
+    };
 
     // Iterate over all relevant integer partitions
     partitions_t<D> partitions = Partitions<D>(K);
@@ -328,22 +336,22 @@ genz_keister_construction(int K,
         //
         if(s <= K) {
             // Compute nodes and weights for given partition
-            nodes_t<D> p = compute_points<D>(P, generators, working_prec);
+            nodes_t<D> p = compute_nodes<D>(P, generators, working_prec);
             weights_t w = compute_weights<D>(P, K, weight_factors, working_prec);
             for(int i=0; i < p.size(); i++) {
-                points.push_back(p[i]);
+                nodes.push_back(p[i]);
                 weights.push_back(w[0]);
             }
         }
     }
 
-    return std::make_pair(points, weights);
+    return std::make_pair(nodes, weights);
 }
 
 
 bool
 check_accuracy(const arb_t a,
-	       const long prec) {
+               const long prec) {
     /* Check if a ball has a radius small enough to fit the target precision.
      *
      * a: A ball to test

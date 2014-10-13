@@ -16,10 +16,14 @@ int main(int argc, char* argv[]) {
 
     if(argc < 1) {
         printf("Compute Genz-Keister quadrature rule\n");
-        printf("Syntax: gk [-dc D] [-dp D] [-K K] n\n");
+        printf("Syntax: gk [-dc D] [-dp D] [-pn] [-pw] [-pge] [-pwf] [-K K] n\n");
         printf("Options:\n");
         printf("        -dc  Compute nodes and weights up to this number of decimal digits\n");
         printf("        -dp  Print this number of decimal digits\n");
+        printf("        -pn  Do not print the nodes\n");
+        printf("        -pw  Do not print the weights\n");
+        printf("        -pge Print the generators\n");
+        printf("        -pwf Print the weight factors\n");
         printf("        -K   Set the level of the rule\n");
         return EXIT_FAILURE;
     }
@@ -28,6 +32,10 @@ int main(int argc, char* argv[]) {
     //int levels[argc-1];
     int target_prec = 53;
     int nrprintdigits = 20;
+    bool print_nodes = true;
+    bool print_weights = true;
+    bool print_generators = false;
+    bool print_weightfactors = false;
 
     //int k = 0;
     for (int i = 1; i < argc; i++) {
@@ -38,34 +46,32 @@ int main(int argc, char* argv[]) {
         } else if (!strcmp(argv[i], "-dp")) {
             nrprintdigits = atoi(argv[i+1]);
             i++;
+        } else if (!strcmp(argv[i], "-pn")) {
+            print_nodes = false;
+        } else if (!strcmp(argv[i], "-pw")) {
+            print_weights = false;
+        } else if (!strcmp(argv[i], "-pge")) {
+            print_generators = true;
+        } else if (!strcmp(argv[i], "-pwf")) {
+            print_weightfactors = true;
         } else if (!strcmp(argv[i], "-K")) {
             K = atoi(argv[i+1]);
             i++;
-        //} else {
-        //    levels[k] = atoi(argv[i]);
-        //    k++;
+            //} else {
+            //    levels[k] = atoi(argv[i]);
+            //    k++;
         }
     }
 
-    // Dimension of the quadrature rule
+    /* Dimension of the quadrature rule */
     const unsigned int D = DIMENSION;
 
     // Note K is shifted by 1 wrt the original paper
     // This makes K=3 equal to the Gauss-Hermite Rule of 3 points.
-    K -= 1;
+    K--;
 
     /* Rule definition */
     std::vector<int> levels = {1, 2, 6, 10, 16};
-
-    /* Precompute the Z-sequence */
-    // TODO Based on formula
-    int Z[27] = {0,0,
-                 1,0,0,
-                 3,2,1,0,0,
-                 5,4,3,2,1,0,0,0,
-                 8,7,6,5,4,3,2,1,0
-    };
-
 
     /* Iteratively compute quadrature nodes and weights */
     generators_t G;
@@ -83,7 +89,7 @@ int main(int argc, char* argv[]) {
         WF = compute_weightfactors(G, working_prec);
 
         /* Compute a Genz-Keister quadrature rule */
-        rule = genz_keister_construction<D>(K, G, WF, Z, working_prec);
+        rule = genz_keister_construction<D>(K, G, WF, working_prec);
 
         nodes = rule.first;
         weights = rule.second;
@@ -94,42 +100,49 @@ int main(int argc, char* argv[]) {
         }
     }
 
-
     /* Print nodes and weights */
 
-    std::cout << "==================================================\n";
-    std::cout << "GENERATORS" << std::endl;
+    if(print_generators) {
+        std::cout << "==================================================\n";
+        std::cout << "GENERATORS" << std::endl;
 
-    for(auto it=G.begin(); it != G.end(); it++) {
-        std::cout << "| ";
-        arb_printd(&(*it), nrprintdigits);
-        std::cout << std::endl;
-    }
-
-    std::cout << "==================================================\n";
-    std::cout << "WEIGHTFACTORS" << std::endl;
-
-    arb_mat_printd(&WF, 5);
-
-    std::cout << "==================================================\n";
-    std::cout << "NODES" << std::endl;
-
-    for(auto it=nodes.begin(); it != nodes.end(); it++) {
-        std::cout << "| ";
-        for(int d=0; d < D; d++) {
-            arb_printd(&((*it)[d]), 7);
-            std::cout << ",\t\t";
+        for(auto it=G.begin(); it != G.end(); it++) {
+            std::cout << "| ";
+            arb_printd(&(*it), nrprintdigits);
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
     }
 
-    std::cout << "==================================================\n";
-    std::cout << "WEIGHTS" << std::endl;
+    if(print_weightfactors) {
+        std::cout << "==================================================\n";
+        std::cout << "WEIGHTFACTORS" << std::endl;
 
-    for(auto it=weights.begin(); it != weights.end(); it++) {
-        std::cout << "| ";
-        arb_printd(&(*it), nrprintdigits);
-        std::cout << std::endl;
+        arb_mat_printd(&WF, 5);
+    }
+
+    if(print_nodes) {
+        std::cout << "==================================================\n";
+        std::cout << "NODES" << std::endl;
+
+        for(auto it=nodes.begin(); it != nodes.end(); it++) {
+            std::cout << "| ";
+            for(int d=0; d < D; d++) {
+                arb_printd(&((*it)[d]), 7);
+                std::cout << ",\t\t";
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    if(print_weights) {
+        std::cout << "==================================================\n";
+        std::cout << "WEIGHTS" << std::endl;
+
+        for(auto it=weights.begin(); it != weights.end(); it++) {
+            std::cout << "| ";
+            arb_printd(&(*it), nrprintdigits);
+            std::cout << std::endl;
+        }
     }
 
     std::cout << "==================================================\n";
