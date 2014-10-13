@@ -11,6 +11,7 @@
 #include <vector>
 #include <array>
 #include <iostream>
+#include <utility>
 
 #include "arf.h"
 #include "arb.h"
@@ -53,48 +54,148 @@ void maxminsort(std::vector<arb_struct>& generators, acb_ptr g, long n) {
 }
 
 
-template <int D>
-std::vector<arb_struct>
-Weights(std::array<int, D> P,
-        int K,
-	arb_mat_t& WF,
-        int working_prec) {
-    /* Function to compute weights for partition `P`.
+std::vector<arb_struct> compute_generators(const int k,
+                                           const int levels[],
+                                           const int working_prec) {
+    /* Compute the generators.
      *
-     * P: Partition `P`
-     * K: Rule order
-     * WF: Table with precomputed weight factors
+     * k: The number of nested extensions in the tower
+     * levels: An array with the extension levels p_0, ..., p_{k-1}
      * working_prec: Working precision
      */
-    std::vector<arb_struct> weights;
+    std::vector<arb_struct> G(0);
 
-    arb_t W, w;
-    arb_init(W);
-    arb_init(w);
-    arb_zero(W);
+    /* Compute extension recursively and obtain generators */
+    fmpq_poly_t Pn;
+    fmpq_poly_t Ep;
+    fmpq_poly_init(Pn);
+    fmpq_poly_init(Ep);
 
-    std::list<std::array<int, D>> U = LatticePoints<D>(K-sum<D>(P));
-    std::array<int, D> Q;
+    hermite_polynomial_pro(Pn, levels[0]);
 
-    for(auto it=U.begin(); it != U.end(); it++) {
-        Q = *it;
-        arb_one(w);
-        for(int d=0; d < D; d++) {
-            arb_mul(w, w, arb_mat_entry(WF, P[d], P[d]+Q[d]), working_prec);
+    long deg = fmpq_poly_degree(Pn);
+    acb_ptr generators = _acb_vec_init(deg);
+    compute_nodes(generators, Pn, working_prec, 0);
+    maxminsort(G, generators, deg);
+    //_acb_vec_clear(generators, deg);
+
+    for(int i = 1; i < k; i++) {
+        bool solvable = find_extension(Ep, Pn, levels[i], 0);
+        if(!solvable) {
+            break;
         }
-        arb_add(W, W, w, working_prec);
-    }
-    // Number of non-zero
-    int k = nnz<D>(P);
-    if(k > 0) {
-        arb_div_ui(W, W, (2 << (k-1)) , working_prec);
-    }
-    weights.push_back(*W);
 
-    arb_clear(w);
-    //arb_clear(W);
+        /* Compute generators (zeros of Pn) */
+        deg = fmpq_poly_degree(Ep);
+        generators = _acb_vec_init(deg);
+        compute_nodes(generators, Ep, working_prec, 0);
+        maxminsort(G, generators, deg);
+        //_acb_vec_clear(generators, deg);
 
-    return weights;
+        /* Iterate */
+        fmpq_poly_mul(Pn, Pn, Ep);
+        fmpq_poly_canonicalise(Pn);
+    }
+
+    fmpq_poly_clear(Pn);
+    fmpq_poly_clear(Ep);
+
+    return G;
+}
+
+
+arb_mat_struct compute_weightfactors(const std::vector<arb_struct>& generators,
+                                     const int working_prec) {
+    /* Compute the weight factors.
+     *
+     * generators: List of generators
+     * working_prec: Working precision
+     */
+    int number_generators = generators.size();
+
+    /* Compute moments of exp(-x^2/2) */
+    fmpz_mat_t M;
+    fmpz_mat_init(M, 1, 2*number_generators+1);
+    fmpz_t I, tmp;
+    fmpz_init(I);
+    fmpz_one(I);
+    for(long i=0; i < 2*number_generators+1; i++) {
+        if(i % 2 == 0) {
+            fmpz_set(fmpz_mat_entry(M, 0, i), I);
+            fmpz_set_ui(tmp, i + 1);
+            fmpz_mul(I, I, tmp);
+        } else {
+            fmpz_set_ui(fmpz_mat_entry(M, 0, i), 0);
+        }
+    }
+
+    /* Compute the values of all a_i */
+    arb_mat_t A;
+    arb_mat_init(A, 1, number_generators+1);
+
+    arb_poly_t term, poly;
+    arb_poly_init(term);
+    arb_poly_init(poly);
+    arb_poly_one(poly);
+
+    arb_t t, u, c, ai;
+    arb_init(t);
+    arb_init(u);
+    arb_init(c);
+    arb_init(ai);
+
+    // a_0 = 1
+    arb_set_ui(arb_mat_entry(A, 0, 0), 1);
+
+    // a_i
+    int i = 1;
+    for(auto it=generators.begin(); it != generators.end(); it++) {
+        // Construct the polynomial term by term
+        arb_poly_set_coeff_si(term, 2, 1);
+        arb_pow_ui(t, &(*it), 2, working_prec);
+        arb_neg(t, t);
+        arb_poly_set_coeff_arb(term, 0, t);
+        arb_poly_mul(poly, poly, term, working_prec);
+        // Compute the contributions to a_i for each monomial
+        arb_zero(ai);
+        long deg = arb_poly_degree(poly);
+        for(long d=0; d <= deg; d++) {
+            arb_set_fmpz(t, fmpz_mat_entry(M, 0, d));
+            arb_poly_get_coeff_arb(c, poly, d);
+            arb_mul(t, c, t, working_prec);
+            arb_add(ai, ai, t, working_prec);
+        }
+        // TODO: More zero tests
+        if(arf_is_zero(arb_midref(ai))) {
+            arb_zero(ai);
+        }
+        // Assign a_i
+        arb_set(arb_mat_entry(A, 0, i), ai);
+        i++;
+    }
+
+    /* Precompute all weight factors */
+    arb_mat_t weight_factors;
+    arb_mat_init(weight_factors, number_generators+1, number_generators+1);
+    arb_mat_zero(weight_factors);
+
+    for(int xi=0; xi <= number_generators; xi++) {
+        arb_one(c);
+        for(int theta=0; theta <= number_generators; theta++) {
+            if(theta != xi) {
+                arb_pow_ui(t, &generators[theta], 2, working_prec);
+                arb_pow_ui(u, &generators[xi], 2, working_prec);
+                arb_sub(t, u, t, working_prec);
+                arb_mul(c, c, t, working_prec);
+            }
+            if(theta >= xi) {
+                arb_div(t, arb_mat_entry(A, 0, theta), c, working_prec);
+                arb_set(arb_mat_entry(weight_factors, xi, theta), t);
+            }
+        }
+    }
+
+    return *weight_factors;
 }
 
 
@@ -145,6 +246,95 @@ Points(const std::array<int, D> P,
 }
 
 
+template <int D>
+std::vector<arb_struct>
+Weights(std::array<int, D> P,
+        int K,
+        arb_mat_struct& weight_factors,
+        int working_prec) {
+    /* Function to compute weights for partition `P`.
+     *
+     * P: Partition `P`
+     * K: Rule order
+     * weight_factors: Table with precomputed weight factors
+     * working_prec: Working precision
+     */
+    std::vector<arb_struct> weights;
+
+    arb_t W, w;
+    arb_init(W);
+    arb_init(w);
+    arb_zero(W);
+
+    std::list<std::array<int, D>> U = LatticePoints<D>(K-sum<D>(P));
+    std::array<int, D> Q;
+
+    for(auto it=U.begin(); it != U.end(); it++) {
+        Q = *it;
+        arb_one(w);
+        for(int d=0; d < D; d++) {
+            arb_mul(w, w, arb_mat_entry(&weight_factors, P[d], P[d]+Q[d]), working_prec);
+        }
+        arb_add(W, W, w, working_prec);
+    }
+    // Number of non-zero
+    int k = nnz<D>(P);
+    if(k > 0) {
+        arb_div_ui(W, W, (2 << (k-1)) , working_prec);
+    }
+    weights.push_back(*W);
+
+    arb_clear(w);
+    //arb_clear(W);
+
+    return weights;
+}
+
+
+template <int D>
+std::pair<std::vector<std::array<arb_struct, D> >, std::vector<arb_struct> >
+GenzKeisterConstruction(int K,
+                        const std::vector<arb_struct>& generators,
+                        arb_mat_struct& weight_factors,
+                        const int Z[],
+                        int working_prec) {
+    /* Compute the Genz-Keister construction
+     *
+     * K: Level of the quadrature rule
+     * generators: Table with precomputed generators
+     * weight_factors: Table with the weight factors
+     * Z:
+     * working_prec: Working precision
+     */
+    std::vector<std::array<arb_struct, D>> points;
+    std::vector<arb_struct> weights;
+
+    // Iterate over all relevant integer partitions
+    std::list<std::array<int, D>> partitions = Partitions<D>(K);
+    for(auto it=partitions.begin(); it != partitions.end(); it++) {
+        //
+        std::array<int, D> P = *it;
+        int s = 0;
+        for(int d=0; d < D; d++) {
+            s += P[d];
+            s += Z[P[d]];
+        }
+        //
+        if(s <= K) {
+            // Compute nodes and weights for given partition
+            std::vector<std::array<arb_struct, D>> p = Points<D>(P, generators, working_prec);
+            std::vector<arb_struct> w = Weights<D>(P, K, weight_factors, working_prec);
+            for(int i=0; i < p.size(); i++) {
+                points.push_back(p[i]);
+                weights.push_back(w[0]);
+            }
+        }
+    }
+
+    return std::make_pair(points, weights);
+}
+
+
 int main(int argc, char* argv[]) {
     // Some constants
     int target_prec = 53;
@@ -174,133 +364,7 @@ int main(int argc, char* argv[]) {
     const int k = 5;
     int levels[k] = {1, 2, 6, 10, 16};
 
-    /* Compute extension recursively and obtain generators */
-
-    std::vector<arb_struct> G(0);
-
-    fmpq_poly_t Pn;
-    fmpq_poly_t Ep;
-    fmpq_poly_init(Pn);
-    fmpq_poly_init(Ep);
-
-    hermite_polynomial_pro(Pn, levels[0]);
-
-    long deg = fmpq_poly_degree(Pn);
-    acb_ptr generators = _acb_vec_init(deg);
-    compute_nodes(generators, Pn, working_prec, loglevel);
-    maxminsort(G, generators, deg);
-    //_acb_vec_clear(generators, deg);
-
-    for(int i = 1; i < k; i++) {
-        bool solvable = find_extension(Ep, Pn, levels[i], loglevel);
-        if(!solvable) {
-            break;
-        }
-
-        /* Compute generators (zeros of Pn) */
-        deg = fmpq_poly_degree(Ep);
-        generators = _acb_vec_init(deg);
-        compute_nodes(generators, Ep, working_prec, loglevel);
-        maxminsort(G, generators, deg);
-        //_acb_vec_clear(generators, deg);
-
-        /* Iterate */
-        fmpq_poly_mul(Pn, Pn, Ep);
-        fmpq_poly_canonicalise(Pn);
-    }
-
-    fmpq_poly_clear(Pn);
-    fmpq_poly_clear(Ep);
-
-    int number_generators = G.size();
-
-    /* Compute moments of exp(-x^2/2) */
-
-    fmpz_mat_t M;
-    fmpz_mat_init(M, 1, 2*number_generators+1);
-    fmpz_t I, tmp;
-    fmpz_init(I);
-    fmpz_one(I);
-    for(long i=0; i < 2*number_generators+1; i++) {
-        if(i % 2 == 0) {
-            fmpz_set(fmpz_mat_entry(M, 0, i), I);
-            fmpz_set_ui(tmp, i + 1);
-            fmpz_mul(I, I, tmp);
-        } else {
-            fmpz_set_ui(fmpz_mat_entry(M, 0, i), 0);
-        }
-    }
-
-    /* Compute the values of all a_i */
-
-    arb_mat_t A;
-    arb_mat_init(A, 1, number_generators+1);
-
-    arb_poly_t term, poly;
-    arb_poly_init(term);
-    arb_poly_init(poly);
-    arb_poly_one(poly);
-
-    arb_t t, u, c, ai;
-    arb_init(t);
-    arb_init(u);
-    arb_init(c);
-    arb_init(ai);
-
-    // a_0 = 1
-    arb_set_ui(arb_mat_entry(A, 0, 0), 1);
-
-    // a_i
-    int i = 1;
-    for(auto it=G.begin(); it != G.end(); it++) {
-        // Construct the polynomial term by term
-        arb_poly_set_coeff_si(term, 2, 1);
-        arb_pow_ui(t, &(*it), 2, working_prec);
-        arb_neg(t, t);
-        arb_poly_set_coeff_arb(term, 0, t);
-        arb_poly_mul(poly, poly, term, working_prec);
-        // Compute the contributions to a_i for each monomial
-        arb_zero(ai);
-        long deg = arb_poly_degree(poly);
-        for(long d=0; d <= deg; d++) {
-            arb_set_fmpz(t, fmpz_mat_entry(M, 0, d));
-            arb_poly_get_coeff_arb(c, poly, d);
-            arb_mul(t, c, t, working_prec);
-            arb_add(ai, ai, t, working_prec);
-        }
-        // TODO: More zero tests
-        if(arf_is_zero(arb_midref(ai))) {
-            arb_zero(ai);
-        }
-        // Assign a_i
-        arb_set(arb_mat_entry(A, 0, i), ai);
-        i++;
-    }
-
-    /* Precompute all weight factors */
-
-    arb_mat_t WF;
-    arb_mat_init(WF, number_generators+1, number_generators+1);
-    arb_mat_zero(WF);
-
-    for(int xi=0; xi <= number_generators; xi++) {
-        arb_one(c);
-        for(int theta=0; theta <= number_generators; theta++) {
-            if(theta != xi) {
-                arb_pow_ui(t, &G[theta], 2, working_prec);
-                arb_pow_ui(u, &G[xi], 2, working_prec);
-                arb_sub(t, u, t, working_prec);
-                arb_mul(c, c, t, working_prec);
-            }
-            if(theta >= xi) {
-                arb_div(t, arb_mat_entry(A, 0, theta), c, working_prec);
-                arb_set(arb_mat_entry(WF, xi, theta), t);
-            }
-        }
-    }
-
     /* Precompute the Z-sequence */
-
     // TODO Based on formula
     int Z[27] = {0,0,
                  1,0,0,
@@ -309,32 +373,20 @@ int main(int argc, char* argv[]) {
                  8,7,6,5,4,3,2,1,0
     };
 
+    /* Compute data tables */
+
+    std::vector<arb_struct> G = compute_generators(k, levels, working_prec);
+    arb_mat_struct WF = compute_weightfactors(G, working_prec);
+
     /* Compute a Genz-Keister quadrature rule */
 
-    std::list<std::array<arb_struct, D>> points;
-    std::list<arb_struct> weights;
+    std::pair<std::vector<std::array<arb_struct, D>>, std::vector<arb_struct>> rule;
+    rule = GenzKeisterConstruction<D>(K, G, WF, Z, working_prec);
 
-    // Iterate over all relevant integer partitions
-    std::list<std::array<int, D>> partitions = Partitions<D>(K);
-    for(auto it=partitions.begin(); it != partitions.end(); it++) {
-        //
-        std::array<int, D> P = *it;
-        int s = 0;
-        for(int d=0; d < D; d++) {
-            s += P[d];
-            s += Z[P[d]];
-        }
-        //
-        if(s <= K) {
-            // Compute nodes and weights for given partition
-            std::vector<std::array<arb_struct, D>> p = Points<D>(P, G, working_prec);
-            std::vector<arb_struct> w = Weights<D>(P, K, WF, working_prec);
-            for(int i=0; i < p.size(); i++) {
-                points.push_back(p[i]);
-                weights.push_back(w[0]);
-            }
-        }
-    }
+    std::vector<std::array<arb_struct, D>> points;
+    std::vector<arb_struct> weights;
+    points = rule.first;
+    weights = rule.second;
 
     /* Print nodes and weights */
 
@@ -350,7 +402,7 @@ int main(int argc, char* argv[]) {
     std::cout << "==================================================\n";
     std::cout << "WEIGHTFACTORS" << std::endl;
 
-    arb_mat_printd(WF, 5);
+    arb_mat_printd(&WF, 5);
 
     std::cout << "==================================================\n";
     std::cout << "NODES" << std::endl;
