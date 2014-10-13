@@ -22,10 +22,17 @@
 #include "enumerators.h"
 
 
-void maxminsort(std::vector<arb_struct>& generators, acb_ptr g, long n) {
+typedef std::vector<arb_struct> generators_t;
+typedef std::vector<arb_struct> weights_t;
+template<int D> using node_t = std::array<arb_struct, D>;
+template<int D> using nodes_t = std::vector<node_t<D>>;
+template<int D> using rule_t = std::pair<nodes_t<D>, weights_t>;
+
+
+void maxminsort(generators_t& generators, acb_ptr g, long n) {
     /* Sort generators according to the max-min heuristic.
      */
-    std::vector<arb_struct> t(0);
+    generators_t t(0);
     for(int i = 0; i < n; i++) {
         if(arb_is_nonnegative(acb_realref(g+i))) {
             t.push_back(acb_realref(g+i)[0]);
@@ -55,14 +62,14 @@ void maxminsort(std::vector<arb_struct>& generators, acb_ptr g, long n) {
 }
 
 
-std::vector<arb_struct> compute_generators(const std::vector<int> levels,
-                                           const int working_prec) {
+generators_t compute_generators(const std::vector<int> levels,
+                                const int working_prec) {
     /* Compute the generators.
      *
      * levels: An array with the extension levels p_0, ..., p_{k-1}
      * working_prec: Working precision
      */
-    std::vector<arb_struct> G(0);
+    generators_t G(0);
 
     /* Compute extension recursively and obtain generators */
     fmpq_poly_t Pn;
@@ -103,7 +110,7 @@ std::vector<arb_struct> compute_generators(const std::vector<int> levels,
 }
 
 
-arb_mat_struct compute_weightfactors(const std::vector<arb_struct>& generators,
+arb_mat_struct compute_weightfactors(const generators_t& generators,
                                      const int working_prec) {
     /* Compute the weight factors.
      *
@@ -118,7 +125,7 @@ arb_mat_struct compute_weightfactors(const std::vector<arb_struct>& generators,
     fmpz_t I, tmp;
     fmpz_init(I);
     fmpz_one(I);
-    for(long i=0; i < 2*number_generators+1; i++) {
+    for(int i=0; i < 2*number_generators+1; i++) {
         if(i % 2 == 0) {
             fmpz_set(fmpz_mat_entry(M, 0, i), I);
             fmpz_set_ui(tmp, i + 1);
@@ -199,9 +206,9 @@ arb_mat_struct compute_weightfactors(const std::vector<arb_struct>& generators,
 
 
 template<int D>
-std::vector<std::array<arb_struct, D>>
-compute_points(const std::array<int, D> P,
-               const std::vector<arb_struct>& generators,
+nodes_t<D>
+compute_points(const partition_t<D> P,
+               const generators_t& generators,
                const int working_prec) {
     /* Compute fully symmetric quadrature nodes for given partition `P`.
      *
@@ -209,18 +216,18 @@ compute_points(const std::array<int, D> P,
      * generators: Table with precomputed generators
      * working_prec: Working precision
      */
-    std::vector<std::array<arb_struct, D>> points;
-    std::array<int, D> Q;
+    nodes_t<D> points;
+    partition_t<D> Q;
 
     // Number of 0 entries in P
     int xi = nz<D>(P);
     int nsf = xi<D ? (2<<(D-xi-1)) : 1;
 
-    std::list<std::array<int, D>> permutations = Permutations<D>(P);
+    permutations_t<D> permutations = Permutations<D>(P);
     for(auto it=permutations.begin(); it != permutations.end(); it++) {
         Q = *it;
         for(int v=0; v < nsf; v++) {
-            std::array<arb_struct, D> point;
+            node_t<D> point;
             int u = 0;
             for(int d=0; d < D; d++) {
                 arb_t t;
@@ -246,8 +253,8 @@ compute_points(const std::array<int, D> P,
 
 
 template<int D>
-std::vector<arb_struct>
-compute_weights(std::array<int, D> P,
+weights_t
+compute_weights(partition_t<D> P,
                 int K,
                 arb_mat_struct& weight_factors,
                 int working_prec) {
@@ -258,15 +265,15 @@ compute_weights(std::array<int, D> P,
      * weight_factors: Table with precomputed weight factors
      * working_prec: Working precision
      */
-    std::vector<arb_struct> weights;
+    weights_t weights;
 
     arb_t W, w;
     arb_init(W);
     arb_init(w);
     arb_zero(W);
 
-    std::list<std::array<int, D>> U = LatticePoints<D>(K-sum<D>(P));
-    std::array<int, D> Q;
+    latticepoints_t<D> U = LatticePoints<D>(K-sum<D>(P));
+    partition_t<D> Q;
 
     for(auto it=U.begin(); it != U.end(); it++) {
         Q = *it;
@@ -291,9 +298,9 @@ compute_weights(std::array<int, D> P,
 
 
 template<int D>
-std::pair<std::vector<std::array<arb_struct, D>>, std::vector<arb_struct>>
+rule_t<D>
 genz_keister_construction(int K,
-                          const std::vector<arb_struct>& generators,
+                          const generators_t& generators,
                           arb_mat_struct& weight_factors,
                           const int Z[],
                           int working_prec) {
@@ -305,14 +312,14 @@ genz_keister_construction(int K,
      * Z:
      * working_prec: Working precision
      */
-    std::vector<std::array<arb_struct, D>> points;
-    std::vector<arb_struct> weights;
+    nodes_t<D> points;
+    weights_t weights;
 
     // Iterate over all relevant integer partitions
-    std::list<std::array<int, D>> partitions = Partitions<D>(K);
+    partitions_t<D> partitions = Partitions<D>(K);
     for(auto it=partitions.begin(); it != partitions.end(); it++) {
         //
-        std::array<int, D> P = *it;
+        partition_t<D> P = *it;
         int s = 0;
         for(int d=0; d < D; d++) {
             s += P[d];
@@ -321,8 +328,8 @@ genz_keister_construction(int K,
         //
         if(s <= K) {
             // Compute nodes and weights for given partition
-            std::vector<std::array<arb_struct, D>> p = compute_points<D>(P, generators, working_prec);
-            std::vector<arb_struct> w = compute_weights<D>(P, K, weight_factors, working_prec);
+            nodes_t<D> p = compute_points<D>(P, generators, working_prec);
+            weights_t w = compute_weights<D>(P, K, weight_factors, working_prec);
             for(int i=0; i < p.size(); i++) {
                 points.push_back(p[i]);
                 weights.push_back(w[0]);
@@ -334,7 +341,9 @@ genz_keister_construction(int K,
 }
 
 
-bool check_accuracy(const arb_t a, const long prec) {
+bool
+check_accuracy(const arb_t a,
+	       const long prec) {
     /* Check if a ball has a radius small enough to fit the target precision.
      *
      * a: A ball to test
@@ -349,8 +358,8 @@ bool check_accuracy(const arb_t a, const long prec) {
 
 template<int D>
 bool
-check_accuracy(std::vector<std::array<arb_struct, D>>& nodes,
-               std::vector<arb_struct>& weights,
+check_accuracy(nodes_t<D>& nodes,
+               weights_t& weights,
                int target_prec) {
     /* Check if the nodes and weights are accurate enough to fit
      * the target precision.
@@ -366,7 +375,7 @@ check_accuracy(std::vector<std::array<arb_struct, D>>& nodes,
     // Check weights
     for(auto it=weights.begin(); it != weights.end(); it++) {
         if(!check_accuracy(&(*it), target_prec)) {
-                return false;
+            return false;
         }
     }
     return true;

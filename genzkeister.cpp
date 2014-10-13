@@ -66,12 +66,13 @@ int main(int argc, char* argv[]) {
                  8,7,6,5,4,3,2,1,0
     };
 
+
     /* Iteratively compute quadrature nodes and weights */
-    std::vector<arb_struct> G;
+    generators_t G;
     arb_mat_struct WF;
-    std::vector<std::array<arb_struct, D>> nodes;
-    std::vector<arb_struct> weights;
-    std::pair<std::vector<std::array<arb_struct, D>>, std::vector<arb_struct>> rule;
+    nodes_t<D> nodes;
+    weights_t weights;
+    rule_t<D> rule;
 
     for(int working_prec = target_prec; ; working_prec *= 2) {
         std::cout << "--------------------------------------------------\n";
