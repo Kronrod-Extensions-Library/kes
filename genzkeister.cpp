@@ -12,8 +12,6 @@
 #include <array>
 #include <iostream>
 
-//#include "boost/multi_array.hpp"
-
 #include "arf.h"
 #include "arb.h"
 #include "acb.h"
@@ -22,20 +20,16 @@
 #include "enumerators.h"
 
 
-// Global data tables
-arb_mat_t WF;
-std::vector<arb_struct> G;
-
-
-void maxminsort(std::vector<arb_struct>& G, acb_ptr g, long n) {
-    // Put all elements in t
-    std::list<arb_struct> t(0);
+void maxminsort(std::vector<arb_struct>& generators, acb_ptr g, long n) {
+    /* Sort generators according to the max-min heuristic.
+     */
+    std::vector<arb_struct> t(0);
     for(int i = 0; i < n; i++) {
         if(arb_is_nonnegative(acb_realref(g+i))) {
             t.push_back(acb_realref(g+i)[0]);
         }
     }
-    // Sort them by radius, drop negative ones
+    // Sort balls by midpoint, drop negative ones
     bool largest = true;
     while(t.size() > 0) {
         auto I = t.begin();
@@ -51,8 +45,8 @@ void maxminsort(std::vector<arb_struct>& G, acb_ptr g, long n) {
                 }
             }
         }
-        // Copy over into G
-        G.push_back(*I);
+        // Copy over into generators
+        generators.push_back(*I);
         t.erase(I);
         largest = !largest;
     }
@@ -63,13 +57,14 @@ template <int D>
 std::vector<arb_struct>
 Weights(std::array<int, D> P,
         int K,
+	arb_mat_t& WF,
         int working_prec) {
-    /*
-     * Function to compute weights for partition `P`.
+    /* Function to compute weights for partition `P`.
      *
      * P: Partition `P`
      * K: Rule order
-     * working_prec:
+     * WF: Table with precomputed weight factors
+     * working_prec: Working precision
      */
     std::vector<arb_struct> weights;
 
@@ -105,11 +100,14 @@ Weights(std::array<int, D> P,
 
 template <int D>
 std::vector<std::array<arb_struct, D>>
-Points(std::array<int, D> P,
-       int working_prec) {
+Points(const std::array<int, D> P,
+       const std::vector<arb_struct>& generators,
+       const int working_prec) {
     /* Compute fully symmetric quadrature nodes for given partition `P`.
      *
      * P: Partition `P`
+     * generators: Table with precomputed generators
+     * working_prec: Working precision
      */
     std::vector<std::array<arb_struct, D>> points;
     std::array<int, D> Q;
@@ -129,7 +127,7 @@ Points(std::array<int, D> P,
                 arb_init(t);
                 // Generators corresponding to partition Q give current node
                 int i = Q[d];
-                arb_set(t, &(G[i]));
+                arb_set(t, &(generators[i]));
                 // Compute sign flip
                 if(i != 0) {
                     if((v >> u) & 1) {
@@ -148,11 +146,7 @@ Points(std::array<int, D> P,
 
 
 int main(int argc, char* argv[]) {
-    fmpq_poly_t Pn;
-    fmpq_poly_t Ep;
-    long deg;
-    acb_ptr generators;
-
+    // Some constants
     int target_prec = 53;
     int working_prec = target_prec;
 
@@ -182,15 +176,17 @@ int main(int argc, char* argv[]) {
 
     /* Compute extension recursively and obtain generators */
 
-    G.resize(0);
+    std::vector<arb_struct> G(0);
 
+    fmpq_poly_t Pn;
+    fmpq_poly_t Ep;
     fmpq_poly_init(Pn);
     fmpq_poly_init(Ep);
 
-    polynomial(Pn, levels[0]);
+    hermite_polynomial_pro(Pn, levels[0]);
 
-    deg = fmpq_poly_degree(Pn);
-    generators = _acb_vec_init(deg);
+    long deg = fmpq_poly_degree(Pn);
+    acb_ptr generators = _acb_vec_init(deg);
     compute_nodes(generators, Pn, working_prec, loglevel);
     maxminsort(G, generators, deg);
     //_acb_vec_clear(generators, deg);
@@ -216,25 +212,16 @@ int main(int argc, char* argv[]) {
     fmpq_poly_clear(Pn);
     fmpq_poly_clear(Ep);
 
-    std::cout << "==================================================\n";
-    std::cout << "GENERATORS" << std::endl;
-
-    for(auto it=G.begin(); it != G.end(); it++) {
-        std::cout << "| ";
-        arb_printd(&(*it), nrprintdigits);
-        std::cout << std::endl;
-    }
-
-    int NUMGEN = G.size();
+    int number_generators = G.size();
 
     /* Compute moments of exp(-x^2/2) */
 
     fmpz_mat_t M;
-    fmpz_mat_init(M, 1, 2*NUMGEN+1);
+    fmpz_mat_init(M, 1, 2*number_generators+1);
     fmpz_t I, tmp;
     fmpz_init(I);
     fmpz_one(I);
-    for(long i=0; i < 2*NUMGEN+1; i++) {
+    for(long i=0; i < 2*number_generators+1; i++) {
         if(i % 2 == 0) {
             fmpz_set(fmpz_mat_entry(M, 0, i), I);
             fmpz_set_ui(tmp, i + 1);
@@ -247,7 +234,7 @@ int main(int argc, char* argv[]) {
     /* Compute the values of all a_i */
 
     arb_mat_t A;
-    arb_mat_init(A, 1, NUMGEN+1);
+    arb_mat_init(A, 1, number_generators+1);
 
     arb_poly_t term, poly;
     arb_poly_init(term);
@@ -292,13 +279,13 @@ int main(int argc, char* argv[]) {
 
     /* Precompute all weight factors */
 
-    //arb_mat_t WF;
-    arb_mat_init(WF, NUMGEN+1, NUMGEN+1);
+    arb_mat_t WF;
+    arb_mat_init(WF, number_generators+1, number_generators+1);
     arb_mat_zero(WF);
 
-    for(int xi=0; xi <= NUMGEN; xi++) {
+    for(int xi=0; xi <= number_generators; xi++) {
         arb_one(c);
-        for(int theta=0; theta <= NUMGEN; theta++) {
+        for(int theta=0; theta <= number_generators; theta++) {
             if(theta != xi) {
                 arb_pow_ui(t, &G[theta], 2, working_prec);
                 arb_pow_ui(u, &G[xi], 2, working_prec);
@@ -311,11 +298,6 @@ int main(int argc, char* argv[]) {
             }
         }
     }
-
-    std::cout << "==================================================\n";
-    std::cout << "WEIGHTFACTORS" << std::endl;
-
-    arb_mat_printd(WF, 5);
 
     /* Precompute the Z-sequence */
 
@@ -345,8 +327,8 @@ int main(int argc, char* argv[]) {
         //
         if(s <= K) {
             // Compute nodes and weights for given partition
-            std::vector<std::array<arb_struct, D>> p = Points<D>(P, working_prec);
-            std::vector<arb_struct> w = Weights<D>(P, K, working_prec);
+            std::vector<std::array<arb_struct, D>> p = Points<D>(P, G, working_prec);
+            std::vector<arb_struct> w = Weights<D>(P, K, WF, working_prec);
             for(int i=0; i < p.size(); i++) {
                 points.push_back(p[i]);
                 weights.push_back(w[0]);
@@ -355,6 +337,20 @@ int main(int argc, char* argv[]) {
     }
 
     /* Print nodes and weights */
+
+    std::cout << "==================================================\n";
+    std::cout << "GENERATORS" << std::endl;
+
+    for(auto it=G.begin(); it != G.end(); it++) {
+        std::cout << "| ";
+        arb_printd(&(*it), nrprintdigits);
+        std::cout << std::endl;
+    }
+
+    std::cout << "==================================================\n";
+    std::cout << "WEIGHTFACTORS" << std::endl;
+
+    arb_mat_printd(WF, 5);
 
     std::cout << "==================================================\n";
     std::cout << "NODES" << std::endl;
