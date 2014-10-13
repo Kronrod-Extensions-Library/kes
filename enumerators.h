@@ -13,8 +13,18 @@
 #include <list>
 
 
-template <int D>
-int sum(std::array<int, D> Z) {
+template<int D> using partition_t = std::array<int, D>;
+template<int D> using partitions_t = std::list<partition_t<D>>;
+template<int D> using point_t = std::array<int, D>;
+template<int D> using latticepoints_t = std::list<point_t<D>>;
+template<int D> using permutation_t = std::array<int, D>;
+template<int D> using permutations_t = std::list<permutation_t<D>>;
+
+
+template<int D>
+int sum(const point_t<D> Z) {
+    /* Sum of the components of the point Z.
+     */
     int s = 0;
     for(int i=0; i<D; i++) {
         s += Z[i];
@@ -23,20 +33,10 @@ int sum(std::array<int, D> Z) {
 }
 
 
-template <int D>
-int nnz(std::array<int, D> Z) {
-    int s = 0;
-    for(int i=0; i<D; i++) {
-        if(Z[i] != 0) {
-            s++;
-        }
-    }
-    return s;
-}
-
-
-template <int D>
-int nz(std::array<int, D> Z) {
+template<int D>
+int nz(const point_t<D> Z) {
+    /* Number of zero components of the point Z.
+     */
     int s = 0;
     for(int i=0; i<D; i++) {
         if(Z[i] == 0) {
@@ -47,19 +47,26 @@ int nz(std::array<int, D> Z) {
 }
 
 
-template <int D>
-std::list<std::array<int, D>>
+template<int D>
+int nnz(const point_t<D> Z) {
+    /* Number of non-zero components of the point Z.
+     */
+    return D - nz<D>(Z);
+}
+
+
+template<int D>
+partitions_t<D>
 Partitions(const int K) {
     /*
      * Enumerate integer partitions in anti-lexocographic
      * order for integers up to some limit K. All partitions
      * have exactly D parts, some may be zero.
      *
-     * :param D: Dimension
-     * :param K: Level
+     * K: Level
      */
-    std::list<std::array<int, D>> partitions;
-    std::array<int, D> P;
+    partitions_t<D> partitions;
+    partition_t<D> P;
 
     P.fill(0);
     partitions.push_back(P);
@@ -93,18 +100,17 @@ Partitions(const int K) {
 }
 
 
-template <int D>
-std::list<std::array<int, D>>
+template<int D>
+latticepoints_t<D>
 LatticePoints(const int N) {
     /* This method enumerates all lattice points of a lattice
      * :math:`\Lambda \subset \mathbb{N}^D` in :math:`D` dimensions
      * having fixed :math:`l_1` norm :math:`N`.
      *
-     * :param D: The dimension :math:`D` of the lattice.
-     * :param N: The :math:`l_1` norm of the lattice points.
+     * N: The :math:`l_1` norm of the lattice points.
      */
-    std::list<std::array<int, D>> L;
-    std::array<int, D> k;
+    latticepoints_t<D> L;
+    point_t<D> k;
 
     for(int n=0; n <= N; n++) {
         k.fill(0);
@@ -139,17 +145,16 @@ LatticePoints(const int N) {
 }
 
 
-
-template <int D>
-std::list<std::array<int, D>>
-Permutations(const std::array<int, D> permutation) {
+template<int D>
+permutations_t<D>
+Permutations(const permutation_t<D> permutation) {
     /* Enumerate all permutations in anti-lexicographical
      * order follwing the given permutation `P`.
      *
-     * :param P: A permutation
+     * P: A permutation
      */
-    std::list<std::array<int, D>> permutations;
-    std::array<int, D> P = permutation;
+    permutations_t<D> permutations;
+    permutation_t<D> P = permutation;
 
     permutations.push_back(P);
 
