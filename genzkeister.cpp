@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
     K--;
 
     /* Rule definition */
-    std::vector<int> levels = {1, 2, 6, 10, 16};
+    std::vector<int> levels = {1, 2, 6, 10, 16, 68};
 
     /* Iteratively compute quadrature nodes and weights */
     generators_t G;
