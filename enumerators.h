@@ -167,7 +167,8 @@ Permutations(const permutation_t<D> permutation) {
                 int I = i;
                 if(i > 1) {
                     int J = I;
-                    for(int j=0; j < I/2; j++) {
+                    int u = I / 2;
+                    for(int j=0; j < u; j++) {
                         int pj = P[j];
                         if(pj <= pi) {
                             I--;
