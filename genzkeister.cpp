@@ -23,7 +23,10 @@ int main(int argc, char* argv[]) {
         printf("        -pn  Do not print the nodes\n");
         printf("        -pw  Do not print the weights\n");
         printf("        -pge Print the generators\n");
+        printf("        -pmo Print the moments\n");
+        printf("        -pai Print the a_i values\n");
         printf("        -pwf Print the weight factors\n");
+        printf("        -pzs Print the Z-sequence\n");
         printf("        -K   Set the level of the rule\n");
         return EXIT_FAILURE;
     }
@@ -35,7 +38,10 @@ int main(int argc, char* argv[]) {
     bool print_nodes = true;
     bool print_weights = true;
     bool print_generators = false;
+    bool print_moments = false;
+    bool print_avalues = false;
     bool print_weightfactors = false;
+    bool print_zsequence = false;
 
     //int k = 0;
     for (int i = 1; i < argc; i++) {
@@ -52,8 +58,14 @@ int main(int argc, char* argv[]) {
             print_weights = false;
         } else if (!strcmp(argv[i], "-pge")) {
             print_generators = true;
+        } else if (!strcmp(argv[i], "-pmo")) {
+            print_moments = true;
+        } else if (!strcmp(argv[i], "-pai")) {
+            print_avalues = true;
         } else if (!strcmp(argv[i], "-pwf")) {
             print_weightfactors = true;
+        } else if (!strcmp(argv[i], "-pzs")) {
+            print_zsequence = true;
         } else if (!strcmp(argv[i], "-K")) {
             K = atoi(argv[i+1]);
             i++;
@@ -118,12 +130,41 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    if(print_moments) {
+        std::cout << "==================================================\n";
+        std::cout << "MOMENTS" << std::endl;
+
+        moments_t M = std::get<0>(T);
+        fmpz_mat_print_pretty(&M);
+        std::cout << std::endl;
+    }
+
+    if(print_avalues) {
+        std::cout << "==================================================\n";
+        std::cout << "A-VALUES" << std::endl;
+
+        ai_t A = std::get<1>(T);
+        arb_mat_printd(&A, nrprintdigits);
+    }
+
     if(print_weightfactors) {
         std::cout << "==================================================\n";
         std::cout << "WEIGHTFACTORS" << std::endl;
 
-        auto WF = std::get<2>(T);
+        wft_t WF = std::get<2>(T);
         arb_mat_printd(&WF, nrprintdigits);
+    }
+
+    if(print_zsequence) {
+        std::cout << "==================================================\n";
+        std::cout << "Z-SEQUENCE" << std::endl;
+
+        z_t Z = std::get<3>(T);
+        std::cout << "Z = [ ";
+        for(auto it=Z.begin(); it != Z.end(); it++) {
+            std::cout << (*it) << " ";
+        }
+        std::cout << "]" << std::endl;
     }
 
     if(print_nodes) {
