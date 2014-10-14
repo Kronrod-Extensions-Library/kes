@@ -69,6 +69,7 @@ generators_t compute_generators(const std::vector<int> levels,
      * levels: An array with the extension levels p_0, ..., p_{k-1}
      * working_prec: Working precision
      */
+    int prec = 2 * working_prec;
     generators_t G(0);
 
     /* Compute extension recursively and obtain generators */
@@ -81,7 +82,7 @@ generators_t compute_generators(const std::vector<int> levels,
 
     long deg = fmpq_poly_degree(Pn);
     acb_ptr generators = _acb_vec_init(deg);
-    compute_nodes(generators, Pn, working_prec, 0);
+    compute_nodes(generators, Pn, prec, 0);
     maxminsort(G, generators, deg);
     //_acb_vec_clear(generators, deg);
 
@@ -94,7 +95,7 @@ generators_t compute_generators(const std::vector<int> levels,
         /* Compute generators (zeros of Pn) */
         deg = fmpq_poly_degree(Ep);
         generators = _acb_vec_init(deg);
-        compute_nodes(generators, Ep, working_prec, 0);
+        compute_nodes(generators, Ep, prec, 0);
         maxminsort(G, generators, deg);
         //_acb_vec_clear(generators, deg);
 
@@ -117,6 +118,7 @@ arb_mat_struct compute_weightfactors(const generators_t& generators,
      * generators: List of generators
      * working_prec: Working precision
      */
+    int prec = 2 * working_prec;
     int number_generators = generators.size();
 
     /* Compute the moments of exp(-x^2/2) */
@@ -158,21 +160,21 @@ arb_mat_struct compute_weightfactors(const generators_t& generators,
     for(auto it=generators.begin(); it != generators.end(); it++) {
         // Construct the polynomial term by term
         arb_poly_set_coeff_si(term, 2, 1);
-        arb_pow_ui(t, &(*it), 2, working_prec);
+        arb_pow_ui(t, &(*it), 2, prec);
         arb_neg(t, t);
         arb_poly_set_coeff_arb(term, 0, t);
-        arb_poly_mul(poly, poly, term, working_prec);
+        arb_poly_mul(poly, poly, term, prec);
         // Compute the contributions to a_i for each monomial
         arb_zero(ai);
         long deg = arb_poly_degree(poly);
         for(long d=0; d <= deg; d++) {
             arb_set_fmpz(t, fmpz_mat_entry(M, 0, d));
             arb_poly_get_coeff_arb(c, poly, d);
-            arb_mul(t, c, t, working_prec);
-            arb_add(ai, ai, t, working_prec);
+            arb_mul(t, c, t, prec);
+            arb_add(ai, ai, t, prec);
         }
-        // TODO: More zero tests
-        if(arf_is_zero(arb_midref(ai))) {
+        // Zero tests for a_i (still up to original working_prec)
+        if(arf_cmpabs_2exp_si(arb_midref(ai), -prec/2) < 0) {
             arb_zero(ai);
         }
         // Assign a_i
@@ -191,13 +193,13 @@ arb_mat_struct compute_weightfactors(const generators_t& generators,
         arb_one(c);
         for(int theta=0; theta <= number_generators; theta++) {
             if(theta != xi) {
-                arb_pow_ui(t, &generators[theta], 2, working_prec);
-                arb_pow_ui(u, &generators[xi], 2, working_prec);
-                arb_sub(t, u, t, working_prec);
-                arb_mul(c, c, t, working_prec);
+                arb_pow_ui(t, &generators[theta], 2, prec);
+                arb_pow_ui(u, &generators[xi], 2, prec);
+                arb_sub(t, u, t, prec);
+                arb_mul(c, c, t, prec);
             }
             if(theta >= xi) {
-                arb_div(t, arb_mat_entry(A, 0, theta), c, working_prec);
+                arb_div(t, arb_mat_entry(A, 0, theta), c, prec);
                 arb_set(arb_mat_entry(weight_factors, xi, theta), t);
             }
         }

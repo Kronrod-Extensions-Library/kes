@@ -85,8 +85,8 @@ int main(int argc, char* argv[]) {
         std::cout << "Working precision (bits): " << working_prec << std::endl;
 
         /* Compute data tables */
-        G = compute_generators(levels, working_prec);
-        WF = compute_weightfactors(G, working_prec);
+        G = compute_generators(levels, 2*working_prec);
+        WF = compute_weightfactors(G, 2*working_prec);
 
         /* Compute a Genz-Keister quadrature rule */
         rule = genz_keister_construction<D>(K, G, WF, working_prec);
