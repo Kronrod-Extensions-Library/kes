@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
 
         /* Compute data tables */
         G = compute_generators(levels, 2*working_prec);
-        T = compute_weightfactors(G, 2*working_prec);
+        T = compute_tables(G, 2*working_prec);
 
         /* Compute a Genz-Keister quadrature rule */
         rule = genz_keister_construction<D>(K, G, T, working_prec);

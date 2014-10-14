@@ -117,34 +117,45 @@ generators_t compute_generators(const std::vector<int> levels,
 }
 
 
-tables_t
-compute_weightfactors(const generators_t& generators,
-                      const int working_prec) {
-    /* Compute the weight factors.
+moments_t
+compute_moments(const generators_t& generators) {
+    /* Compute the moments of x^n with exp(-x^2/2)
      *
-     * generators: List of generators
-     * working_prec: Working precision
+     * generators: Table with precomputed generators
      */
-    int prec = 2 * working_prec;
     int number_generators = generators.size();
 
-    /* Compute the moments of exp(-x^2/2) */
-    fmpz_mat_t M;
-    fmpz_mat_init(M, 1, 2*number_generators+1);
-    fmpz_t I, tmp;
-    fmpz_init(I);
-    fmpz_one(I);
+    fmpz_mat_t moments;
+    fmpz_mat_init(moments, 1, 2*number_generators+1);
+    fmpz_t entry, tmp;
+    fmpz_init(entry);
+    fmpz_one(entry);
     for(int i=0; i < 2*number_generators+1; i++) {
         if(i % 2 == 0) {
-            fmpz_set(fmpz_mat_entry(M, 0, i), I);
+            fmpz_set(fmpz_mat_entry(moments, 0, i), entry);
             fmpz_set_ui(tmp, i + 1);
-            fmpz_mul(I, I, tmp);
+            fmpz_mul(entry, entry, tmp);
         } else {
-            fmpz_set_ui(fmpz_mat_entry(M, 0, i), 0);
+            fmpz_set_ui(fmpz_mat_entry(moments, 0, i), 0);
         }
     }
 
-    /* Compute the values of all a_i */
+    return *moments;
+}
+
+
+ai_t
+compute_ai(const generators_t& generators,
+           const moments_t& moments,
+           const int working_prec) {
+    /* Compute the values of all a_i
+     *
+     * generators: Table with precomputed generators
+     * moments: Table with precomputed moments of x^n
+     * working_prec: Working precision
+     */
+    int number_generators = generators.size();
+
     arb_mat_t A;
     arb_mat_init(A, 1, number_generators+1);
 
@@ -153,10 +164,9 @@ compute_weightfactors(const generators_t& generators,
     arb_poly_init(poly);
     arb_poly_one(poly);
 
-    arb_t t, u, c, ai;
-    arb_init(t);
-    arb_init(u);
+    arb_t c, t, ai;
     arb_init(c);
+    arb_init(t);
     arb_init(ai);
 
     // a_0 = 1
@@ -167,21 +177,21 @@ compute_weightfactors(const generators_t& generators,
     for(auto it=generators.begin(); it != generators.end(); it++) {
         // Construct the polynomial term by term
         arb_poly_set_coeff_si(term, 2, 1);
-        arb_pow_ui(t, &(*it), 2, prec);
+        arb_pow_ui(t, &(*it), 2, working_prec);
         arb_neg(t, t);
         arb_poly_set_coeff_arb(term, 0, t);
-        arb_poly_mul(poly, poly, term, prec);
+        arb_poly_mul(poly, poly, term, working_prec);
         // Compute the contributions to a_i for each monomial
         arb_zero(ai);
         long deg = arb_poly_degree(poly);
         for(long d=0; d <= deg; d++) {
-            arb_set_fmpz(t, fmpz_mat_entry(M, 0, d));
+            arb_set_fmpz(t, fmpz_mat_entry(&moments, 0, d));
             arb_poly_get_coeff_arb(c, poly, d);
-            arb_mul(t, c, t, prec);
-            arb_add(ai, ai, t, prec);
+            arb_mul(t, c, t, working_prec);
+            arb_add(ai, ai, t, working_prec);
         }
-        // Zero tests for a_i (still up to original working_prec)
-        if(arf_cmpabs_2exp_si(arb_midref(ai), -prec/2) < 0) {
+        // Zero tests for a_i
+        if(arf_cmpabs_2exp_si(arb_midref(ai), -working_prec/2) < 0) {
             arb_zero(ai);
         }
         // Assign a_i
@@ -189,17 +199,27 @@ compute_weightfactors(const generators_t& generators,
         i++;
     }
 
-    //arb_mat_printd(A, 20);
+    return *A;
+}
 
-    /* Precompute the Z-sequence */
-    // TODO Based on formula
-    std::vector<int> Z = {0,0,
-                          1,0,0,
-                          3,2,1,0,0,
-                          5,4,3,2,1,0,0,0,
-                          8,7,6,5,4,3,2,1,0};
 
-    /* Precompute all weight factors */
+wft_t
+compute_weightfactors(const generators_t& generators,
+                      const ai_t& A,
+                      const int working_prec) {
+    /* Precompute all weight factors
+     *
+     * generators: Table with precomputed generators
+     * A: Table with precomputed a_i values
+     * working_prec: Working precision
+     */
+    int number_generators = generators.size();
+
+    arb_t c, t, u;
+    arb_init(t);
+    arb_init(u);
+    arb_init(c);
+
     arb_mat_t weight_factors;
     arb_mat_init(weight_factors, number_generators+1, number_generators+1);
     arb_mat_zero(weight_factors);
@@ -208,19 +228,53 @@ compute_weightfactors(const generators_t& generators,
         arb_one(c);
         for(int theta=0; theta <= number_generators; theta++) {
             if(theta != xi) {
-                arb_pow_ui(t, &generators[theta], 2, prec);
-                arb_pow_ui(u, &generators[xi], 2, prec);
-                arb_sub(t, u, t, prec);
-                arb_mul(c, c, t, prec);
+                arb_pow_ui(t, &generators[theta], 2, working_prec);
+                arb_pow_ui(u, &generators[xi], 2, working_prec);
+                arb_sub(t, u, t, working_prec);
+                arb_mul(c, c, t, working_prec);
             }
             if(theta >= xi) {
-                arb_div(t, arb_mat_entry(A, 0, theta), c, prec);
+                arb_div(t, arb_mat_entry(&A, 0, theta), c, working_prec);
                 arb_set(arb_mat_entry(weight_factors, xi, theta), t);
             }
         }
     }
 
-    return std::make_tuple(*M, *A, *weight_factors, Z);
+    return *weight_factors;
+}
+
+
+z_t
+compute_z_sequence(const ai_t& A) {
+    /* Precompute the Z-sequence
+     *
+     * A: Table with precomputed a_i values
+     */
+    // TODO Based on formula
+    std::vector<int> Z = {0,0,
+                          1,0,0,
+                          3,2,1,0,0,
+                          5,4,3,2,1,0,0,0,
+                          8,7,6,5,4,3,2,1,0};
+
+    return Z;
+}
+
+
+tables_t
+compute_tables(const generators_t& generators,
+               const int working_prec) {
+    /* Precompute some tables of numerical values for later look-up.
+     *
+     * generators: List of generators
+     * working_prec: Working precision
+     */
+    moments_t M = compute_moments(generators);
+    ai_t A = compute_ai(generators, M, working_prec);
+    wft_t WF = compute_weightfactors(generators, A, working_prec);
+    z_t Z = compute_z_sequence(A);
+
+    return std::make_tuple(M, A, WF, Z);
 }
 
 
