@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
 
     /* Iteratively compute quadrature nodes and weights */
     generators_t G;
-    arb_mat_struct WF;
+    tables_t T;
     nodes_t<D> nodes;
     weights_t weights;
     rule_t<D> rule;
@@ -86,10 +86,10 @@ int main(int argc, char* argv[]) {
 
         /* Compute data tables */
         G = compute_generators(levels, 2*working_prec);
-        WF = compute_weightfactors(G, 2*working_prec);
+        T = compute_weightfactors(G, 2*working_prec);
 
         /* Compute a Genz-Keister quadrature rule */
-        rule = genz_keister_construction<D>(K, G, WF, working_prec);
+        rule = genz_keister_construction<D>(K, G, T, working_prec);
 
         nodes = rule.first;
         weights = rule.second;
@@ -122,7 +122,8 @@ int main(int argc, char* argv[]) {
         std::cout << "==================================================\n";
         std::cout << "WEIGHTFACTORS" << std::endl;
 
-        arb_mat_printd(&WF, 5);
+        auto WF = std::get<2>(T);
+        arb_mat_printd(&WF, nrprintdigits);
     }
 
     if(print_nodes) {
@@ -132,7 +133,7 @@ int main(int argc, char* argv[]) {
         for(auto it=nodes.begin(); it != nodes.end(); it++) {
             std::cout << "| ";
             for(int d=0; d < D; d++) {
-                arb_printd(&((*it)[d]), 7);
+                arb_printd(&((*it)[d]), nrprintdigits);
                 std::cout << ",\t\t";
             }
             std::cout << std::endl;

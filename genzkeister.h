@@ -13,6 +13,7 @@
 #include <vector>
 #include <array>
 #include <utility>
+#include <tuple>
 
 #include "arf.h"
 #include "arb.h"
@@ -23,6 +24,11 @@
 
 
 typedef std::vector<arb_struct> generators_t;
+typedef fmpz_mat_struct moments_t;
+typedef arb_mat_struct ai_t;
+typedef std::vector<int> z_t;
+typedef arb_mat_struct wft_t;
+typedef std::tuple<moments_t, ai_t, wft_t, z_t> tables_t;
 typedef std::vector<arb_struct> weights_t;
 template<int D> using node_t = std::array<arb_struct, D>;
 template<int D> using nodes_t = std::vector<node_t<D>>;
@@ -111,8 +117,9 @@ generators_t compute_generators(const std::vector<int> levels,
 }
 
 
-arb_mat_struct compute_weightfactors(const generators_t& generators,
-                                     const int working_prec) {
+tables_t
+compute_weightfactors(const generators_t& generators,
+                      const int working_prec) {
     /* Compute the weight factors.
      *
      * generators: List of generators
@@ -184,6 +191,14 @@ arb_mat_struct compute_weightfactors(const generators_t& generators,
 
     //arb_mat_printd(A, 20);
 
+    /* Precompute the Z-sequence */
+    // TODO Based on formula
+    std::vector<int> Z = {0,0,
+                          1,0,0,
+                          3,2,1,0,0,
+                          5,4,3,2,1,0,0,0,
+                          8,7,6,5,4,3,2,1,0};
+
     /* Precompute all weight factors */
     arb_mat_t weight_factors;
     arb_mat_init(weight_factors, number_generators+1, number_generators+1);
@@ -205,7 +220,7 @@ arb_mat_struct compute_weightfactors(const generators_t& generators,
         }
     }
 
-    return *weight_factors;
+    return std::make_tuple(*M, *A, *weight_factors, Z);
 }
 
 
@@ -305,7 +320,7 @@ template<int D>
 rule_t<D>
 genz_keister_construction(int K,
                           const generators_t& generators,
-                          arb_mat_struct& weight_factors,
+                          tables_t& tables,
                           int working_prec) {
     /* Compute the Genz-Keister construction.
      *
@@ -315,17 +330,11 @@ genz_keister_construction(int K,
      * Z:
      * working_prec: Working precision
      */
+    wft_t weight_factors = std::get<2>(tables);
+    z_t Z = std::get<3>(tables);
+
     nodes_t<D> nodes;
     weights_t weights;
-
-    /* Precompute the Z-sequence */
-    // TODO Based on formula
-    int Z[27] = {0,0,
-                 1,0,0,
-                 3,2,1,0,0,
-                 5,4,3,2,1,0,0,0,
-                 8,7,6,5,4,3,2,1,0
-    };
 
     // Iterate over all relevant integer partitions
     partitions_t<D> partitions = Partitions<D>(K);
