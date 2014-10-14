@@ -221,12 +221,12 @@ compute_weightfactors(const generators_t& generators,
     arb_init(c);
 
     arb_mat_t weight_factors;
-    arb_mat_init(weight_factors, number_generators+1, number_generators+1);
+    arb_mat_init(weight_factors, number_generators, number_generators);
     arb_mat_zero(weight_factors);
 
-    for(int xi=0; xi <= number_generators; xi++) {
+    for(int xi=0; xi < number_generators; xi++) {
         arb_one(c);
-        for(int theta=0; theta <= number_generators; theta++) {
+        for(int theta=0; theta < number_generators; theta++) {
             if(theta != xi) {
                 arb_pow_ui(t, &generators[theta], 2, working_prec);
                 arb_pow_ui(u, &generators[xi], 2, working_prec);
