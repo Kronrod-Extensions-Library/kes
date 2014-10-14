@@ -102,6 +102,11 @@ int main(int argc, char* argv[]) {
 
     /* Print nodes and weights */
 
+    std::cout << "==================================================\n";
+    std::cout << "DIMENSION: " << D << std::endl;
+    std::cout << "LEVEL: " << K+1 << std::endl;
+    std::cout << "NUMBER NODES: " << nodes.size() << std::endl;
+
     if(print_generators) {
         std::cout << "==================================================\n";
         std::cout << "GENERATORS" << std::endl;

@@ -180,6 +180,8 @@ arb_mat_struct compute_weightfactors(const generators_t& generators,
         i++;
     }
 
+    //arb_mat_printd(A, 20);
+
     /* Precompute all weight factors */
     arb_mat_t weight_factors;
     arb_mat_init(weight_factors, number_generators+1, number_generators+1);
