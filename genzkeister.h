@@ -250,12 +250,28 @@ compute_z_sequence(const ai_t& A) {
      *
      * A: Table with precomputed a_i values
      */
-    // TODO Based on formula
-    std::vector<int> Z = {0,0,
-                          1,0,0,
-                          3,2,1,0,0,
-                          5,4,3,2,1,0,0,0,
-                          8,7,6,5,4,3,2,1,0};
+    int n = arb_mat_ncols(&A);
+
+    std::vector<int> Z(0);
+
+    int v = 0;
+    for(int i=0; i < n; i++) {
+        if(v == 0) {
+            while( arb_is_zero(arb_mat_entry(&A, 0, i+v)) ) {
+                v++;
+            }
+        } else {
+            v--;
+        }
+        Z.push_back(v);
+    }
+
+    /* // TODO Based on formula */
+    /* std::vector<int> Z = {0,0, */
+    /*                       1,0,0, */
+    /*                       3,2,1,0,0, */
+    /*                       5,4,3,2,1,0,0,0, */
+    /*                       8,7,6,5,4,3,2,1,0}; */
 
     return Z;
 }
