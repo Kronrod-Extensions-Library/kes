@@ -14,6 +14,7 @@
 #include <array>
 #include <utility>
 #include <tuple>
+#include <iostream>
 
 #include "arf.h"
 #include "arb.h"
@@ -95,6 +96,9 @@ generators_t compute_generators(const std::vector<int> levels,
     for(int i = 1; i < levels.size(); i++) {
         bool solvable = find_extension(Ep, Pn, levels[i], 0);
         if(!solvable) {
+            std::cout << "******************************\n";
+            std::cout << "*** EXTENSION NOT SOVLABLE ***\n";
+            std::cout << "******************************\n";
             break;
         }
 

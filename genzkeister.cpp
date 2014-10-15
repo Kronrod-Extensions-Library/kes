@@ -32,9 +32,9 @@ int main(int argc, char* argv[]) {
     }
 
     unsigned int K = 1;
-    //int levels[argc-1];
     int target_prec = 53;
     int nrprintdigits = 20;
+    std::vector<int> levels;
     bool print_nodes = true;
     bool print_weights = true;
     bool print_generators = false;
@@ -43,7 +43,6 @@ int main(int argc, char* argv[]) {
     bool print_weightfactors = false;
     bool print_zsequence = false;
 
-    //int k = 0;
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-dc")) {
             /* 'digits' is in base 10 and log(10)/log(2) = 3.32193 */
@@ -69,9 +68,8 @@ int main(int argc, char* argv[]) {
         } else if (!strcmp(argv[i], "-K")) {
             K = atoi(argv[i+1]);
             i++;
-            //} else {
-            //    levels[k] = atoi(argv[i]);
-            //    k++;
+        } else {
+            levels.push_back(atoi(argv[i]));
         }
     }
 
@@ -83,7 +81,18 @@ int main(int argc, char* argv[]) {
     K--;
 
     /* Rule definition */
-    std::vector<int> levels = {1, 2, 6, 10, 16, 68};
+    if(levels.size() == 0) {
+        levels = {1, 2, 6, 10, 16, 68};
+        // levels = {1, 2, 8, 20};
+    }
+
+    std::cout << "Kronrod extension:  ";
+    for(auto it=levels.begin(); it != levels.end(); it++) {
+        std::cout << *it << "  ";
+    }
+    std::cout << "\n==================================================" << std::endl;
+
+    // TODO: Assert l_0 = 0
 
     /* Iteratively compute quadrature nodes and weights */
     generators_t G;
@@ -99,6 +108,13 @@ int main(int argc, char* argv[]) {
         /* Compute data tables */
         G = compute_generators(levels, 2*working_prec);
         T = compute_tables(G, 2*working_prec);
+
+        if(K >= G.size()) {
+            std::cout << "***********************************\n";
+            std::cout << "*** not enough generators found ***\n";
+            std::cout << "***********************************\n";
+            break;
+        }
 
         /* Compute a Genz-Keister quadrature rule */
         rule = genz_keister_construction<D>(K, G, T, working_prec);
