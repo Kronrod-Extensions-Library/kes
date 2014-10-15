@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include <iostream>
 
 #include "genzkeister.h"
@@ -14,9 +13,9 @@
 
 int main(int argc, char* argv[]) {
 
-    if(argc < 1) {
+    if(argc < 2) {
         printf("Compute Genz-Keister quadrature rule\n");
-        printf("Syntax: gk [-dc D] [-dp D] [-pn] [-pw] [-pge] [-pwf] [-K K] n\n");
+        printf("Syntax: genzkeister [-dc D] [-dp D] [-pn] [-pw] [-pge] [-pwf] -K K [n1 n2 n3 ...nk]\n");
         printf("Options:\n");
         printf("        -dc  Compute nodes and weights up to this number of decimal digits\n");
         printf("        -dp  Print this number of decimal digits\n");
@@ -28,6 +27,8 @@ int main(int argc, char* argv[]) {
         printf("        -pwf Print the weight factors\n");
         printf("        -pzs Print the Z-sequence\n");
         printf("        -K   Set the level of the rule\n");
+        printf("        Further optional parameters n1 ... nk\n");
+        printf("        define the Kronrod extension used\n");
         return EXIT_FAILURE;
     }
 
@@ -92,8 +93,6 @@ int main(int argc, char* argv[]) {
     }
     std::cout << "\n==================================================" << std::endl;
 
-    // TODO: Assert l_0 = 0
-
     /* Iteratively compute quadrature nodes and weights */
     generators_t G;
     tables_t T;
@@ -106,6 +105,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Working precision (bits): " << working_prec << std::endl;
 
         /* Compute data tables */
+        // TODO: Assert generator g_0 = 0
         G = compute_generators(levels, 2*working_prec);
         T = compute_tables(G, 2*working_prec);
 
@@ -129,7 +129,6 @@ int main(int argc, char* argv[]) {
     }
 
     /* Print nodes and weights */
-
     std::cout << "==================================================\n";
     std::cout << "DIMENSION: " << D << std::endl;
     std::cout << "LEVEL: " << K+1 << std::endl;
