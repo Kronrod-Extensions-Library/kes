@@ -122,19 +122,17 @@ generators_t compute_generators(const std::vector<int> levels,
 
 
 moments_t
-compute_moments(const generators_t& generators) {
+compute_moments(const int N) {
     /* Compute the moments of x^n with exp(-x^2/2)
      *
-     * generators: Table with precomputed generators
+     * N: The number of moments to be computed
      */
-    int number_generators = generators.size();
-
     fmpz_mat_t moments;
-    fmpz_mat_init(moments, 1, 2*number_generators+1);
+    fmpz_mat_init(moments, 1, N);
     fmpz_t entry, tmp;
     fmpz_init(entry);
     fmpz_one(entry);
-    for(int i=0; i < 2*number_generators+1; i++) {
+    for(int i=0; i < N; i++) {
         if(i % 2 == 0) {
             fmpz_set(fmpz_mat_entry(moments, 0, i), entry);
             fmpz_set_ui(tmp, i + 1);
@@ -289,7 +287,7 @@ compute_tables(const generators_t& generators,
      * generators: List of generators
      * working_prec: Working precision
      */
-    moments_t M = compute_moments(generators);
+    moments_t M = compute_moments(2*generators.size()+1);
     ai_t A = compute_ai(generators, M, working_prec);
     wft_t WF = compute_weightfactors(generators, A, working_prec);
     z_t Z = compute_z_sequence(A);
