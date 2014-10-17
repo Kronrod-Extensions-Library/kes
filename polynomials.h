@@ -217,7 +217,8 @@ void moments_hermite_pro(fmpq_mat_t moments, const int n) {
      *
      */
     fmpq_mat_init(moments, 1, n);
-    fmpq_t entry, tmp;
+    fmpq_t tmp, entry;
+    fmpq_init(tmp);
     fmpq_init(entry);
     fmpq_one(entry);
     for(int i=0; i < n; i++) {
@@ -230,8 +231,8 @@ void moments_hermite_pro(fmpq_mat_t moments, const int n) {
         }
     }
 
-    fmpq_clear(entry);
     fmpq_clear(tmp);
+    fmpq_clear(entry);
     return;
 }
 
@@ -399,6 +400,28 @@ void integrate_legendre(fmpq_t I, const int n) {
         fmpq_mul(I, I, t);
     }
     fmpq_clear(t);
+    return;
+}
+
+
+void moments_legendre(fmpq_mat_t moments, const int n) {
+    /*
+     *
+     */
+    fmpq_mat_init(moments, 1, n);
+    fmpq_t entry;
+    fmpq_init(entry);
+    fmpq_one(entry);
+    for(int i=0; i < n; i++) {
+        if(i % 2 == 0) {
+            fmpq_set_si(entry, 2, i+1);
+            fmpq_set(fmpq_mat_entry(moments, 0, i), entry);
+        } else {
+            fmpq_zero(fmpq_mat_entry(moments, 0, i));
+        }
+    }
+
+    fmpq_clear(entry);
     return;
 }
 

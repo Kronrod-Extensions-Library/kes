@@ -159,7 +159,7 @@ compute_ai(const generators_t& generators,
     arb_init(ai);
 
     // a_0 = 1
-    arb_set_ui(arb_mat_entry(A, 0, 0), 1);
+    arb_set_fmpq(arb_mat_entry(A, 0, 0), fmpq_mat_entry(&moments, 0, 0), working_prec);
 
     // a_i
     int i = 1;
