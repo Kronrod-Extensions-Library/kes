@@ -25,7 +25,7 @@
 
 
 typedef std::vector<arb_struct> generators_t;
-typedef fmpz_mat_struct moments_t;
+typedef fmpq_mat_struct moments_t;
 typedef arb_mat_struct ai_t;
 typedef std::vector<int> z_t;
 typedef arb_mat_struct wft_t;
@@ -127,18 +127,18 @@ compute_moments(const int N) {
      *
      * N: The number of moments to be computed
      */
-    fmpz_mat_t moments;
-    fmpz_mat_init(moments, 1, N);
-    fmpz_t entry, tmp;
-    fmpz_init(entry);
-    fmpz_one(entry);
+    fmpq_mat_t moments;
+    fmpq_mat_init(moments, 1, N);
+    fmpq_t entry, tmp;
+    fmpq_init(entry);
+    fmpq_one(entry);
     for(int i=0; i < N; i++) {
         if(i % 2 == 0) {
-            fmpz_set(fmpz_mat_entry(moments, 0, i), entry);
-            fmpz_set_ui(tmp, i + 1);
-            fmpz_mul(entry, entry, tmp);
+            fmpq_set(fmpq_mat_entry(moments, 0, i), entry);
+            fmpq_set_si(tmp, i + 1, 1);
+            fmpq_mul(entry, entry, tmp);
         } else {
-            fmpz_set_ui(fmpz_mat_entry(moments, 0, i), 0);
+            fmpq_zero(fmpq_mat_entry(moments, 0, i));
         }
     }
 
@@ -187,7 +187,7 @@ compute_ai(const generators_t& generators,
         arb_zero(ai);
         long deg = arb_poly_degree(poly);
         for(long d=0; d <= deg; d++) {
-            arb_set_fmpz(t, fmpz_mat_entry(&moments, 0, d));
+            arb_set_fmpq(t, fmpq_mat_entry(&moments, 0, d), working_prec);
             arb_poly_get_coeff_arb(c, poly, d);
             arb_mul(t, c, t, working_prec);
             arb_add(ai, ai, t, working_prec);

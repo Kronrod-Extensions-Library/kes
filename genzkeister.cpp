@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
         std::cout << "MOMENTS" << std::endl;
 
         moments_t M = std::get<0>(T);
-        fmpz_mat_print_pretty(&M);
+        fmpq_mat_print(&M);
         std::cout << std::endl;
     }
 
