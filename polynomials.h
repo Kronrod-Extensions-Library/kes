@@ -24,6 +24,7 @@ void hermite_polynomial_pro(fmpq_poly_t, const int);
 void hermite_polynomial_phy(fmpq_poly_t, const int);
 void integrate_hermite_pro(fmpq_t, const int);
 void integrate_hermite_phy(fmpq_t, const int);
+void moments_hermite_pro(fmpq_mat_t, const int);
 
 void laguerre_polynomial(fmpq_poly_t, const int);
 void integrate_laguerre(fmpq_t, const int);
@@ -207,6 +208,30 @@ void integrate_hermite_phy(fmpq_t I, const int n) {
     }
 
     fmpz_clear(tmp);
+    return;
+}
+
+
+void moments_hermite_pro(fmpq_mat_t moments, const int n) {
+    /*
+     *
+     */
+    fmpq_mat_init(moments, 1, n);
+    fmpq_t entry, tmp;
+    fmpq_init(entry);
+    fmpq_one(entry);
+    for(int i=0; i < n; i++) {
+        if(i % 2 == 0) {
+            fmpq_set(fmpq_mat_entry(moments, 0, i), entry);
+            fmpq_set_si(tmp, i + 1, 1);
+            fmpq_mul(entry, entry, tmp);
+        } else {
+            fmpq_zero(fmpq_mat_entry(moments, 0, i));
+        }
+    }
+
+    fmpq_clear(entry);
+    fmpq_clear(tmp);
     return;
 }
 

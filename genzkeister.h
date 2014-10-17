@@ -85,7 +85,7 @@ generators_t compute_generators(const std::vector<int> levels,
     fmpq_poly_init(Pn);
     fmpq_poly_init(Ep);
 
-    hermite_polynomial_pro(Pn, levels[0]);
+    polynomial(Pn, levels[0]);
 
     long deg = fmpq_poly_degree(Pn);
     acb_ptr generators = _acb_vec_init(deg);
@@ -127,22 +127,9 @@ compute_moments(const int N) {
      *
      * N: The number of moments to be computed
      */
-    fmpq_mat_t moments;
-    fmpq_mat_init(moments, 1, N);
-    fmpq_t entry, tmp;
-    fmpq_init(entry);
-    fmpq_one(entry);
-    for(int i=0; i < N; i++) {
-        if(i % 2 == 0) {
-            fmpq_set(fmpq_mat_entry(moments, 0, i), entry);
-            fmpq_set_si(tmp, i + 1, 1);
-            fmpq_mul(entry, entry, tmp);
-        } else {
-            fmpq_zero(fmpq_mat_entry(moments, 0, i));
-        }
-    }
-
-    return *moments;
+    fmpq_mat_t M;
+    moments(M, N);
+    return *M;
 }
 
 
