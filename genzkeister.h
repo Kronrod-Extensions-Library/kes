@@ -158,16 +158,16 @@ compute_ai(const generators_t& generators,
     arb_init(t);
     arb_init(ai);
 
-    // a_0 = 1
+    // a_0
     arb_set_fmpq(arb_mat_entry(A, 0, 0), fmpq_mat_entry(&moments, 0, 0), working_prec);
 
     // a_i
     int i = 1;
     for(auto it=generators.begin(); it != generators.end(); it++) {
         // Construct the polynomial term by term
-        arb_poly_set_coeff_si(term, 2, 1);
         arb_pow_ui(t, &(*it), 2, working_prec);
         arb_neg(t, t);
+        arb_poly_set_coeff_si(term, 2, 1);
         arb_poly_set_coeff_arb(term, 0, t);
         arb_poly_mul(poly, poly, term, working_prec);
         // Compute the contributions to a_i for each monomial

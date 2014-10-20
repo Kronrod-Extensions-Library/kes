@@ -66,7 +66,8 @@ inline void moments(fmpq_mat_t M, const int n) {
     moments_legendre(M, n);
 #endif
 #ifdef LAGUERRE
-    moments_laguerre(M, n);
+    // TODO
+    //moments_laguerre(M, n);
 #endif
 #ifdef HERMITE
     moments_hermite_pro(M, n);
@@ -121,6 +122,15 @@ inline void evaluate_weights_formula(acb_ptr weights,
 #ifdef HERMITE
     evaluate_weights_formula_hermite_pro(weights, nodes, n, prec);
 #endif
+#ifdef CHEBYSHEVT
+    // TODO
+    //evaluate_weights_formula_chebyshevt(weights, nodes, n, prec);
+#endif
+#ifdef CHEBYSHEVU
+    // TODO
+    //evaluate_weights_formula_chebyshevu(weights, nodes, n, prec);
+#endif
+    return;
 }
 
 

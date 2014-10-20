@@ -31,12 +31,15 @@ void integrate_laguerre(fmpq_t, const int);
 
 void legendre_polynomial(fmpq_poly_t, const int);
 void integrate_legendre(fmpq_t, const int);
+void moments_legendre(fmpq_mat_t, const int);
 
 void chebyshevt_polynomial(fmpq_poly_t Tn, const int n);
 void integrate_chebyshevt(fmpq_t I, const int n);
+void moments_chebyshevt(fmpq_mat_t, const int);
 
 void chebyshevu_polynomial(fmpq_poly_t Un, const int n);
 void integrate_chebyshevu(fmpq_t I, const int n);
+void moments_chebyshevu(fmpq_mat_t, const int);
 
 
 void hermite_polynomial_pro(fmpq_poly_t Hn, const int n) {
@@ -216,12 +219,15 @@ void moments_hermite_pro(fmpq_mat_t moments, const int n) {
     /*
      *
      */
-    fmpq_mat_init(moments, 1, n);
+    int i;
     fmpq_t tmp, entry;
+
+    fmpq_mat_init(moments, 1, n);
     fmpq_init(tmp);
     fmpq_init(entry);
     fmpq_one(entry);
-    for(int i=0; i < n; i++) {
+
+    for(i = 0; i < n; i++) {
         if(i % 2 == 0) {
             fmpq_set(fmpq_mat_entry(moments, 0, i), entry);
             fmpq_set_si(tmp, i + 1, 1);
@@ -408,11 +414,14 @@ void moments_legendre(fmpq_mat_t moments, const int n) {
     /*
      *
      */
-    fmpq_mat_init(moments, 1, n);
+    int i;
     fmpq_t entry;
+
+    fmpq_mat_init(moments, 1, n);
     fmpq_init(entry);
     fmpq_one(entry);
-    for(int i=0; i < n; i++) {
+
+    for(i = 0; i < n; i++) {
         if(i % 2 == 0) {
             fmpq_set_si(entry, 2, i+1);
             fmpq_set(fmpq_mat_entry(moments, 0, i), entry);
@@ -512,6 +521,42 @@ void integrate_chebyshevt(fmpq_t I, const int n) {
 }
 
 
+void moments_chebyshevt(fmpq_mat_t moments, const int n) {
+    /*
+     *
+     */
+    int i, j;
+    fmpz_t tmp;
+    fmpq_t entry;
+
+    fmpq_mat_init(moments, 1, n);
+    fmpz_init(tmp);
+    fmpq_init(entry);
+    fmpq_one(entry);
+
+    for(i = 0; i < n; i++) {
+        if(i % 2 == 0) {
+            fmpq_one(entry);
+            for(j = 1; j <= i/2; j++) {
+                fmpz_set_ui(tmp, 2*j - 1);
+                fmpq_mul_fmpz(entry, entry, tmp);
+            }
+            for(j = 1; j <= i/2; j++) {
+                fmpz_set_ui(tmp, j);
+                fmpq_div_fmpz(entry, entry, tmp);
+            }
+            fmpq_div_2exp(fmpq_mat_entry(moments, 0, i), entry, i/2);
+        } else {
+            fmpq_zero(fmpq_mat_entry(moments, 0, i));
+        }
+    }
+
+    fmpz_clear(tmp);
+    fmpq_clear(entry);
+    return;
+}
+
+
 void chebyshevu_polynomial(fmpq_poly_t Un, const int n) {
     /* Compute the n-th Chebyshev polynomial by a
      * three term recursion:
@@ -595,6 +640,42 @@ void integrate_chebyshevu(fmpq_t I, const int n) {
     }
 
     fmpz_clear(tmp);
+    return;
+}
+
+
+void moments_chebyshevu(fmpq_mat_t moments, const int n) {
+    /*
+     *
+     */
+    int i, j;
+    fmpz_t tmp;
+    fmpq_t entry;
+
+    fmpq_mat_init(moments, 1, n);
+    fmpz_init(tmp);
+    fmpq_init(entry);
+    fmpq_one(entry);
+
+    for(i = 0; i < n; i++) {
+        if(i % 2 == 0) {
+            fmpq_one(entry);
+            for(j = 1; j <= i/2; j++) {
+                fmpz_set_ui(tmp, 2*j - 1);
+                fmpq_mul_fmpz(entry, entry, tmp);
+            }
+            for(j = 1; j <= i/2+1; j++) {
+                fmpz_set_ui(tmp, j);
+                fmpq_div_fmpz(entry, entry, tmp);
+            }
+            fmpq_div_2exp(fmpq_mat_entry(moments, 0, i), entry, i/2 + 1);
+        } else {
+            fmpq_zero(fmpq_mat_entry(moments, 0, i));
+        }
+    }
+
+    fmpz_clear(tmp);
+    fmpq_clear(entry);
     return;
 }
 
