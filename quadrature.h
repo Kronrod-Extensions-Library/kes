@@ -14,11 +14,36 @@
 #include "numerics.h"
 
 
+void sort_nodes(acb_ptr, const int);
 void evaluate_weights_formula_legendre(acb_ptr, const acb_ptr, const int, const long);
 void evaluate_weights_formula_laguerre(acb_ptr, const acb_ptr, const int, const long);
 void evaluate_weights_formula_hermite_pro(acb_ptr, const acb_ptr, const int, const long);
 void evaluate_weights_formula_chebyshevt(acb_ptr, const acb_ptr, const int, const long);
 void evaluate_weights_formula_chebyshevu(acb_ptr, const acb_ptr, const int, const long);
+
+
+void sort_nodes(acb_ptr nodes, const int n) {
+    /* Sort quadrature nodes in-place
+     *
+     * n: Number of nodes
+     */
+    int i, j;
+    acb_t t;
+    acb_init(t);
+    // In-place insertion sort (for small n)
+    for(i = 1; i < n; i++) {
+        acb_set(t, (nodes+i));
+        j = i;
+        while(j > 0 &&
+              arf_cmp(arb_midref(acb_realref( (nodes+j-1) )),
+                      arb_midref(acb_realref( t ))) > 0) {
+            acb_set((nodes+j), (nodes+j-1));
+            j--;
+        }
+        acb_set((nodes+j), t);
+    }
+    acb_clear(t);
+}
 
 
 void evaluate_weights_formula_legendre(acb_ptr weights,

@@ -68,6 +68,7 @@ int main(int argc, char* argv[]) {
     for(working_prec = target_prec; ; working_prec *= 2) {
         /* Find nodes and weights */
         compute_nodes(nodes, Pn, working_prec, loglevel);
+        sort_nodes(nodes, deg);
         evaluate_weights_formula(weights, nodes, deg, working_prec);
         /* Accuracy goal reached? */
         if(check_accuracy(nodes, deg, target_prec) && check_accuracy(weights, deg, target_prec)) {
