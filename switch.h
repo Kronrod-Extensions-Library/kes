@@ -20,6 +20,7 @@
 inline void polynomial(fmpq_poly_t, const int);
 inline void integrate(fmpq_t, const int);
 inline void moments(fmpq_mat_t, const int);
+inline void transcendental_factor(arb_t, const long);
 inline long validate_roots(const acb_ptr, const long, const long, const int);
 inline long validate_weights(const acb_ptr, const long, const long, const int);
 inline void evaluate_weights_formula(acb_ptr, const acb_ptr, const int, long);
@@ -76,6 +77,24 @@ inline void moments(fmpq_mat_t M, const int n) {
 #endif
 #ifdef CHEBYSHEVU
     moments_chebyshevu(M, n);
+#endif
+}
+
+inline void transcendental_factor(arb_t T, const long prec) {
+#ifdef LEGENDRE
+    transcendental_factor_legendre(T, prec);
+#endif
+#ifdef LAGUERRE
+    transcendental_factor_laguerre(T, prec);
+#endif
+#ifdef HERMITE
+    transcendental_factor_hermite_pro(T, prec);
+#endif
+#ifdef CHEBYSHEVT
+    transcendental_factor_chebyshevt(T, prec);
+#endif
+#ifdef CHEBYSHEVU
+    transcendental_factor_chebyshevu(T, prec);
 #endif
 }
 

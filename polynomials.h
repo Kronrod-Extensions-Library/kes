@@ -19,6 +19,8 @@
 #include "flint/fmpz_mat.h"
 #include "flint/fmpq_mat.h"
 
+#include "arb.h"
+
 
 void hermite_polynomial_pro(fmpq_poly_t, const int);
 void hermite_polynomial_phy(fmpq_poly_t, const int);
@@ -26,22 +28,28 @@ void integrate_hermite_pro(fmpq_t, const int);
 void integrate_hermite_phy(fmpq_t, const int);
 void moments_hermite_pro(fmpq_mat_t, const int);
 void moments_hermite_phy(fmpq_mat_t, const int);
+void transcendental_factor_hermite_pro(arb_t, const long);
+void transcendental_factor_hermite_phy(arb_t, const long);
 
 void laguerre_polynomial(fmpq_poly_t, const int);
 void integrate_laguerre(fmpq_t, const int);
 void moments_laguerre(fmpq_mat_t, const int);
+void transcendental_factor_laguerre(arb_t, const long);
 
 void legendre_polynomial(fmpq_poly_t, const int);
 void integrate_legendre(fmpq_t, const int);
 void moments_legendre(fmpq_mat_t, const int);
+void transcendental_factor_legendre(arb_t, const long);
 
-void chebyshevt_polynomial(fmpq_poly_t Tn, const int n);
-void integrate_chebyshevt(fmpq_t I, const int n);
+void chebyshevt_polynomial(fmpq_poly_t, const int);
+void integrate_chebyshevt(fmpq_t, const int);
 void moments_chebyshevt(fmpq_mat_t, const int);
+void transcendental_factor_chebyshevt(arb_t, const long);
 
-void chebyshevu_polynomial(fmpq_poly_t Un, const int n);
-void integrate_chebyshevu(fmpq_t I, const int n);
+void chebyshevu_polynomial(fmpq_poly_t, const int);
+void integrate_chebyshevu(fmpq_t, const int);
 void moments_chebyshevu(fmpq_mat_t, const int);
+void transcendental_factor_chebyshevu(arb_t, const long);
 
 
 void hermite_polynomial_pro(fmpq_poly_t Hn, const int n) {
@@ -287,6 +295,24 @@ void moments_hermite_phy(fmpq_mat_t moments, const int n) {
 }
 
 
+void transcendental_factor_hermite_pro(arb_t t, const long prec) {
+    /*
+     *
+     */
+    // TODO
+    arb_one(t);
+}
+
+
+void transcendental_factor_hermite_phy(arb_t t, const long prec) {
+    /*
+     *
+     */
+    // TODO
+    arb_one(t);
+}
+
+
 void laguerre_polynomial(fmpq_poly_t Ln, const int n) {
     /* Compute the n-th Laguerre polynomial by a
      * three term recursion:
@@ -394,6 +420,14 @@ void moments_laguerre(fmpq_mat_t moments, const int n) {
 
     fmpq_clear(entry);
     return;
+}
+
+
+void transcendental_factor_laguerre(arb_t t, const long prec) {
+    /*
+     *
+     */
+    arb_one(t);
 }
 
 
@@ -507,6 +541,14 @@ void moments_legendre(fmpq_mat_t moments, const int n) {
 
     fmpq_clear(entry);
     return;
+}
+
+
+void transcendental_factor_legendre(arb_t t, const long prec) {
+    /*
+     *
+     */
+    arb_one(t);
 }
 
 
@@ -637,6 +679,14 @@ void moments_chebyshevt(fmpq_mat_t moments, const int n) {
 }
 
 
+void transcendental_factor_chebyshevt(arb_t t, const long prec) {
+    /*
+     *
+     */
+    arb_const_pi(t, prec);
+}
+
+
 void chebyshevu_polynomial(fmpq_poly_t Un, const int n) {
     /* Compute the n-th Chebyshev polynomial by a
      * three term recursion:
@@ -762,6 +812,14 @@ void moments_chebyshevu(fmpq_mat_t moments, const int n) {
     fmpz_clear(tmp);
     fmpq_clear(entry);
     return;
+}
+
+
+void transcendental_factor_chebyshevu(arb_t t, const long prec) {
+    /*
+     *
+     */
+    arb_const_pi(t, prec);
 }
 
 
