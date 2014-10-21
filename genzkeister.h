@@ -188,6 +188,20 @@ compute_ai(const generators_t& generators,
         i++;
     }
 
+    arb_poly_clear(term);
+    arb_poly_clear(poly);
+    arb_clear(c);
+    arb_clear(t);
+    arb_clear(ai);
+
+    arb_t T;
+    arb_init(T);
+
+    transcendental_factor(T, working_prec);
+    arb_mat_scalar_mul_arb(A, A, T, working_prec);
+
+    arb_clear(T);
+
     return *A;
 }
 
@@ -254,13 +268,6 @@ compute_z_sequence(const ai_t& A) {
         }
         Z.push_back(v);
     }
-
-    /* // TODO Based on formula */
-    /* std::vector<int> Z = {0,0, */
-    /*                       1,0,0, */
-    /*                       3,2,1,0,0, */
-    /*                       5,4,3,2,1,0,0,0, */
-    /*                       8,7,6,5,4,3,2,1,0}; */
 
     return Z;
 }
