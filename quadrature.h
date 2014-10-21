@@ -14,21 +14,24 @@
 #include "numerics.h"
 
 
-void evaluate_weights_formula_legendre(acb_ptr, const acb_ptr, const int, long);
-void evaluate_weights_formula_laguerre(acb_ptr, const acb_ptr, const int, long);
-void evaluate_weights_formula_hermite_pro(acb_ptr, const acb_ptr, const int, long);
+void evaluate_weights_formula_legendre(acb_ptr, const acb_ptr, const int, const long);
+void evaluate_weights_formula_laguerre(acb_ptr, const acb_ptr, const int, const long);
+void evaluate_weights_formula_hermite_pro(acb_ptr, const acb_ptr, const int, const long);
+void evaluate_weights_formula_chebyshevt(acb_ptr, const acb_ptr, const int, const long);
+void evaluate_weights_formula_chebyshevu(acb_ptr, const acb_ptr, const int, const long);
 
 
 void evaluate_weights_formula_legendre(acb_ptr weights,
                                        const acb_ptr nodes,
                                        const int n,
-                                       long prec) {
+                                       const long prec) {
     /* Compute the Gauss-Legendre quadrature weights by the analytic formula.
      *
+     * w_k = \frac{2}{(1-x_k^2) P'_n(x_k)^2}
+     * k = 0, ..., n-1
      */
     int k;
     arb_t pf;
-
     fmpq_poly_t P;
     acb_ptr t;
 
@@ -69,13 +72,14 @@ void evaluate_weights_formula_legendre(acb_ptr weights,
 void evaluate_weights_formula_laguerre(acb_ptr weights,
                                        const acb_ptr nodes,
                                        const int n,
-                                       long prec) {
+                                       const long prec) {
     /* Compute the Gauss-Laguerre quadrature weights by the analytic formula.
      *
+     * w_k = \frac{x_k}{(n+1)^2 L_{n+1}(x_k)^2}
+     * k = 0, ..., n-1
      */
     int k;
     arb_t pf;
-
     fmpq_poly_t L;
 
     // The prefactor
@@ -108,25 +112,23 @@ void evaluate_weights_formula_laguerre(acb_ptr weights,
 void evaluate_weights_formula_hermite_pro(acb_ptr weights,
                                           const acb_ptr nodes,
                                           const int n,
-                                          long prec) {
+                                          const long prec) {
     /* Compute the Gauss-Hermite quadrature weights by the analytic formula.
      *
+     * w_k = \frac{2^{n-1} n! \sqrt{\pi}}{n^2 H_{n-1}(x_k)^2}  phys version
+     * w_k = \frac{n!}{n^2 H_{n-1}(x_k)^2}                     prob version
+     * k = 0, ..., n-1
      */
     int k;
-    arb_t t;
     arb_t pf;
-
     fmpq_poly_t H;
 
     // The prefactor
-    // 2^(n-1) Gamma(n+1) sqrt(pi) / n^2  prob version
-    // 2^(-1) Gamma(n+1) / n^2            phys version
-    arb_init(t);
+    // 2^(n-1) Gamma(n+1) sqrt(pi) / n^2  phys version
+    // Gamma(n+1) / n^2                   prob version
     arb_init(pf);
 
-    arb_ui_pow_ui(pf, 2, 0, prec);
-    arb_fac_ui(t, n, prec);
-    arb_mul(pf, pf, t, prec);
+    arb_fac_ui(pf, n, prec);
     arb_div_ui(pf, pf, n*n, prec);
 
     // The other part
@@ -142,9 +144,64 @@ void evaluate_weights_formula_hermite_pro(acb_ptr weights,
         acb_mul_arb((weights+k), (weights+k), pf, prec);
     }
 
-    arb_clear(t);
     arb_clear(pf);
     fmpq_poly_clear(H);
+}
+
+
+void evaluate_weights_formula_chebyshevt(acb_ptr weights,
+                                         const acb_ptr nodes,
+                                         const int n,
+                                         const long prec) {
+    /* Compute the Gauss-Chebyshev quadrature weights by the analytic formula.
+     *
+     * w_k = \frac{\pi}{n}
+     * k = 0, ..., n-1
+     */
+    int k;
+
+    for(k = 0; k < n; k++) {
+        acb_const_pi((weights+k), prec);
+        acb_div_ui((weights+k), (weights+k), n, prec);
+    }
+}
+
+
+void evaluate_weights_formula_chebyshevu(acb_ptr weights,
+                                         const acb_ptr nodes,
+                                         const int n,
+                                         const long prec) {
+    /* Compute the Gauss-Chebyshev quadrature weights by the analytic formula.
+     *
+     * w_k = \frac{\pi}{n + 1} \sin( \frac{k+1}{n+1}\pi )^2
+     * k = 0, ..., n-1
+     */
+    int k;
+    arb_t t;
+    acb_t pf;
+
+    // The prefactor
+    // pi / (n+1)
+    acb_init(pf);
+
+    acb_const_pi(pf, prec);
+    acb_div_ui(pf, pf, n+1, prec);
+
+    // The other part
+    // sin( ((k+1)*pi) / (n+1) )^2
+    arb_init(t);
+
+    for(k = 0; k < n; k++) {
+        arb_const_pi(t, prec);
+        arb_mul_ui(t, t, k+1, prec);
+        arb_div_ui(t, t, n+1, prec);
+        arb_sin(t, t, prec);
+        arb_pow_ui(t, t, 2, prec);
+        acb_mul_arb((weights+k), pf, t, prec);
+    }
+
+    arb_clear(t);
+    acb_clear(pf);
 }
 
 
