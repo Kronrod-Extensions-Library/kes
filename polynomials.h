@@ -25,9 +25,11 @@ void hermite_polynomial_phy(fmpq_poly_t, const int);
 void integrate_hermite_pro(fmpq_t, const int);
 void integrate_hermite_phy(fmpq_t, const int);
 void moments_hermite_pro(fmpq_mat_t, const int);
+void moments_hermite_phy(fmpq_mat_t, const int);
 
 void laguerre_polynomial(fmpq_poly_t, const int);
 void integrate_laguerre(fmpq_t, const int);
+void moments_laguerre(fmpq_mat_t, const int);
 
 void legendre_polynomial(fmpq_poly_t, const int);
 void integrate_legendre(fmpq_t, const int);
@@ -216,8 +218,13 @@ void integrate_hermite_phy(fmpq_t I, const int n) {
 
 
 void moments_hermite_pro(fmpq_mat_t moments, const int n) {
-    /*
+    /* Compute the n first moments M_i of the Hermite polynomial.
      *
+     * i even:  M_i = \sqrt{2} 2^i \Gamma{\frac{i+1}{2}}
+     * i odd:   M_i = 0
+     *
+     * 1  0  1  0  3  0  15  0  105  0  945  0  10395  0  135135
+     * We omit a factor of \sqrt{2\pi}
      */
     int i;
     fmpq_t tmp, entry;
@@ -238,6 +245,43 @@ void moments_hermite_pro(fmpq_mat_t moments, const int n) {
     }
 
     fmpq_clear(tmp);
+    fmpq_clear(entry);
+    return;
+}
+
+
+void moments_hermite_phy(fmpq_mat_t moments, const int n) {
+    /* Compute the n first moments M_i of the Hermite polynomial.
+     *
+     * i even:  M_i = 2^{\frac{i+1}{2}} \Gamma{\frac{i+1}{2}}
+     * i odd:   M_i = 0
+     *
+     * 1  0  1/2  0  3/4  0  15/8  0  105/16  0  945/32  0  10395/64  0  135135/128
+     * We omit a factor of \sqrt{\pi}
+     */
+    int i, j;
+    fmpz_t tmp;
+    fmpq_t entry;
+
+    fmpq_mat_init(moments, 1, n);
+    fmpz_init(tmp);
+    fmpq_init(entry);
+
+    for(i = 0; i < n; i++) {
+        if(i % 2 == 1) {
+            fmpq_zero(fmpq_mat_entry(moments, 0, i));
+        } else {
+            fmpq_one(entry);
+            for(j = 1; j <= i/2; j++) {
+                fmpz_set_ui(tmp, 2*j - 1);
+                fmpq_mul_fmpz(entry, entry, tmp);
+            }
+            fmpq_div_2exp(entry, entry, i/2);
+            fmpq_set(fmpq_mat_entry(moments, 0, i), entry);
+        }
+    }
+
+    fmpz_clear(tmp);
     fmpq_clear(entry);
     return;
 }
@@ -322,6 +366,33 @@ void integrate_laguerre(fmpq_t I, const int n) {
         fmpq_mul(I, I, t);
     }
     fmpq_clear(t);
+    return;
+}
+
+
+void moments_laguerre(fmpq_mat_t moments, const int n) {
+    /* Compute the n first moments M_i of the Laguerre polynomial.
+     *
+     * M_i = \Gamma{i+1}
+     *
+     * 1  1  2  6  24  120  720  5040  40320  362880  3628800
+     */
+    int i;
+    fmpq_t entry;
+
+    fmpq_mat_init(moments, 1, n);
+    fmpq_init(entry);
+
+    fmpq_one(fmpq_mat_entry(moments, 0, 0));
+
+    for(i = 1; i < n; i++) {
+        fmpq_set_si(entry, i, 1);
+        fmpq_mul(fmpq_mat_entry(moments, 0, i),
+                 fmpq_mat_entry(moments, 0, i-1),
+                 entry);
+    }
+
+    fmpq_clear(entry);
     return;
 }
 
@@ -411,8 +482,12 @@ void integrate_legendre(fmpq_t I, const int n) {
 
 
 void moments_legendre(fmpq_mat_t moments, const int n) {
-    /*
+    /* Compute the n first moments M_i of the Legendre polynomial.
      *
+     * i even:  M_i = \frac{2}{i + 1}
+     * i odd:   M_i = 0
+     *
+     * 2  0  2/3  0  2/5  0  2/7  0  2/9  0  2/11  0  2/13  0  2/15
      */
     int i;
     fmpq_t entry;
@@ -522,8 +597,13 @@ void integrate_chebyshevt(fmpq_t I, const int n) {
 
 
 void moments_chebyshevt(fmpq_mat_t moments, const int n) {
-    /*
+    /* Compute the n first moments M_i of the Chebyshev polynomial.
      *
+     * i even:  M_i = \frac{2 \sqrt{\pi}}{i} \frac{\Gamma{\frac{i+1}{2}}}{\Gamma{\frac{i}{2}}}
+     * i odd:   M_i = 0
+     *
+     * 1  0  1/2  0  3/8  0  5/16  0  35/128  0  63/256  0  231/1024  0  429/2048
+     * We omit a factor of \pi
      */
     int i, j;
     fmpz_t tmp;
@@ -645,8 +725,13 @@ void integrate_chebyshevu(fmpq_t I, const int n) {
 
 
 void moments_chebyshevu(fmpq_mat_t moments, const int n) {
-    /*
+    /* Compute the n first moments M_i of the Chebyshev polynomial.
      *
+     * i even:  M_i = \frac{\sqrt{\pi}}{2} \frac{\Gamma{\frac{i+1}{2}}}{\Gamma{2+\frac{i}{2}}}
+     * i odd:   M_i = 0
+     *
+     * 1/2  0  1/8  0  1/16  0  5/128  0  7/256  0  21/1024  0  33/2048  0  429/32768
+     * We omit a factor of \pi
      */
     int i, j;
     fmpz_t tmp;
