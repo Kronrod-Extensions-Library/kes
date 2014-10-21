@@ -4,46 +4,49 @@ MPFR_LIB_DIR=/userdata/raoulb/lib/lib
 MPFR_INCLUDE_DIR=/userdata/raoulb/lib/include
 FLINT_LIB_DIR=/userdata/raoulb/lib/lib
 FLINT_INCLUDE_DIR=/userdata/raoulb/lib/include/flint
+#FLINT_CPIMPORT=\"/userdata/raoulb/lib/share/flint/CPimport.txt\"
 ARB_LIB_DIR=/userdata/raoulb/lib/lib
 ARB_INCLUDE_DIR=/userdata/raoulb/lib/include
 
 
 POLY ?= HERMITE
-PRINTLOG ?= 1
 DIMENSION ?= 1
-CFG=-DPRINTLOG=${PRINTLOG} -D${POLY} -DDIMENSION=${DIMENSION}
+PRINTLOG ?= 1
+CFG= -D${POLY} -DDIMENSION=${DIMENSION} -DPRINTLOG=${PRINTLOG}
 
 
 CC=gcc
-CFLAGS=-std=c11 -fopenmp -pedantic -Wall -Werror -O2 -funroll-loops -mpopcnt -DFLINT_CPIMPORT=\"/userdata/raoulb/lib/share/flint/CPimport.txt\"
+CFLAGS=-std=c11 -Wall -Werror -pedantic -O2 -funroll-loops -fopenmp -mpopcnt
 
 
 CPP=g++
-CPPFLAGS=-std=c++11 -Wall -O2 -funroll-loops -mpopcnt -pedantic -fpermissive -Wno-sign-compare -Wno-unused-variable -DFLINT_CPIMPORT=\"/userdata/raoulb/lib/share/flint/CPimport.txt\"
+CPPFLAGS=-std=c++11 -Wall -Werror -pedantic -O2 -funroll-loops -fopenmp -mpopcnt -fpermissive -Wno-sign-compare
 
 
-INCS=-I$(CURDIR) -I$(GMP_INCLUDE_DIR) -I$(MPFR_INCLUDE_DIR) -I$(FLINT_INCLUDE_DIR) -I$(ARB_INCLUDE_DIR)
+INC=-I$(CURDIR) -I$(GMP_INCLUDE_DIR) -I$(MPFR_INCLUDE_DIR) -I$(FLINT_INCLUDE_DIR) -I$(ARB_INCLUDE_DIR)
 
-LIBS=-L$(CURDIR) -L$(ARB_LIB_DIR) -L$(FLINT_LIB_DIR) -L$(GMP_LIB_DIR) -L$(MPFR_LIB_DIR) -larb -lflint -lmpfr -lgmp -lpthread -lm
+LIB=-L$(CURDIR) -L$(ARB_LIB_DIR) -L$(FLINT_LIB_DIR) -L$(GMP_LIB_DIR) -L$(MPFR_LIB_DIR) -larb -lflint -lgmp -lmpfr -lpthread -lm
 
 
-bkes:
-	$(CC) $(CFLAGS) $(CFG) $(INCS) libkes2.h kes.c $(LIBS) -o kes
+all: kes ekes rekes quadrature genzkeister test
 
-ekes:
-	$(CC) $(CFLAGS) $(CFG) $(INCS) libkes2.h kes_enumerate.c $(LIBS) -o kes_enumerate
+quadrature: quadrature.c *.h
+	$(CC) $(CFLAGS) $(CFG) $(INC) libkes2.h quadrature.c $(LIB) -o quadrature
 
-rekes:
-	$(CC) $(CFLAGS) $(CFG) $(INCS) libkes2.h kes_rec_enumerate.c $(LIBS) -o kes_rec_enumerate
+kes: kes.c *.h
+	$(CC) $(CFLAGS) $(CFG) $(INC) libkes2.h kes.c $(LIB) -o kes
 
-quad:
-	$(CC) $(CFLAGS) $(CFG) $(INCS) libkes2.h quadrature.c $(LIBS) -o quadrature
+ekes: kes_enumerate.c *.h
+	$(CC) $(CFLAGS) $(CFG) $(INC) libkes2.h kes_enumerate.c $(LIB) -o ekes
 
-gk:
-	$(CPP) $(CPPFLAGS) $(CFG) $(INCS) genzkeister.h genzkeister.cpp $(LIBS) -o genzkeister
+rekes: kes_rec_enumerate.c *.h
+	$(CC) $(CFLAGS) $(CFG) $(INC) libkes2.h kes_rec_enumerate.c $(LIB) -o rekes
 
-test:
-	$(CC) $(CFLAGS) $(INCS) libkes2.h test.c $(LIBS) -o test
+genzkeister: genzkeister.cpp *.h
+	$(CPP) $(CPPFLAGS) $(CFG) $(INC) genzkeister.h genzkeister.cpp $(LIB) -o genzkeister
+
+test: test.c *.h
+	$(CC) $(CFLAGS) $(INC) libkes2.h test.c $(LIB) -o test
 
 clean:
-	rm kes kes_enumerate kes_rec_enumerate quadrature genzkeister test
+	rm kes ekes rekes quadrature genzkeister test
