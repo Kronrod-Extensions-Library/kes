@@ -82,8 +82,18 @@ int main(int argc, char* argv[]) {
 
     /* Rule definition */
     if(levels.size() == 0) {
-        // Default for Gauss-Hermite
-        levels = {1, 2, 6, 10, 16, 68};
+#ifdef LEGENDRE
+        levels = {1, 2, 4, 8, 16, 32};//, 64};
+#endif
+#ifdef HERMITE
+        levels = {1, 2, 6, 10, 16};//, 68};
+#endif
+#ifdef CHEBYSHEVT
+        levels = {1, 2, 4, 6, 12, 24};//, 48};
+#endif
+#ifdef CHEBYSHEVU
+        levels = {1, 2, 4, 8, 16, 32};//, 64};
+#endif
     }
 
     std::cout << "Kronrod extension:  ";
