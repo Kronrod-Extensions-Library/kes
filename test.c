@@ -7,24 +7,26 @@
 #include <stdio.h>
 
 #include "polynomials.h"
-#include "libkes2.h"
 
 
 int main(int argc, char* argv[]) {
-    int n;
-    fmpq_t M;
+    int n, N;
     fmpq_poly_t P;
     fmpq_poly_t L;
     fmpq_poly_t H;
     fmpq_poly_t T;
     fmpq_poly_t U;
+    fmpq_mat_t M;
     char *strf;
+
+    N = 15;
 
     fmpq_poly_init(P);
     fmpq_poly_init(L);
     fmpq_poly_init(H);
     fmpq_poly_init(T);
     fmpq_poly_init(U);
+    fmpq_mat_init(M, 1, N);
 
     printf("Legendre Polynomials:\n");
     for(n = 0; n < 10; n++) {
@@ -35,11 +37,8 @@ int main(int argc, char* argv[]) {
     printf("\n");
 
     printf("Legendre Moments:\n");
-    for(n = 0; n < 15; n++) {
-        integrate_legendre(M, n);
-        fmpq_print(M);
-        printf("  ");
-    }
+    moments_legendre(M, N);
+    fmpq_mat_print(M);
     printf("\n\n");
 
 
@@ -52,11 +51,8 @@ int main(int argc, char* argv[]) {
     printf("\n");
 
     printf("Laguerre Moments:\n");
-    for(n = 0; n < 15; n++) {
-        integrate_laguerre(M, n);
-        fmpq_print(M);
-        printf("  ");
-    }
+    moments_laguerre(M, N);
+    fmpq_mat_print(M);
     printf("\n\n");
 
 
@@ -69,11 +65,8 @@ int main(int argc, char* argv[]) {
     printf("\n");
 
     printf("Hermite PHY Moments:\n");
-    for(n = 0; n < 15; n++) {
-        integrate_hermite_phy(M, n);
-        fmpq_print(M);
-        printf("  ");
-    }
+    moments_hermite_phy(M, N);
+    fmpq_mat_print(M);
     printf("\n\n");
 
 
@@ -86,11 +79,8 @@ int main(int argc, char* argv[]) {
     printf("\n");
 
     printf("Hermite PRO Moments:\n");
-    for(n = 0; n < 15; n++) {
-        integrate_hermite_pro(M, n);
-        fmpq_print(M);
-        printf("  ");
-    }
+    moments_hermite_pro(M, N);
+    fmpq_mat_print(M);
     printf("\n\n");
 
 
@@ -103,11 +93,8 @@ int main(int argc, char* argv[]) {
     printf("\n");
 
     printf("Chebyshev T Moments:\n");
-    for(n = 0; n < 15; n++) {
-        integrate_chebyshevt(M, n);
-        fmpq_print(M);
-        printf("  ");
-    }
+    moments_chebyshevt(M, N);
+    fmpq_mat_print(M);
     printf("\n\n");
 
 
@@ -120,11 +107,8 @@ int main(int argc, char* argv[]) {
     printf("\n");
 
     printf("Chebyshev U Moments:\n");
-    for(n = 0; n < 15; n++) {
-        integrate_chebyshevu(M, n);
-        fmpq_print(M);
-        printf("  ");
-    }
+    moments_chebyshevu(M, N);
+    fmpq_mat_print(M);
     printf("\n\n");
 
 
@@ -133,6 +117,7 @@ int main(int argc, char* argv[]) {
     fmpq_poly_clear(H);
     fmpq_poly_clear(T);
     fmpq_poly_clear(U);
+    fmpq_mat_clear(M);
 
     return EXIT_SUCCESS;
 }
