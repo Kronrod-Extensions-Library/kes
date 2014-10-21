@@ -93,7 +93,7 @@ generators_t compute_generators(const std::vector<int> levels,
     maxminsort(G, generators, deg);
     //_acb_vec_clear(generators, deg);
 
-    for(int i = 1; i < levels.size(); i++) {
+    for(unsigned int i = 1; i < levels.size(); i++) {
         bool solvable = find_extension(Ep, Pn, levels[i], 0);
         if(!solvable) {
             std::cout << "******************************\n";

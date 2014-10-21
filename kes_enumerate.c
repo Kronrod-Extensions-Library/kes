@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
     validate_weights = 0;
     loglevel = 0;
 
-    for (i = 1; i < argc; i++) {
+    for(i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-vne")) {
             validate_ext = 0;
         } else if (!strcmp(argv[i], "-vw")) {

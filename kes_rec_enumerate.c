@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
     validate_weights = 0;
     loglevel = 0;
 
-    for (i = 1; i < argc; i++) {
+    for(i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-l")) {
             loglevel = atoi(argv[i+1]);
             i++;

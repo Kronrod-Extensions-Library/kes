@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     bool print_weightfactors = false;
     bool print_zsequence = false;
 
-    for (int i = 1; i < argc; i++) {
+    for(int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-dc")) {
             /* 'digits' is in base 10 and log(10)/log(2) = 3.32193 */
             target_prec = 3.32193 * atoi(argv[i+1]);
@@ -78,13 +78,13 @@ int main(int argc, char* argv[]) {
     const unsigned int D = DIMENSION;
 
     // Note K is shifted by 1 wrt the original paper
-    // This makes K=3 equal to the Gauss-Hermite Rule of 3 points.
+    // This makes K=3 equal to the Gauss Rule of 3 points.
     K--;
 
     /* Rule definition */
     if(levels.size() == 0) {
+        // Default for Gauss-Hermite
         levels = {1, 2, 6, 10, 16, 68};
-        // levels = {1, 2, 8, 20};
     }
 
     std::cout << "Kronrod extension:  ";
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
     weights_t weights;
     rule_t<D> rule;
 
-    for(int working_prec = target_prec; ; working_prec *= 2) {
+    for(unsigned int working_prec = target_prec; ; working_prec *= 2) {
         std::cout << "--------------------------------------------------\n";
         std::cout << "Working precision (bits): " << working_prec << std::endl;
 
@@ -188,7 +188,7 @@ int main(int argc, char* argv[]) {
 
         for(auto it=nodes.begin(); it != nodes.end(); it++) {
             std::cout << "| ";
-            for(int d=0; d < D; d++) {
+            for(unsigned int d=0; d < D; d++) {
                 arb_printd(&((*it)[d]), nrprintdigits);
                 std::cout << ",\t\t";
             }

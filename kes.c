@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     validate_weights = 0;
 
     k = 0;
-    for (i = 1; i < argc; i++) {
+    for(i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-ve")) {
             validate_extension = 1;
         } else if (!strcmp(argv[i], "-vw")) {

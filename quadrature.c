@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
     nrprintdigits = 20;
     loglevel = 8;
 
-    for (i = 1; i < argc; i++) {
+    for(i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-dc")) {
             /* 'digits' is in base 10 and log(10)/log(2) = 3.32193 */
             target_prec = 3.32193 * atoi(argv[i+1]);
