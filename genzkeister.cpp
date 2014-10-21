@@ -27,8 +27,7 @@ int main(int argc, char* argv[]) {
         printf("        -pwf Print the weight factors\n");
         printf("        -pzs Print the Z-sequence\n");
         printf("        -K   Set the level of the rule\n");
-        printf("        Further optional parameters n1 ... nk\n");
-        printf("        define the Kronrod extension used\n");
+        printf("        Further optional parameters  n1 ... nk  define the Kronrod extension used\n");
         return EXIT_FAILURE;
     }
 
