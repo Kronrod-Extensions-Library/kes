@@ -28,7 +28,7 @@ INC=-I$(CURDIR) -I$(GMP_INCLUDE_DIR) -I$(MPFR_INCLUDE_DIR) -I$(FLINT_INCLUDE_DIR
 LIB=-L$(CURDIR) -L$(ARB_LIB_DIR) -L$(FLINT_LIB_DIR) -L$(GMP_LIB_DIR) -L$(MPFR_LIB_DIR) -larb -lflint -lgmp -lmpfr -lpthread -lm
 
 
-all: kes ekes rekes quadrature genzkeister test
+all: kes ekes rekes quadrature genzkeister test enumtest
 
 quadrature: quadrature.c *.h
 	$(CC) $(CFLAGS) $(CFG) $(INC) libkes2.h quadrature.c $(LIB) -o quadrature
@@ -48,5 +48,8 @@ genzkeister: genzkeister.cpp *.h
 test: test.c *.h
 	$(CC) $(CFLAGS) $(INC) libkes2.h test.c $(LIB) -o test
 
+enumtest: enumtest.cpp enumerators.h
+	$(CPP) $(CPPFLAGS) $(CFG) $(INC) enumerators.h enumtest.cpp $(LIB) -o enumtest
+
 clean:
-	rm kes ekes rekes quadrature genzkeister test
+	rm kes ekes rekes quadrature genzkeister test enumtest

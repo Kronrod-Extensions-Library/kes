@@ -16,7 +16,7 @@ template <int D>
 void print(std::array<int, D> K) {
     std::cout << "(";
     for(int i=0; i < D-1; i++) {
-	std::cout << K[i] << ", ";
+        std::cout << K[i] << ", ";
     }
     std::cout << K[D-1] << ")\n";
 }
@@ -24,13 +24,13 @@ void print(std::array<int, D> K) {
 
 template <int D>
 void print(std::list<std::array<int, D> > L) {
-    for (auto it = L.begin(); it != L.end(); it++) {
-	auto k = *it;
-	std::cout << "(";
-	for(int i=0; i < D-1; i++) {
-	    std::cout << k[i] << ", ";
-	}
-	std::cout << k[D-1] << ")\n";
+    for(auto it = L.begin(); it != L.end(); it++) {
+        auto k = *it;
+        std::cout << "(";
+        for(int i=0; i < D-1; i++) {
+            std::cout << k[i] << ", ";
+        }
+        std::cout << k[D-1] << ")\n";
     }
 }
 
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Lattice Points\n";
     std::cout << "--------------\n";
 
-    const int E = 2;
+    const int E = 3;
     std::list<std::array<int, E> > LPL;
     LPL = LatticePoints<E>(3);
 
@@ -76,18 +76,19 @@ int main(int argc, char* argv[]) {
     L = Partitions<F>(6);
 
     for(auto Lit = L.begin(); Lit != L.end(); Lit++) {
-    	auto P = *Lit;
+        auto P = *Lit;
 
-    	std::cout << "[";
-    	for(int i=0; i < F-1; i++) {
-    	    std::cout << P[i] << ", ";
-    	}
-    	std::cout << P[F-1] << "]\n";
+        std::cout << "[";
+        for(int i=0; i < F-1; i++) {
+            std::cout << P[i] << ", ";
+        }
+        std::cout << P[F-1] << "]\n";
 
-	PP = Permutations<F>(P);
+        PP = Permutations<F>(P);
 
-	print<F>(PP);
-    	std::cout << std::endl;
+        print<F>(PP);
+        std::cout << "Number permutations: " << PP.size() << std::endl;
+        std::cout << std::endl;
     }
 
 
