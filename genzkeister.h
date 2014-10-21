@@ -36,7 +36,7 @@ template<int D> using nodes_t = std::vector<node_t<D>>;
 template<int D> using rule_t = std::pair<nodes_t<D>, weights_t>;
 
 
-void maxminsort(generators_t& generators, acb_ptr g, long n) {
+void maxminsort(generators_t& generators, const acb_ptr g, const long n) {
     /* Sort generators according to the max-min heuristic.
      */
     generators_t t(0);
@@ -332,10 +332,10 @@ compute_nodes(const partition_t<D> P,
 
 template<int D>
 weights_t
-compute_weights(partition_t<D> P,
-                int K,
-                arb_mat_struct& weight_factors,
-                int working_prec) {
+compute_weights(const partition_t<D> P,
+                const int K,
+                const arb_mat_struct& weight_factors,
+                const int working_prec) {
     /* Function to compute weights for partition `P`.
      *
      * P: Partition `P`
@@ -377,10 +377,10 @@ compute_weights(partition_t<D> P,
 
 template<int D>
 rule_t<D>
-genz_keister_construction(int K,
+genz_keister_construction(const int K,
                           const generators_t& generators,
-                          tables_t& tables,
-                          int working_prec) {
+                          const tables_t& tables,
+                          const int working_prec) {
     /* Compute the Genz-Keister construction.
      *
      * K: Level of the quadrature rule
@@ -438,9 +438,9 @@ check_accuracy(const arb_t a,
 
 template<int D>
 bool
-check_accuracy(nodes_t<D>& nodes,
-               weights_t& weights,
-               int target_prec) {
+check_accuracy(const nodes_t<D>& nodes,
+               const weights_t& weights,
+               const int target_prec) {
     /* Check if the nodes and weights are accurate enough to fit
      * the target precision.
      */
