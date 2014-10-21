@@ -52,4 +52,4 @@ enumtest: enumtest.cpp enumerators.h
 	$(CPP) $(CPPFLAGS) $(CFG) $(INC) enumerators.h enumtest.cpp $(LIB) -o enumtest
 
 clean:
-	rm kes ekes rekes quadrature genzkeister test enumtest
+	rm -f kes ekes rekes quadrature genzkeister test enumtest
