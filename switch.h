@@ -34,7 +34,7 @@ inline void polynomial(fmpq_poly_t Pn, const int n) {
     laguerre_polynomial(Pn, n);
 #endif
 #ifdef HERMITE
-    hermite_polynomial_pro(Pn, n);
+    hermite_polynomial_phy(Pn, n);
 #endif
 #ifdef CHEBYSHEVT
     chebyshevt_polynomial(Pn, n);
@@ -52,7 +52,7 @@ inline void integrate(fmpq_t M, const int n) {
     integrate_laguerre(M, n);
 #endif
 #ifdef HERMITE
-    integrate_hermite_pro(M, n);
+    integrate_hermite_phy(M, n);
 #endif
 #ifdef CHEBYSHEVT
     integrate_chebyshevt(M, n);
@@ -70,7 +70,7 @@ inline void moments(fmpq_mat_t M, const int n) {
     moments_laguerre(M, n);
 #endif
 #ifdef HERMITE
-    moments_hermite_pro(M, n);
+    moments_hermite_phy(M, n);
 #endif
 #ifdef CHEBYSHEVT
     moments_chebyshevt(M, n);
@@ -88,7 +88,7 @@ inline void transcendental_factor(arb_t T, const long prec) {
     transcendental_factor_laguerre(T, prec);
 #endif
 #ifdef HERMITE
-    transcendental_factor_hermite_pro(T, prec);
+    transcendental_factor_hermite_phy(T, prec);
 #endif
 #ifdef CHEBYSHEVT
     transcendental_factor_chebyshevt(T, prec);
@@ -138,7 +138,7 @@ inline void evaluate_weights_formula(acb_ptr weights,
     evaluate_weights_formula_laguerre(weights, nodes, n, prec);
 #endif
 #ifdef HERMITE
-    evaluate_weights_formula_hermite_pro(weights, nodes, n, prec);
+    evaluate_weights_formula_hermite_phy(weights, nodes, n, prec);
 #endif
 #ifdef CHEBYSHEVT
     evaluate_weights_formula_chebyshevt(weights, nodes, n, prec);
