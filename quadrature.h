@@ -18,6 +18,7 @@ void sort_nodes(acb_ptr, const int);
 void evaluate_weights_formula_legendre(acb_ptr, const acb_ptr, const int, const long);
 void evaluate_weights_formula_laguerre(acb_ptr, const acb_ptr, const int, const long);
 void evaluate_weights_formula_hermite_pro(acb_ptr, const acb_ptr, const int, const long);
+void evaluate_weights_formula_hermite_phy(acb_ptr, const acb_ptr, const int, const long);
 void evaluate_weights_formula_chebyshevt(acb_ptr, const acb_ptr, const int, const long);
 void evaluate_weights_formula_chebyshevu(acb_ptr, const acb_ptr, const int, const long);
 
@@ -140,8 +141,7 @@ void evaluate_weights_formula_hermite_pro(acb_ptr weights,
                                           const long prec) {
     /* Compute the Gauss-Hermite quadrature weights by the analytic formula.
      *
-     * w_k = \frac{2^{n-1} n! \sqrt{\pi}}{n^2 H_{n-1}(x_k)^2}  phys version
-     * w_k = \frac{n!}{n^2 H_{n-1}(x_k)^2}                     prob version
+     * w_k = \frac{n!}{n^2 H_{n-1}(x_k)^2}
      * k = 0, ..., n-1
      */
     int k;
@@ -149,8 +149,7 @@ void evaluate_weights_formula_hermite_pro(acb_ptr weights,
     fmpq_poly_t H;
 
     // The prefactor
-    // 2^(n-1) Gamma(n+1) sqrt(pi) / n^2  phys version
-    // Gamma(n+1) / n^2                   prob version
+    // Gamma(n+1) / n^2
     arb_init(pf);
 
     arb_fac_ui(pf, n, prec);
@@ -161,6 +160,49 @@ void evaluate_weights_formula_hermite_pro(acb_ptr weights,
     fmpq_poly_init(H);
 
     hermite_polynomial_pro(H, n-1);
+    evaluate_polynomial_vector(weights, H, nodes, n, prec);
+
+    for(k = 0; k < n; k++) {
+        acb_mul((weights+k), (weights+k), (weights+k), prec);
+        acb_inv((weights+k), (weights+k), prec);
+        acb_mul_arb((weights+k), (weights+k), pf, prec);
+    }
+
+    arb_clear(pf);
+    fmpq_poly_clear(H);
+}
+
+
+void evaluate_weights_formula_hermite_phy(acb_ptr weights,
+                                          const acb_ptr nodes,
+                                          const int n,
+                                          const long prec) {
+    /* Compute the Gauss-Hermite quadrature weights by the analytic formula.
+     *
+     * w_k = \frac{2^{n-1} n! \sqrt{\pi}}{n^2 H_{n-1}(x_k)^2}
+     * k = 0, ..., n-1
+     */
+    int k;
+    arb_t t, pf;
+    fmpq_poly_t H;
+
+    // The prefactor
+    // 2^(n-1) Gamma(n+1) sqrt(pi) / n^2
+    arb_init(t);
+    arb_init(pf);
+
+    arb_fac_ui(pf, n, prec);
+    arb_ui_pow_ui(t, 2, n-1, prec);
+    arb_mul(pf, pf, t, prec);
+    arb_const_sqrt_pi(t, prec);
+    arb_mul(pf, pf, t, prec);
+    arb_div_ui(pf, pf, n*n, prec);
+
+    // The other part
+    // 1 / H^2_{n-1}(gamma)
+    fmpq_poly_init(H);
+
+    hermite_polynomial_phy(H, n-1);
     evaluate_polynomial_vector(weights, H, nodes, n, prec);
 
     for(k = 0; k < n; k++) {
