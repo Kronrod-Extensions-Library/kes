@@ -299,7 +299,10 @@ void transcendental_factor_hermite_pro(arb_t t, const long prec) {
     /*
      *
      */
-    // TODO
+    // Because of transformation of variables we do not use this
+    // arb_const_pi(t, prec);
+    // arb_mul_ui(t, t, 2, prec);
+    // arb_sqrt(t, t, prec);
     arb_one(t);
 }
 
@@ -308,8 +311,7 @@ void transcendental_factor_hermite_phy(arb_t t, const long prec) {
     /*
      *
      */
-    // TODO
-    arb_one(t);
+    arb_const_sqrt_pi(t, prec);
 }
 
 
