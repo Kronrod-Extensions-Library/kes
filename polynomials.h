@@ -296,20 +296,20 @@ void moments_hermite_phy(fmpq_mat_t moments, const int n) {
 
 
 void transcendental_factor_hermite_pro(arb_t t, const long prec) {
-    /*
+    /* Transcendental factor of the Hermite moments:
      *
+     * T = \sqrt{2 \pi}
      */
-    // Because of transformation of variables we do not use this
-    // arb_const_pi(t, prec);
-    // arb_mul_ui(t, t, 2, prec);
-    // arb_sqrt(t, t, prec);
-    arb_one(t);
+    arb_const_pi(t, prec);
+    arb_mul_ui(t, t, 2, prec);
+    arb_sqrt(t, t, prec);
 }
 
 
 void transcendental_factor_hermite_phy(arb_t t, const long prec) {
-    /*
+    /* Transcendental factor of the Hermite moments:
      *
+     * T = \sqrt{\pi}
      */
     arb_const_sqrt_pi(t, prec);
 }
@@ -426,8 +426,9 @@ void moments_laguerre(fmpq_mat_t moments, const int n) {
 
 
 void transcendental_factor_laguerre(arb_t t, const long prec) {
-    /*
+    /* Transcendental factor of the Laguerre moments:
      *
+     * T = 1
      */
     arb_one(t);
 }
@@ -547,8 +548,9 @@ void moments_legendre(fmpq_mat_t moments, const int n) {
 
 
 void transcendental_factor_legendre(arb_t t, const long prec) {
-    /*
+    /* Transcendental factor of the Legendre moments:
      *
+     * T = 1
      */
     arb_one(t);
 }
@@ -682,8 +684,9 @@ void moments_chebyshevt(fmpq_mat_t moments, const int n) {
 
 
 void transcendental_factor_chebyshevt(arb_t t, const long prec) {
-    /*
+    /* Transcendental factor of the Chebyshev moments:
      *
+     * T = \pi
      */
     arb_const_pi(t, prec);
 }
@@ -818,8 +821,9 @@ void moments_chebyshevu(fmpq_mat_t moments, const int n) {
 
 
 void transcendental_factor_chebyshevu(arb_t t, const long prec) {
-    /*
+    /* Transcendental factor of the Chebyshev moments:
      *
+     * T = \pi
      */
     arb_const_pi(t, prec);
 }
