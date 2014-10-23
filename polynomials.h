@@ -167,7 +167,7 @@ void integrate_hermite_pro(fmpq_t I, const int n) {
      *
      * I = \int_{-\infty}^\infty \exp(-x^2/2) x^n dx
      *
-     * n even:  I = \sqrt{2} 2^n \Gamma{\frac{n+1}{2}}
+     * n even:  I = \sqrt{2} 2^{\frac{n}{2}} \Gamma{\frac{n+1}{2}}
      * n odd:   I = 0
      *
      * 1  0  1  0  3  0  15  0  105  0  945  0  10395  0  135135
@@ -228,7 +228,7 @@ void integrate_hermite_phy(fmpq_t I, const int n) {
 void moments_hermite_pro(fmpq_mat_t moments, const int n) {
     /* Compute the n first moments M_i of the Hermite polynomial.
      *
-     * i even:  M_i = \sqrt{2} 2^i \Gamma{\frac{i+1}{2}}
+     * i even:  M_i = \sqrt{2} 2^{\frac{i}{2}} \Gamma{\frac{i+1}{2}}
      * i odd:   M_i = 0
      *
      * 1  0  1  0  3  0  15  0  105  0  945  0  10395  0  135135
