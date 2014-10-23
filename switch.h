@@ -33,6 +33,9 @@ inline void polynomial(fmpq_poly_t Pn, const int n) {
 #ifdef LAGUERRE
     laguerre_polynomial(Pn, n);
 #endif
+#ifdef HERMITEPRO
+    hermite_polynomial_pro(Pn, n);
+#endif
 #ifdef HERMITE
     hermite_polynomial_phy(Pn, n);
 #endif
@@ -50,6 +53,9 @@ inline void integrate(fmpq_t M, const int n) {
 #endif
 #ifdef LAGUERRE
     integrate_laguerre(M, n);
+#endif
+#ifdef HERMITEPRO
+    integrate_hermite_pro(M, n);
 #endif
 #ifdef HERMITE
     integrate_hermite_phy(M, n);
@@ -69,6 +75,9 @@ inline void moments(fmpq_mat_t M, const int n) {
 #ifdef LAGUERRE
     moments_laguerre(M, n);
 #endif
+#ifdef HERMITEPRO
+    moments_hermite_pro(M, n);
+#endif
 #ifdef HERMITE
     moments_hermite_phy(M, n);
 #endif
@@ -86,6 +95,9 @@ inline void transcendental_factor(arb_t T, const long prec) {
 #endif
 #ifdef LAGUERRE
     transcendental_factor_laguerre(T, prec);
+#endif
+#ifdef HERMITEPRO
+    transcendental_factor_hermite_pro(T, prec);
 #endif
 #ifdef HERMITE
     transcendental_factor_hermite_phy(T, prec);
@@ -107,6 +119,9 @@ inline long validate_roots(const acb_ptr roots,
 #endif
 #ifdef LAGUERRE
     return validate_real_nonnegative_roots(roots, n, prec, loglevel);
+#endif
+#ifdef HERMITEPRO
+    return validate_real_roots(roots, n, prec, loglevel);
 #endif
 #ifdef HERMITE
     return validate_real_roots(roots, n, prec, loglevel);
@@ -130,12 +145,15 @@ inline long validate_weights(const acb_ptr weights,
 inline void evaluate_weights_formula(acb_ptr weights,
                                      const acb_ptr nodes,
                                      const int n,
-                                     long prec) {
+                                     const long prec) {
 #ifdef LEGENDRE
     evaluate_weights_formula_legendre(weights, nodes, n, prec);
 #endif
 #ifdef LAGUERRE
     evaluate_weights_formula_laguerre(weights, nodes, n, prec);
+#endif
+#ifdef HERMITEPRO
+    evaluate_weights_formula_hermite_pro(weights, nodes, n, prec);
 #endif
 #ifdef HERMITE
     evaluate_weights_formula_hermite_phy(weights, nodes, n, prec);

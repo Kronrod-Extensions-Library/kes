@@ -23,12 +23,13 @@
 
 
 void hermite_polynomial_pro(fmpq_poly_t, const int);
-void hermite_polynomial_phy(fmpq_poly_t, const int);
 void integrate_hermite_pro(fmpq_t, const int);
-void integrate_hermite_phy(fmpq_t, const int);
 void moments_hermite_pro(fmpq_mat_t, const int);
-void moments_hermite_phy(fmpq_mat_t, const int);
 void transcendental_factor_hermite_pro(arb_t, const long);
+
+void hermite_polynomial_phy(fmpq_poly_t, const int);
+void integrate_hermite_phy(fmpq_t, const int);
+void moments_hermite_phy(fmpq_mat_t, const int);
 void transcendental_factor_hermite_phy(arb_t, const long);
 
 void laguerre_polynomial(fmpq_poly_t, const int);
@@ -107,6 +108,81 @@ void hermite_polynomial_pro(fmpq_poly_t Hn, const int n) {
 }
 
 
+void integrate_hermite_pro(fmpq_t I, const int n) {
+    /* Integrate
+     *
+     * I = \int_{-\infty}^\infty \exp(-x^2/2) x^n dx
+     *
+     * n even:  I = \sqrt{2} 2^{\frac{n}{2}} \Gamma{\frac{n+1}{2}}
+     * n odd:   I = 0
+     *
+     * 1  0  1  0  3  0  15  0  105  0  945  0  10395  0  135135
+     * We omit a factor of \sqrt{2\pi}
+     */
+    int i;
+    fmpz_t tmp;
+
+    fmpz_init(tmp);
+
+    if(n % 2 == 1) {
+        fmpq_zero(I);
+    } else {
+        fmpq_one(I);
+        for(i = 1; i <= n/2; i++) {
+            fmpz_set_ui(tmp, 2*i - 1);
+            fmpq_mul_fmpz(I, I, tmp);
+        }
+    }
+
+    fmpz_clear(tmp);
+    return;
+}
+
+
+void moments_hermite_pro(fmpq_mat_t moments, const int n) {
+    /* Compute the n first moments M_i of the Hermite polynomial.
+     *
+     * i even:  M_i = \sqrt{2} 2^{\frac{i}{2}} \Gamma{\frac{i+1}{2}}
+     * i odd:   M_i = 0
+     *
+     * 1  0  1  0  3  0  15  0  105  0  945  0  10395  0  135135
+     * We omit a factor of \sqrt{2\pi}
+     */
+    int i;
+    fmpq_t tmp, entry;
+
+    fmpq_mat_init(moments, 1, n);
+    fmpq_init(tmp);
+    fmpq_init(entry);
+    fmpq_one(entry);
+
+    for(i = 0; i < n; i++) {
+        if(i % 2 == 0) {
+            fmpq_set(fmpq_mat_entry(moments, 0, i), entry);
+            fmpq_set_si(tmp, i + 1, 1);
+            fmpq_mul(entry, entry, tmp);
+        } else {
+            fmpq_zero(fmpq_mat_entry(moments, 0, i));
+        }
+    }
+
+    fmpq_clear(tmp);
+    fmpq_clear(entry);
+    return;
+}
+
+
+void transcendental_factor_hermite_pro(arb_t t, const long prec) {
+    /* Transcendental factor of the Hermite moments:
+     *
+     * T = \sqrt{2 \pi}
+     */
+    arb_const_pi(t, prec);
+    arb_mul_ui(t, t, 2, prec);
+    arb_sqrt(t, t, prec);
+}
+
+
 void hermite_polynomial_phy(fmpq_poly_t Hn, const int n) {
     /* Compute the n-th Hermite polynomial by a
      * three term recursion:
@@ -162,37 +238,6 @@ void hermite_polynomial_phy(fmpq_poly_t Hn, const int n) {
 }
 
 
-void integrate_hermite_pro(fmpq_t I, const int n) {
-    /* Integrate
-     *
-     * I = \int_{-\infty}^\infty \exp(-x^2/2) x^n dx
-     *
-     * n even:  I = \sqrt{2} 2^{\frac{n}{2}} \Gamma{\frac{n+1}{2}}
-     * n odd:   I = 0
-     *
-     * 1  0  1  0  3  0  15  0  105  0  945  0  10395  0  135135
-     * We omit a factor of \sqrt{2\pi}
-     */
-    int i;
-    fmpz_t tmp;
-
-    fmpz_init(tmp);
-
-    if(n % 2 == 1) {
-        fmpq_zero(I);
-    } else {
-        fmpq_one(I);
-        for(i = 1; i <= n/2; i++) {
-            fmpz_set_ui(tmp, 2*i - 1);
-            fmpq_mul_fmpz(I, I, tmp);
-        }
-    }
-
-    fmpz_clear(tmp);
-    return;
-}
-
-
 void integrate_hermite_phy(fmpq_t I, const int n) {
     /* Integrate
      *
@@ -221,39 +266,6 @@ void integrate_hermite_phy(fmpq_t I, const int n) {
     }
 
     fmpz_clear(tmp);
-    return;
-}
-
-
-void moments_hermite_pro(fmpq_mat_t moments, const int n) {
-    /* Compute the n first moments M_i of the Hermite polynomial.
-     *
-     * i even:  M_i = \sqrt{2} 2^{\frac{i}{2}} \Gamma{\frac{i+1}{2}}
-     * i odd:   M_i = 0
-     *
-     * 1  0  1  0  3  0  15  0  105  0  945  0  10395  0  135135
-     * We omit a factor of \sqrt{2\pi}
-     */
-    int i;
-    fmpq_t tmp, entry;
-
-    fmpq_mat_init(moments, 1, n);
-    fmpq_init(tmp);
-    fmpq_init(entry);
-    fmpq_one(entry);
-
-    for(i = 0; i < n; i++) {
-        if(i % 2 == 0) {
-            fmpq_set(fmpq_mat_entry(moments, 0, i), entry);
-            fmpq_set_si(tmp, i + 1, 1);
-            fmpq_mul(entry, entry, tmp);
-        } else {
-            fmpq_zero(fmpq_mat_entry(moments, 0, i));
-        }
-    }
-
-    fmpq_clear(tmp);
-    fmpq_clear(entry);
     return;
 }
 
@@ -292,17 +304,6 @@ void moments_hermite_phy(fmpq_mat_t moments, const int n) {
     fmpz_clear(tmp);
     fmpq_clear(entry);
     return;
-}
-
-
-void transcendental_factor_hermite_pro(arb_t t, const long prec) {
-    /* Transcendental factor of the Hermite moments:
-     *
-     * T = \sqrt{2 \pi}
-     */
-    arb_const_pi(t, prec);
-    arb_mul_ui(t, t, 2, prec);
-    arb_sqrt(t, t, prec);
 }
 
 

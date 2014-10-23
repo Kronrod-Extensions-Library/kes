@@ -80,10 +80,13 @@ int main(int argc, char* argv[]) {
     // This makes K=3 equal to the Gauss Rule of 3 points.
     K--;
 
-    /* Rule definition */
+    /* Default rule definition */
     if(levels.size() == 0) {
 #ifdef LEGENDRE
         levels = {1, 2, 4, 8, 16, 32};//, 64};
+#endif
+#ifdef HERMITEPRO
+        levels = {1, 2, 6, 10, 16};//, 68};
 #endif
 #ifdef HERMITE
         levels = {1, 2, 6, 10, 16};//, 68};
