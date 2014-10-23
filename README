@@ -15,11 +15,12 @@ and 'make enumtest'.
 The polynomial type can be specified as argument to make
 via 'POLY=P' where 'P' is one of:
 
-* 'LEGENDRE'
-* 'LAGUERRE'
-* 'HERMITE'
-* 'CHEBYSHEVT'
-* 'CHEBYSHEVU'
+* 'LEGENDRE'      Legendre Polynomials
+* 'LAGUERRE'      Laguerre Polynomials
+* 'HERMITE'       physicists' Hermite polynomials
+* 'HERMITEPRO'    probabilists' Hermite polynomials
+* 'CHEBYSHEVT'    polynomials of the first kind
+* 'CHEBYSHEVU'    polynomials of the second kind
 
 All code can be compiled to produce minimal output by
 setting 'PRINTLOG=0'. For detailed help, run the programs
