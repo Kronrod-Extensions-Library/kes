@@ -100,6 +100,7 @@ void hermite_polynomial_pro(fmpq_poly_t Hn, const int n) {
         fmpq_poly_clear(T1);
     }
 
+    fmpq_poly_clear(x);
     fmpq_poly_clear(H0);
     fmpq_poly_clear(H1);
 
@@ -151,7 +152,6 @@ void moments_hermite_pro(fmpq_mat_t moments, const int n) {
     int i;
     fmpq_t tmp, entry;
 
-    fmpq_mat_init(moments, 1, n);
     fmpq_init(tmp);
     fmpq_init(entry);
     fmpq_one(entry);
@@ -204,10 +204,10 @@ void hermite_polynomial_phy(fmpq_poly_t Hn, const int n) {
     fmpq_poly_init(x);
 
     /* This is 2x */
-    fmpq_poly_set_str(x, "2  0 2");
+    fmpq_poly_set_str(x, "2 0 2");
     fmpq_poly_canonicalise(x);
 
-    fmpq_poly_set_str(H0, "1  1");
+    fmpq_poly_set_str(H0, "1 1");
     fmpq_poly_canonicalise(H0);
 
     fmpq_poly_set(H1, x);
@@ -230,6 +230,7 @@ void hermite_polynomial_phy(fmpq_poly_t Hn, const int n) {
         fmpq_poly_clear(T1);
     }
 
+    fmpq_poly_clear(x);
     fmpq_poly_clear(H0);
     fmpq_poly_clear(H1);
 
@@ -283,7 +284,6 @@ void moments_hermite_phy(fmpq_mat_t moments, const int n) {
     fmpz_t tmp;
     fmpq_t entry;
 
-    fmpq_mat_init(moments, 1, n);
     fmpz_init(tmp);
     fmpq_init(entry);
 
@@ -368,6 +368,7 @@ void laguerre_polynomial(fmpq_poly_t Ln, const int n) {
         fmpq_poly_clear(T1);
     }
 
+    fmpq_poly_clear(x);
     fmpq_poly_clear(L0);
     fmpq_poly_clear(L1);
 
@@ -409,7 +410,6 @@ void moments_laguerre(fmpq_mat_t moments, const int n) {
     int i;
     fmpq_t entry;
 
-    fmpq_mat_init(moments, 1, n);
     fmpq_init(entry);
 
     fmpq_one(fmpq_mat_entry(moments, 0, 0));
@@ -485,6 +485,7 @@ void legendre_polynomial(fmpq_poly_t Pn, const int n) {
         fmpq_poly_clear(T1);
     }
 
+    fmpq_poly_clear(x);
     fmpq_poly_clear(P0);
     fmpq_poly_clear(P1);
 
@@ -514,6 +515,7 @@ void integrate_legendre(fmpq_t I, const int n) {
         fmpq_set_si(t, 2, n+1);
         fmpq_mul(I, I, t);
     }
+
     fmpq_clear(t);
     return;
 }
@@ -530,7 +532,6 @@ void moments_legendre(fmpq_mat_t moments, const int n) {
     int i;
     fmpq_t entry;
 
-    fmpq_mat_init(moments, 1, n);
     fmpq_init(entry);
     fmpq_one(entry);
 
@@ -599,6 +600,7 @@ void chebyshevt_polynomial(fmpq_poly_t Tn, const int n) {
         }
     }
 
+    fmpq_poly_clear(x);
     fmpq_poly_clear(T0);
     fmpq_poly_clear(T1);
 
@@ -656,7 +658,6 @@ void moments_chebyshevt(fmpq_mat_t moments, const int n) {
     fmpz_t tmp;
     fmpq_t entry;
 
-    fmpq_mat_init(moments, 1, n);
     fmpz_init(tmp);
     fmpq_init(entry);
     fmpq_one(entry);
@@ -736,6 +737,7 @@ void chebyshevu_polynomial(fmpq_poly_t Un, const int n) {
         }
     }
 
+    fmpq_poly_clear(x);
     fmpq_poly_clear(U0);
     fmpq_poly_clear(U1);
 
@@ -793,7 +795,6 @@ void moments_chebyshevu(fmpq_mat_t moments, const int n) {
     fmpz_t tmp;
     fmpq_t entry;
 
-    fmpq_mat_init(moments, 1, n);
     fmpz_init(tmp);
     fmpq_init(entry);
     fmpq_one(entry);

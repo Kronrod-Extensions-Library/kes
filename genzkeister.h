@@ -128,6 +128,7 @@ compute_moments(const int N) {
      * N: The number of moments to be computed
      */
     fmpq_mat_t M;
+    fmpq_mat_init(M, 1, N);
     moments(M, N);
     return *M;
 }
