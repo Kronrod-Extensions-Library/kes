@@ -91,7 +91,6 @@ generators_t compute_generators(const std::vector<int> levels,
     acb_ptr generators = _acb_vec_init(deg);
     compute_nodes(generators, Pn, prec, 0);
     maxminsort(G, generators, deg);
-    //_acb_vec_clear(generators, deg);
 
     for(unsigned int i = 1; i < levels.size(); i++) {
         bool solvable = find_extension(Ep, Pn, levels[i], 0);
@@ -244,6 +243,10 @@ compute_weightfactors(const generators_t& generators,
         }
     }
 
+    arb_clear(t);
+    arb_clear(u);
+    arb_clear(c);
+
     return *weight_factors;
 }
 
@@ -377,7 +380,6 @@ compute_weights(const partition_t<D> P,
     weights.push_back(*W);
 
     arb_clear(w);
-    //arb_clear(W);
 
     return weights;
 }
@@ -406,14 +408,12 @@ genz_keister_construction(const int K,
     // Iterate over all relevant integer partitions
     partitions_t<D> partitions = Partitions<D>(K);
     for(auto it=partitions.begin(); it != partitions.end(); it++) {
-        //
         partition_t<D> P = *it;
         int s = 0;
         for(int d=0; d < D; d++) {
             s += P[d];
             s += Z[P[d]];
         }
-        //
         if(s <= K) {
             // Compute nodes and weights for given partition
             nodes_t<D> p = compute_nodes<D>(P, generators, working_prec);
