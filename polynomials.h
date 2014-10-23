@@ -73,10 +73,10 @@ void hermite_polynomial_pro(fmpq_poly_t Hn, const int n) {
     fmpq_poly_init(H1);
     fmpq_poly_init(x);
 
-    fmpq_poly_set_str(x, "2  0 1");
+    fmpq_poly_set_coeff_ui(x, 1, 1);
     fmpq_poly_canonicalise(x);
 
-    fmpq_poly_set_str(H0, "1  1");
+    fmpq_poly_one(H0);
     fmpq_poly_canonicalise(H0);
 
     fmpq_poly_set(H1, x);
@@ -188,7 +188,7 @@ void hermite_polynomial_phy(fmpq_poly_t Hn, const int n) {
      * three term recursion:
      *
      * H_0(x) = 1
-     * H_1(x) = x
+     * H_1(x) = 2x
      *
      * H_{n+1}(x) = 2 x H_n(x) - 2 n H_{n-1}(x)
      *
@@ -204,10 +204,10 @@ void hermite_polynomial_phy(fmpq_poly_t Hn, const int n) {
     fmpq_poly_init(x);
 
     /* This is 2x */
-    fmpq_poly_set_str(x, "2 0 2");
+    fmpq_poly_set_coeff_ui(x, 1, 2);
     fmpq_poly_canonicalise(x);
 
-    fmpq_poly_set_str(H0, "1 1");
+    fmpq_poly_one(H0);
     fmpq_poly_canonicalise(H0);
 
     fmpq_poly_set(H1, x);
@@ -337,7 +337,9 @@ void laguerre_polynomial(fmpq_poly_t Ln, const int n) {
     fmpq_poly_init(L1);
     fmpq_poly_init(x);
 
-    fmpq_poly_set_str(x, "2  1 -1");
+    /* This is 1 - x */
+    fmpq_poly_set_coeff_si(x, 0, -1);
+    fmpq_poly_set_coeff_ui(x, 1, 1);
     fmpq_poly_canonicalise(x);
 
     fmpq_poly_one(L0);
@@ -455,7 +457,7 @@ void legendre_polynomial(fmpq_poly_t Pn, const int n) {
     fmpq_poly_init(P1);
     fmpq_poly_init(x);
 
-    fmpq_poly_set_str(x, "2  0 1");
+    fmpq_poly_set_coeff_ui(x, 1, 1);
     fmpq_poly_canonicalise(x);
 
     fmpq_poly_one(P0);
@@ -713,7 +715,7 @@ void chebyshevu_polynomial(fmpq_poly_t Un, const int n) {
     fmpq_poly_init(U1);
     fmpq_poly_init(x);
 
-    fmpq_poly_set_str(x, "2  0 1");
+    fmpq_poly_set_coeff_ui(x, 1, 1);
     fmpq_poly_canonicalise(x);
 
     fmpq_poly_one(U0);
