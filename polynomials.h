@@ -337,9 +337,9 @@ void laguerre_polynomial(fmpq_poly_t Ln, const int n) {
     fmpq_poly_init(L1);
     fmpq_poly_init(x);
 
-    /* This is 1 - x */
-    fmpq_poly_set_coeff_si(x, 0, -1);
-    fmpq_poly_set_coeff_ui(x, 1, 1);
+    /* This is -x + 1 */
+    fmpq_poly_set_coeff_ui(x, 0, 1);
+    fmpq_poly_set_coeff_si(x, 1, -1);
     fmpq_poly_canonicalise(x);
 
     fmpq_poly_one(L0);
