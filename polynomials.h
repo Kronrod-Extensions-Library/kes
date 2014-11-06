@@ -244,7 +244,7 @@ void integrate_hermite_phy(fmpq_t I, const int n) {
      *
      * I = \int_{-\infty}^{\infty} \exp(-x^2) x^n dx
      *
-     * n even:  I = 2^{\frac{n+1}{2}} \Gamma{\frac{n+1}{2}}
+     * n even:  I = \Gamma{\frac{n+1}{2}}
      * n odd:   I = 0
      *
      * 1  0  1/2  0  3/4  0  15/8  0  105/16  0  945/32  0  10395/64  0  135135/128
