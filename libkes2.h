@@ -248,7 +248,6 @@ void recursive_enumerate(const fmpq_poly_t Pn,
     n = fmpq_poly_degree(Pn);
 
     /* Loop over possible (non-recursive) extensions */
-    /* TODO: Take p=n or ...? */
     for(p = 1; p <= maxp; p++) {
 
         solvable = find_extension(En, Pn, p, loglevel);
@@ -266,13 +265,14 @@ void recursive_enumerate(const fmpq_poly_t Pn,
             ps(1, loglevel, rec);
             logit(1, loglevel, "Found valid extension for n: %ld and p: %i (on layer %i)\n", n, p, rec);
 
-            printf("RULE: %i  ", rec+2);
             fmpz_set_ui(fmpz_mat_entry(table, rec+1, 0), p);
+
+            printf("RULE: %i  ", rec+1);
             fmpz_mat_print(table);
             printf("\n");
 
             /* Follow the recursion down */
-            if(rec <= maxrec) {
+            if(rec+1 < maxrec) {
                 ps(1, loglevel, rec);
                 logit(1, loglevel, "==> Going down, new layer: %i\n", rec+1);
                 fmpq_poly_mul(Pnp1, Pn, En);

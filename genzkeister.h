@@ -218,18 +218,24 @@ compute_weightfactors(const generators_t& generators,
      */
     int number_generators = generators.size();
 
+    int theta;
     arb_t c, t, u;
-    arb_init(t);
-    arb_init(u);
-    arb_init(c);
 
     arb_mat_t weight_factors;
     arb_mat_init(weight_factors, number_generators, number_generators);
     arb_mat_zero(weight_factors);
 
+#pragma omp parallel for                                        \
+    private(c,u,t,theta),                                       \
+    shared(weight_factors),                                     \
+    schedule(dynamic)
     for(int xi=0; xi < number_generators; xi++) {
+        arb_init(c);
+        arb_init(t);
+        arb_init(u);
+
         arb_one(c);
-        for(int theta=0; theta < number_generators; theta++) {
+        for(theta=0; theta < number_generators; theta++) {
             if(theta != xi) {
                 arb_pow_ui(t, &generators[theta], 2, working_prec);
                 arb_pow_ui(u, &generators[xi], 2, working_prec);
@@ -241,11 +247,10 @@ compute_weightfactors(const generators_t& generators,
                 arb_set(arb_mat_entry(weight_factors, xi, theta), t);
             }
         }
+        arb_clear(c);
+        arb_clear(t);
+        arb_clear(u);
     }
-
-    arb_clear(t);
-    arb_clear(u);
-    arb_clear(c);
 
     return *weight_factors;
 }

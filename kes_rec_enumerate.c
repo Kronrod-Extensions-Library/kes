@@ -62,11 +62,11 @@ int main(int argc, char* argv[]) {
     polynomial(Pn, n);
 
     /* Start the recursive search for E_i */
-    fmpz_mat_init(table, maxrec+3, 1);
+    fmpz_mat_init(table, maxrec+1, 1);
     fmpz_mat_zero(table);
     fmpz_set_ui(fmpz_mat_entry(table, 0, 0), n);
 
-    printf("RULE: %i  ", 1);
+    printf("RULE: %i  ", 0);
     fmpz_mat_print(table);
     printf("\n");
 
