@@ -46,6 +46,31 @@ degrees. Output contains the defining polynomials and
 optionally the nodes and weights for for each quadrature
 extension.
 
+Example:
+
+1. Compute the nodes and weights for a K=(1,2,4,8,16)
+   Kronrod extension:
+   ./kes -cn -cw 1 2 4 8 16 > rule.txt
+
+2. Plot nodes and weights of this rule:
+   python plot_weights.py rule.txt
+
+
+Map existence of single extensions
+----------------------------------
+
+The program 'ekes' computes single higher-order
+Kronrod-Patterson extensions for a given polynomial
+type and arbitrary values of order n and extension
+degree p.
+
+1. Call 'ekes' like:
+   ./ekes n p > map.txt
+   for specific values of n and p.
+
+2. Plot the map:
+   python plot_map.py map.txt
+
 
 Exhaustive search for Kronrod Extensions
 ----------------------------------------
