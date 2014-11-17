@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
     fmpz_mat_print(table);
     printf("\n");
 
-    recursive_enumerate(Pn, n, maxp, 0, maxrec, table, validate_weights, loglevel);
+    recursive_enumerate(Pn, maxp, 0, maxrec, table, validate_weights, loglevel);
 
     fmpq_poly_clear(Pn);
 
