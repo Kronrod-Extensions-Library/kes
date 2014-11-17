@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
     fmpz_set_ui(fmpz_mat_entry(table, 0, 0), n);
 
     printf("RULE: %i  ", 0);
-    fmpz_mat_print(table);
+    fmpz_print(fmpz_mat_entry(table, 0, 0));
     printf("\n");
 
     recursive_enumerate(Pn, maxp, 0, maxrec, table, validate_weights, loglevel);

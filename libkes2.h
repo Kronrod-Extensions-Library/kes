@@ -238,6 +238,7 @@ void recursive_enumerate(const fmpq_poly_t Pn,
     int solvable, valid;
     long nrroots, nrweights;
     fmpq_poly_t Pnp1, En;
+    int j;
 
     ps(1, loglevel, rec);
     logit(1, loglevel, "Trying to find extension of (on layer %i):\n", rec);
@@ -268,7 +269,10 @@ void recursive_enumerate(const fmpq_poly_t Pn,
             fmpz_set_ui(fmpz_mat_entry(table, rec+1, 0), p);
 
             printf("RULE: %i  ", rec+1);
-            fmpz_mat_print(table);
+            for(j = 0; j <= rec+1; j++) {
+                fmpz_print(fmpz_mat_entry(table, j, 0));
+                printf(" ");
+            }
             printf("\n");
 
             /* Follow the recursion down */
