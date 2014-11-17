@@ -24,17 +24,13 @@ with open(f, "r") as F:
         if line.startswith("RULE:"):
             print(line[:-1])
             L = line.split()
-            data = L[4:(4+int(L[1]))]
+            data = L[2:(4+int(L[1]))]
             t = ruletree
             for digit in data:
                 if t.has_key(digit):
                     t = t[digit]
                 else:
                     t[digit] = {}
-
-# Color rules not found with old code
-even = lambda x: int(x) % 2 == 0
-fc = lambda l: {True:"black", False:"red"}[all(map(even, l))]
 
 def print_rule(rule, rd):
     for k, v in rd.iteritems():
@@ -44,7 +40,7 @@ def print_rule(rule, rd):
             ruleoldstr = "\"\""
         rule.append(k)
         rulenewstr = "\"Q[" + reduce(lambda x,y: str(x)+","+str(y), rule) + "]\""
-        graph.write(rulenewstr + " [shape=box,color="+fc(rule[1:])+"];\n")
+        graph.write(rulenewstr + " [shape=box];\n")
         graph.write(ruleoldstr + " -> " + rulenewstr + ";\n")
         if v:
             print_rule(rule, v)

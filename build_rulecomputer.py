@@ -1,6 +1,6 @@
 import sys
 
-ruletype = "lag"
+ruletype = "hermite"
 
 if len(sys.argv) == 2:
     f = sys.argv[1]

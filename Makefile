@@ -4,7 +4,6 @@ MPFR_LIB_DIR=/userdata/raoulb/lib/lib
 MPFR_INCLUDE_DIR=/userdata/raoulb/lib/include
 FLINT_LIB_DIR=/userdata/raoulb/lib/lib
 FLINT_INCLUDE_DIR=/userdata/raoulb/lib/include/flint
-#FLINT_CPIMPORT=\"/userdata/raoulb/lib/share/flint/CPimport.txt\"
 ARB_LIB_DIR=/userdata/raoulb/lib/lib
 ARB_INCLUDE_DIR=/userdata/raoulb/lib/include
 
