@@ -6,8 +6,8 @@
  *  Kronrod extensions of Gauss quadrature rules.
  */
 
-#ifndef __HH__libkes2
-#define __HH__libkes2
+#ifndef __HH__libkes
+#define __HH__libkes
 
 #include <stdarg.h>
 

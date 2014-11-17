@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "libkes2.h"
+#include "libkes.h"
 
 
 int main(int argc, char* argv[]) {

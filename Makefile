@@ -30,22 +30,22 @@ LIB=-L$(CURDIR) -L$(ARB_LIB_DIR) -L$(FLINT_LIB_DIR) -L$(GMP_LIB_DIR) -L$(MPFR_LI
 all: kes ekes rekes quadrature genzkeister test enumtest
 
 quadrature: quadrature.c *.h
-	$(CC) $(CFLAGS) $(CFG) $(INC) libkes2.h quadrature.c $(LIB) -o quadrature
+	$(CC) $(CFLAGS) $(CFG) $(INC) libkes.h quadrature.c $(LIB) -o quadrature
 
 kes: kes.c *.h
-	$(CC) $(CFLAGS) $(CFG) $(INC) libkes2.h kes.c $(LIB) -o kes
+	$(CC) $(CFLAGS) $(CFG) $(INC) libkes.h kes.c $(LIB) -o kes
 
 ekes: kes_enumerate.c *.h
-	$(CC) $(CFLAGS) $(CFG) $(INC) libkes2.h kes_enumerate.c $(LIB) -o ekes
+	$(CC) $(CFLAGS) $(CFG) $(INC) libkes.h kes_enumerate.c $(LIB) -o ekes
 
 rekes: kes_rec_enumerate.c *.h
-	$(CC) $(CFLAGS) $(CFG) $(INC) libkes2.h kes_rec_enumerate.c $(LIB) -o rekes
+	$(CC) $(CFLAGS) $(CFG) $(INC) libkes.h kes_rec_enumerate.c $(LIB) -o rekes
 
 genzkeister: genzkeister.cpp *.h
 	$(CPP) $(CPPFLAGS) $(CFG) $(INC) genzkeister.h genzkeister.cpp $(LIB) -o genzkeister
 
 test: test.c *.h
-	$(CC) $(CFLAGS) $(INC) libkes2.h test.c $(LIB) -o test
+	$(CC) $(CFLAGS) $(INC) libkes.h test.c $(LIB) -o test
 
 enumtest: enumtest.cpp enumerators.h
 	$(CPP) $(CPPFLAGS) $(CFG) $(INC) enumerators.h enumtest.cpp $(LIB) -o enumtest
