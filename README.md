@@ -106,3 +106,13 @@ all symmetric quadratures (Legendre, Chebyshev, Hermite). The
 number of dimensions is a compile-time argument given to 'make'
 by the 'DIMENSION=D'. The default is 'POLY=HERMITE' polynomials
 in 'DIMENSION=1' dimensions.
+
+
+Scientific Work
+---------------
+
+The research report "Exhaustive search for higher-order Kronrod-Patterson
+Extensions" [1] describes the mathematical theory and implementation details
+that stand behind this code.
+
+[1]: http://www.sam.math.ethz.ch/sam_reports/index.php?id=2015-11
