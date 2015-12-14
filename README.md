@@ -116,3 +116,25 @@ Extensions" [1] describes the mathematical theory and implementation details
 that stand behind this code.
 
 [1]: http://www.sam.math.ethz.ch/sam_reports/index.php?id=2015-11
+
+
+License
+-------
+
+This project is covered by the GNU Public License, version 2 or above.
+
+
+Citation
+--------
+
+This repository contains source code for published scientific work.
+The usual citation requirements apply. For citation of this project
+please use the following bibtex snippet:
+
+    @misc{kes,
+        author = {R. Bourquin and V. Gradinaru},
+        title = {Exhaustive search for higher-order Kronrod-Patterson Extensions},
+        year = {2014, 2015},
+        url = {\url{https://github.com/raoulbq/kes}},
+        howpublished = {\url{https://github.com/raoulbq/kes}}
+    }
