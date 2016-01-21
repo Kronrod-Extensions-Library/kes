@@ -132,7 +132,7 @@ The usual citation requirements apply. For citation of this project
 please use the following bibtex snippet:
 
     @misc{kes,
-        author = {R. Bourquin and V. Gradinaru},
+        author = {R. Bourquin},
         title = {Exhaustive search for higher-order Kronrod-Patterson Extensions},
         year = {2014, 2015},
         url = {\url{https://github.com/raoulbq/kes}},
