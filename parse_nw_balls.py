@@ -1,13 +1,13 @@
 import sys
 import os
 import re
-from numpy import array, savez
+from numpy import array, savez, savetxt, real, imag
 
 if len(sys.argv) == 2:
     f = sys.argv[1]
-    print("Reading values from file: "+f)
+    print("Reading values from file: {}".format(f))
 else:
-    raise ValueError("No file given!")
+    raise IOError("No file given!")
 
 rblock = False
 wblock = False
@@ -35,11 +35,11 @@ with open(f, "r") as F:
             wblock = False
             continue
         elif rblock:
-            N = map(float, re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line))
-            roots.append(N[0] + 1.0j*N[1])
+            N = list(map(float, re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line)))
+            roots.append(N[0] + 1.0j * N[1])
         elif wblock:
-            N = map(float, re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line))
-            weights.append(N[0] + 1.0j*N[1])
+            N = list(map(float, re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line)))
+            weights.append(N[0] + 1.0j * N[1])
 
 if not allroots or not allweights:
     raise ValueError("No suitable data found!")
@@ -47,12 +47,16 @@ if not allroots or not allweights:
 allroots = map(array, allroots)
 allweights = map(array, allweights)
 
-b = os.path.basename(f).rsplit(".",1)[0]
+b = os.path.basename(f).rsplit(".", 1)[0]
 
 for i, r in enumerate(allroots):
-    with open(b+"_nodes_"+str(i)+".dat", "w") as f:
+    with open(b + "_nodes_" + str(i) + ".dat", "w") as f:
         savez(f, r)
 
 for i, w in enumerate(allweights):
-    with open(b+"_weights_"+str(i)+".dat", "w") as f:
+    with open(b + "_weights_" + str(i) + ".dat", "w") as f:
         savez(f, w)
+
+for i, (r, w) in enumerate(zip(allroots, allweights)):
+    with open(b + "_qr_" + str(i) + ".csv", "w") as f:
+        savetxt(f, array([real(r), imag(r), real(w), imag(w)]), delimiter=",")
