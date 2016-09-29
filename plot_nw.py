@@ -1,12 +1,12 @@
 import sys
 import re
 from numpy import array, real, imag
-from matplotlib.pyplot import *
+from matplotlib.pyplot import figure, plot, semilogy, grid, xlim, ylim, xlabel, ylabel, savefig
 
 
 if len(sys.argv) == 2:
     f = sys.argv[1]
-    print("Reading values from file: "+f)
+    print("Reading values from file: {}".format(f))
 else:
     raise ValueError("No file given!")
 
@@ -39,10 +39,10 @@ with open(f, "r") as F:
             continue
         elif rblock:
             N = map(float, re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line))
-            roots.append(N[0] + 1.0j*N[1])
+            roots.append(N[0] + 1.0j * N[1])
         elif wblock:
             N = map(float, re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line))
-            weights.append(N[0] + 1.0j*N[1])
+            weights.append(N[0] + 1.0j * N[1])
 
 if not allroots or not allweights:
     raise ValueError("No suitable data found!")
@@ -55,39 +55,29 @@ allweights = map(array, allweights)
 fig = figure()
 for roots in allroots:
     plot(real(roots), imag(roots), "o")
-    xlim(min(real(roots).min()-1, -1), max(real(roots).max()+1, 1))
+    xlim(min(real(roots).min() - 1, -1), max(real(roots).max() + 1, 1))
     ylim(min(imag(roots).min(), -1), max(imag(roots).max(), 1))
 grid(True)
 xlabel(r"$\Re \gamma_i$")
 ylabel(r"$\Im \gamma_i$")
-savefig(f[:-4]+"_nodes_weights_cp_" + L + ".png")
+savefig(f[:-4] + "_nodes_weights_cp_" + L + ".svg")
 
 
 fig = figure()
 for roots, weights in zip(allroots, allweights):
     plot(real(roots), real(weights), "o")
-    xlim(min(real(roots).min()-1, -1), max(real(roots).max()+1, 1))
+    xlim(min(real(roots).min() - 1, -1), max(real(roots).max() + 1, 1))
 grid(True)
 xlabel(r"$\gamma_i$")
 ylabel(r"$\omega_i$")
-savefig(f[:-4]+"_nodes_weights_" + L + ".png")
+savefig(f[:-4] + "_nodes_weights_" + L + ".svg")
 
 
 fig = figure()
 for roots, weights in zip(allroots, allweights):
     semilogy(real(roots), abs(real(weights)), "o")
-    xlim(min(real(roots).min()-1, -1), max(real(roots).max()+1, 1))
+    xlim(min(real(roots).min() - 1, -1), max(real(roots).max() + 1, 1))
 grid(True)
 xlabel(r"$\gamma_i$")
 ylabel(r"$\omega_i$")
-savefig(f[:-4]+"_nodes_weights_log_" + L + ".png")
-
-
-# fig = figure()
-# for roots, weights in zip(allroots, allweights):
-#     loglog(real(roots), real(weights), "o")
-#     xlim(min(real(roots).min()-1, -1), max(real(roots).max()+1, 1))
-# grid(True)
-# xlabel(r"$\gamma_i$")
-# ylabel(r"$\omega_i$")
-# savefig(f[:-4]+"_nodes_weights_loglog_" + L + ".png")
+savefig(f[:-4] + "_nodes_weights_log_" + L + ".svg")
