@@ -38,11 +38,11 @@ with open(f, "r") as F:
             wblock = False
             continue
         elif rblock:
-            N = map(float, re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line))
+            N = [float(s.replace(' ', '')) for s in re.findall("[-+]?[ ]?\d+\.?\d*[Ee]?[+-]?\d*", line)]
             roots.append(N[0] + 1.0j * N[1])
         elif wblock:
-            N = map(float, re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line))
-            weights.append(N[0] + 1.0j * N[1])
+            W = [float(s.replace(' ', '')) for s in re.findall("[-+]?[ ]?\d+\.?\d*[Ee]?[+-]?\d*", line)]
+            weights.append(W[0] + 1.0j * W[1])
 
 if not allroots or not allweights:
     raise ValueError("No suitable data found!")
