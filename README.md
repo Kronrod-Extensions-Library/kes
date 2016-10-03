@@ -134,7 +134,6 @@ please use the following bibtex snippet:
     @misc{kes,
         author = {R. Bourquin},
         title = {Exhaustive search for higher-order Kronrod-Patterson Extensions},
-        year = {2014, 2015},
-        url = {\url{https://github.com/raoulbq/kes}},
-        howpublished = {\url{https://github.com/raoulbq/kes}}
+        year = {2014, 2015, 2016},
+        url = {https://github.com/raoulbq/kes}
     }
