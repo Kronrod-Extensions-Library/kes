@@ -12,9 +12,12 @@ ARB_LIB_DIR = /usr/lib/
 ARB_INCLUDE_DIR = /usr/include/
 
 
+# Choose polynomial type, dimensionality and output verbosity
 POLY ?= HERMITE
 DIMENSION ?= 1
 PRINTLOG ?= 1
+
+
 CFG= -D${POLY} -DDIMENSION=${DIMENSION} -DPRINTLOG=${PRINTLOG}
 
 
