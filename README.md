@@ -122,6 +122,6 @@ This repository contains source code for published scientific work. The usual ci
     @misc{kes,
         author = {R. Bourquin},
         title = {Exhaustive search for higher-order Kronrod-Patterson Extensions},
-        year = {2014, 2015, 2016},
-        url = {https://github.com/raoulbq/kes}
+        year = {2014, 2015, 2016, 2017},
+        url = {https://github.com/Kronrod-Extensions-Library/kes}
     }
