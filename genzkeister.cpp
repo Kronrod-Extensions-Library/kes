@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
 
         if(K >= G.size()) {
             std::cout << "***********************************\n";
-            std::cout << "*** not enough generators found ***\n";
+            std::cout << "*** NOT ENOUGH GENERATORS FOUND ***\n";
             std::cout << "***********************************\n";
             break;
         }
