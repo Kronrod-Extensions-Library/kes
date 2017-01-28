@@ -1,5 +1,5 @@
-Kronrod Extension Search
-========================
+Kronrod Extensions Search
+=========================
 
 The Makefile can generate 5 useful programs:
 
