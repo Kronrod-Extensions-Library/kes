@@ -1,11 +1,15 @@
-GMP_LIB_DIR=/userdata/raoulb/lib/lib
-GMP_INCLUDE_DIR=/userdata/raoulb/lib/include
-MPFR_LIB_DIR=/userdata/raoulb/lib/lib
-MPFR_INCLUDE_DIR=/userdata/raoulb/lib/include
-FLINT_LIB_DIR=/userdata/raoulb/lib/lib
-FLINT_INCLUDE_DIR=/userdata/raoulb/lib/include/flint
-ARB_LIB_DIR=/userdata/raoulb/lib/lib
-ARB_INCLUDE_DIR=/userdata/raoulb/lib/include
+# You can overwrite all settings in a file called 'config.mk' in the same directory as this 'Makefile'.
+GMP_LIB_DIR = /usr/lib/
+GMP_INCLUDE_DIR = /usr/include/
+
+MPFR_LIB_DIR = /usr/lib/
+MPFR_INCLUDE_DIR = /usr/include/
+
+FLINT_LIB_DIR = /usr/lib/
+FLINT_INCLUDE_DIR = /usr/include/
+
+ARB_LIB_DIR = /usr/lib/
+ARB_INCLUDE_DIR = /usr/include/
 
 
 POLY ?= HERMITE
