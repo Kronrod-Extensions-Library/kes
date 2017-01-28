@@ -1,9 +1,10 @@
 import sys
+from functools import reduce
 
 
 if len(sys.argv) == 2:
     f = sys.argv[1]
-    print("Reading values from file: "+f)
+    print("Reading values from file: {}".format(f))
 else:
     raise ValueError("No file given!")
 
@@ -13,13 +14,13 @@ with open(f, "r") as F:
     for line in F.readlines():
         if line.startswith("Search for recursive extensions of:"):
             n = line[37:-1]
-            print("n: "+n)
+            print("n: {}".format(n))
         if line.startswith("Maximal allowed extension order p: "):
             p = line[35:-1]
-            print("Max. p: "+p)
+            print("Max. p: {}".format(p))
         if line.startswith("Maximal allowed recursion depth: "):
             rec = line[33:-1]
-            print("Max. depth: "+rec)
+            print("Max. depth: {}".format(rec))
 
         if line.startswith("RULE:"):
             print(line[:-1])
@@ -27,13 +28,13 @@ with open(f, "r") as F:
             data = L[2:(4+int(L[1]))]
             t = ruletree
             for digit in data:
-                if t.has_key(digit):
+                if digit in t:
                     t = t[digit]
                 else:
                     t[digit] = {}
 
 def print_rule(rule, rd):
-    for k, v in rd.iteritems():
+    for k, v in rd.items():
         if rule:
             ruleoldstr = "\"Q[" + reduce(lambda x,y: str(x)+","+str(y), rule) + "]\""
         else:
@@ -46,10 +47,10 @@ def print_rule(rule, rd):
             print_rule(rule, v)
         rule.pop()
 
-gf = "graph_"+n+"_"+p+"_"+rec+".dot"
-print("Writing graph to file: " + gf)
+gf = "graph_{}_{}_{}.dot".format(n, p, rec)
+print("Writing graph to file: {}".format(gf))
 
-with file(gf, "w") as graph:
+with open(gf, "w") as graph:
     graph.write("digraph G {\n")
     graph.write("  rankdir=LR;")
 

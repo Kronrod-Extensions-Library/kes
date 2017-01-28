@@ -58,12 +58,12 @@ allweightserr = map(array, allweightserr)
 b = os.path.basename(f).rsplit(".", 1)[0]
 
 for i, r in enumerate(allroots):
-    with open(b + "_nodes_" + str(i) + ".dat", "w") as f:
-        savez(f, r)
+    filename = b + "_nodes_" + str(i)
+    savez(filename, r)
 
 for i, w in enumerate(allweights):
-    with open(b + "_weights_" + str(i) + ".dat", "w") as f:
-        savez(f, w)
+    filename = b + "_weights_" + str(i)
+    savez(filename, w)
 
 for i, (r, w, rerr, werr) in enumerate(zip(allroots, allweights, allrootserr, allweightserr)):
     with open(b + "_qr_" + str(i) + ".csv", "w") as f:

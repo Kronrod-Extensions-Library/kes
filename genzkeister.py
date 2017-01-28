@@ -4,7 +4,7 @@ from numpy import array, savez
 
 if len(sys.argv) == 2:
     f = sys.argv[1]
-    print("Reading values from file: "+f)
+    print("Reading values from file: {}".format(f))
 else:
     raise ValueError("No file given!")
 
@@ -31,20 +31,20 @@ with open(f, "r") as F:
             continue
         elif rblock:
             parts = line.split(",")
-            parts = map(lambda t: t.strip(), parts)
+            parts = [t.strip() for t in parts]
             parts = [p for p in parts if len(p) > 0]
-            matches = map(lambda t: re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", t), parts)
-            numbers = [map(float, u) for u in matches]
+            matches = [re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", t) for t in parts]
+            numbers = [[float(ui) for ui in u] for u in matches]
             roots.append([n[0]+1j*n[1] for n in numbers])
         elif wblock:
-            N = map(float, re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line))
+            N = [float(c) for c in re.findall("[-+]?\d+\.?\d*[Ee]?[+-]?\d*", line)]
             weights.append(N[0] + 1.0j*N[1])
 
 if not roots or not weights:
     raise ValueError("No suitable data found!")
 
-print("Dimension: %d" % dimension)
-print("Level: %d" % level)
+print("Dimension: {:d}".format(dimension))
+print("Level: {:d}".format(level))
 
 nr = len(roots)
 nw = len(weights)
@@ -52,8 +52,8 @@ roots = array(roots)
 weights = array(weights)
 assert nr == nw
 
-with open("gk_nodes_dimension_%d_level_%d.dat" % (dimension, level), "w") as f:
-    savez(f, roots)
+filename = "gk_nodes_dimension_{:d}_level_{:d}".format(dimension, level)
+savez(filename, roots)
 
-with open("gk_weights_dimension_%d_level_%d.dat" % (dimension, level), "w") as f:
-    savez(f, weights)
+filename = "gk_weights_dimension_{:d}_level_{:d}".format(dimension, level)
+savez(filename, weights)

@@ -48,8 +48,8 @@ if not allroots or not allweights:
     raise ValueError("No suitable data found!")
 
 L = L.replace(" ", "_")
-allroots = map(array, allroots)
-allweights = map(array, allweights)
+allroots = list(map(array, allroots))
+allweights = list(map(array, allweights))
 
 
 fig = figure()

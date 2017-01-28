@@ -1,4 +1,5 @@
 import sys
+import re
 from numpy import array
 from matplotlib.pyplot import figure, imshow, grid, xlabel, ylabel, tight_layout, savefig, cm
 
@@ -23,12 +24,12 @@ with open(f, "r") as F:
             continue
 
         if found:
-            matrix.append(line.translate(None, "[]\n"))
+            matrix.append(re.sub('[[\]\n]', '', line))
 
 if not matrix:
     raise ValueError("No matrix data found!")
 
-M = array([map(int, line.split(" ")) for line in matrix if len(line) > 0])
+M = array([[int(c) for c in line.split(" ")] for line in matrix if len(line) > 0])
 maxn, maxp = M.shape
 
 print("Maximal values are: n={} and p={}".format(maxn, maxp))
