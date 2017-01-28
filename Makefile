@@ -13,7 +13,7 @@ ARB_INCLUDE_DIR = /usr/include/
 
 
 # Choose polynomial type, dimensionality and output verbosity
-POLY ?= HERMITE
+POLY ?= LEGENDRE
 DIMENSION ?= 1
 PRINTLOG ?= 1
 

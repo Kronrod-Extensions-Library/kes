@@ -20,6 +20,8 @@ The polynomial type can be specified as argument to make via `POLY=P` where `P` 
 * `HERMITE`    physicists' Hermite polynomials
 * `HERMITEPRO` probabilists' Hermite polynomials
 
+and the default is `LEGENDRE` if nothing else is provided.
+
 All code can be compiled to produce minimal output by setting `PRINTLOG=0`. For detailed help, run the programs without any arguments.
 
 
@@ -95,7 +97,7 @@ Exhaustive search for Kronrod Extensions
 Genz-Keister Construction
 -------------------------
 
-The program `genzkeister` builds multivariate sparse quadrature rules by applying the Genz-Keister construction. This works for all symmetric quadratures (Legendre, Chebyshev, Hermite). The number of dimensions is a compile-time argument given to `make` by the `DIMENSION=D`. The default is `POLY=HERMITE` polynomials in `DIMENSION=1` dimensions.
+The program `genzkeister` builds multivariate sparse quadrature rules by applying the Genz-Keister construction. This works for all symmetric quadratures (Legendre, Chebyshev, Hermite). The number of dimensions is a compile-time argument given to `make` by the `DIMENSION=D`. The default is `POLY=LEGENDRE` polynomials in `DIMENSION=1` dimensions.
 
 
 Scientific Work
